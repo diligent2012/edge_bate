@@ -22,13 +22,6 @@ mail_pass = 'omni163'
 mail_subject = 'BTC 交易数据统计'
 mail_content = ''
 
-
-
-
-
-
-
-
 def send_mail():
     content = "test" #get_send_content()
     msg = MIMEText(content,'html','utf-8')
@@ -48,6 +41,36 @@ def send_mail():
     except Exception, e:
         print str(e)
         return False
+
+
+def find_record_refer(flag):
+    try:
+        conn= MySQLdb.connect(
+            host='127.0.0.1',
+            port = 3306,
+            user='omni_btc',
+            passwd='!omni123456btcMysql.pro',
+            db ='z_omni_btc',
+        )
+        cur = conn.cursor()
+        crawl_date_refer = (datetime.now() - timedelta(minutes=3)).strftime("%Y-%m-%d %H:%M:%S")
+        cur.execute('set names utf8') #charset set code. it is not nessary now
+        sql = "SELECT * FROM `t_btc_record_refer`  WHERE flag = '%s' and date >= '%s' " % (flag, crawl_date_refer)
+        #sql = "INSERT INTO `ecs_t_marathon` (`name`, `start_run_time`) VALUES ('%s', '%s')" % (name, start_run_time)
+        cur.execute(sql)
+        conn.commit()
+        result = cur.fetchall()
+        if result:
+            return False
+        else:
+            return True
+        
+        cur.close()
+        conn.close()
+    except Exception, e:
+        print e.message
+    return True
+
 
 def crawl_start():
     send_mail()
