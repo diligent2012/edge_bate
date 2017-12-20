@@ -65,6 +65,8 @@ def crawl_enter_list():
                 price = 0
             else:
                 price = info['price'].replace(',','')
+
+            print info['currency'] + price
             insert_data(info['currency'], price, info['bourse'], date, crawl_date) 
 
 
@@ -85,7 +87,6 @@ def insert_data(currency, price, bourse, date, crawl_date):
         cur.execute('set names utf8') #charset set code. it is not nessary now
         sql = "INSERT INTO `t_btc_price` (`currency`, `price`, `bourse`, `date`, `crawl_date`) VALUES ('%s', '%s', '%s', '%s', '%s')" % (currency, price, bourse, date, crawl_date)
         #sql = "INSERT INTO `ecs_t_marathon` (`name`, `start_run_time`) VALUES ('%s', '%s')" % (name, start_run_time)
-        print sql
         cur.execute(sql)
         conn.commit()
         cur.close()
