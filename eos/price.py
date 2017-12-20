@@ -56,7 +56,9 @@ def crawl_enter_list():
                     item_2['price'] = content.find_all('td')[3].text.strip().split(" ")[0]   
                     all_info.append(item_2)
 
-           
+    
+
+        is_insert = False
         price_flag = ""
         for info in all_info:
             date = time.strftime('%Y-%m-%d',time.localtime(time.time()))
@@ -66,13 +68,24 @@ def crawl_enter_list():
                 price = 0
             else:
                 price = info['price'].replace(',','')
-            price_flag = '%s%s' % (str(price), price_flag)
-            print info['currency'] + price
+            price_flag = '%s%s' % (price, price_flag)
             is_crawl = find_price_refer(price_flag, date)
             if(is_crawl):
+                is_insert = True
+
+        if(is_insert):
+            for info in all_info:
+                date = time.strftime('%Y-%m-%d',time.localtime(time.time()))
+                crawl_date = time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time()))
+                price = 0
+                if(info['price'] == 'N/A'):
+                    price = 0
+                else:
+                    price = info['price'].replace(',','')
+                price_flag = '%s%s' % (price, price_flag)
+                print info['currency'] + price
                 insert_data(info['currency'], price, info['bourse'], date, crawl_date) 
-                insert_price_refer(price_flag, date, crawl_date)
-        print price_flag
+            insert_price_refer(price_flag, date, crawl_date)        
 
     except Exception, e:
         print e.message
