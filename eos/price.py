@@ -58,7 +58,6 @@ def crawl_enter_list():
 
     
 
-        is_insert = False
         price_flag = ""
         for info in all_info:
             date = time.strftime('%Y-%m-%d',time.localtime(time.time()))
@@ -69,11 +68,10 @@ def crawl_enter_list():
             else:
                 price = info['price'].replace(',','')
             price_flag = '%s%s' % (price, price_flag)
-            is_crawl = find_price_refer(price_flag, date)
-            if(is_crawl):
-                is_insert = True
+            
+        is_crawl = find_price_refer(price_flag, date)
 
-        if(is_insert):
+        if(is_crawl):
             for info in all_info:
                 date = time.strftime('%Y-%m-%d',time.localtime(time.time()))
                 crawl_date = time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time()))
@@ -82,8 +80,9 @@ def crawl_enter_list():
                     price = 0
                 else:
                     price = info['price'].replace(',','')
+
                 price_flag = '%s%s' % (price, price_flag)
-                print info['currency'] + price
+                print info['currency'], price
                 insert_data(info['currency'], price, info['bourse'], date, crawl_date) 
             insert_price_refer(price_flag, date, crawl_date)        
 
@@ -123,7 +122,7 @@ def insert_price_refer(flag, date, crawl_date):
         )
         cur = conn.cursor()
         cur.execute('set names utf8') #charset set code. it is not nessary now
-        sql = "INSERT INTO `t_btc_price_refer` (`flag`, `date`, `crawl_date`) VALUES ('%s', '%s')" % (flag, date, crawl_date)
+        sql = "INSERT INTO `t_btc_price_refer` (`flag`, `date`, `crawl_date`) VALUES ('%s', '%s', '%s')" % (flag, date, crawl_date)
         #sql = "INSERT INTO `ecs_t_marathon` (`name`, `start_run_time`) VALUES ('%s', '%s')" % (name, start_run_time)
         cur.execute(sql)
         conn.commit()
