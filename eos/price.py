@@ -57,6 +57,7 @@ def crawl_enter_list():
                     all_info.append(item_2)
 
            
+        price_flag = ""
         for info in all_info:
             date = time.strftime('%Y-%m-%d',time.localtime(time.time()))
             crawl_date = time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time()))
@@ -65,10 +66,13 @@ def crawl_enter_list():
                 price = 0
             else:
                 price = info['price'].replace(',','')
-
+            price_flag = '%s%s' % (str(price), price_flag)
             print info['currency'] + price
-            insert_data(info['currency'], price, info['bourse'], date, crawl_date) 
-
+            is_crawl = find_price_refer(price_flag, date)
+            if(is_crawl):
+                insert_data(info['currency'], price, info['bourse'], date, crawl_date) 
+                insert_price_refer(price_flag, date, crawl_date)
+        print price_flag
 
     except Exception, e:
         print e.message
@@ -93,6 +97,54 @@ def insert_data(currency, price, bourse, date, crawl_date):
         conn.close()
     except Exception, e:
         print e.message
+
+
+def insert_price_refer(flag, date, crawl_date):
+    try:
+        conn= MySQLdb.connect(
+            host='127.0.0.1',
+            port = 3306,
+            user='omni_btc',
+            passwd='!omni123456btcMysql.pro',
+            db ='z_omni_btc',
+        )
+        cur = conn.cursor()
+        cur.execute('set names utf8') #charset set code. it is not nessary now
+        sql = "INSERT INTO `t_btc_price_refer` (`flag`, `date`, `crawl_date`) VALUES ('%s', '%s')" % (flag, date, crawl_date)
+        #sql = "INSERT INTO `ecs_t_marathon` (`name`, `start_run_time`) VALUES ('%s', '%s')" % (name, start_run_time)
+        cur.execute(sql)
+        conn.commit()
+        cur.close()
+        conn.close()
+    except Exception, e:
+        print e.message
+
+def find_price_refer(flag, date):
+    try:
+        conn= MySQLdb.connect(
+            host='127.0.0.1',
+            port = 3306,
+            user='omni_btc',
+            passwd='!omni123456btcMysql.pro',
+            db ='z_omni_btc',
+        )
+        cur = conn.cursor()
+        cur.execute('set names utf8') #charset set code. it is not nessary now
+        sql = "SELECT * FROM `t_btc_price_refer`  WHERE flag = '%s' and date = '%s' " % (flag, date)
+        #sql = "INSERT INTO `ecs_t_marathon` (`name`, `start_run_time`) VALUES ('%s', '%s')" % (name, start_run_time)
+        cur.execute(sql)
+        conn.commit()
+        result = cur.fetchall()
+        if result:
+            return False
+        else:
+            return True
+        
+        cur.close()
+        conn.close()
+    except Exception, e:
+        print e.message
+    return True
 
 
 
