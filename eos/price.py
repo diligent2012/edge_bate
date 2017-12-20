@@ -59,22 +59,20 @@ def crawl_enter_list():
     
 
         price_flag = ""
+        date = time.strftime('%Y-%m-%d',time.localtime(time.time()))
+        crawl_date = time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time()))
         for info in all_info:
-            date = time.strftime('%Y-%m-%d',time.localtime(time.time()))
-            crawl_date = time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time()))
             price = 0
             if(info['price'] == 'N/A'):
                 price = 0
             else:
                 price = info['price'].replace(',','')
             price_flag = '%s%s' % (price, price_flag)
-            
-        is_crawl = find_price_refer(price_flag, date)
 
+        is_crawl = find_price_refer(price_flag, date)
+        print is_crawl
         if(is_crawl):
             for info in all_info:
-                date = time.strftime('%Y-%m-%d',time.localtime(time.time()))
-                crawl_date = time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time()))
                 price = 0
                 if(info['price'] == 'N/A'):
                     price = 0
