@@ -79,7 +79,7 @@ def crawl_enter_list():
                 else:
                     price = info['price'].replace(',','')
 
-                price_flag = '%s%s' % (price, price_flag)
+                #price_flag = '%s%s' % (price, price_flag)
                 print info['currency'], price
                 insert_data(info['currency'], price, info['bourse'], date, crawl_date) 
             insert_price_refer(price_flag, date, crawl_date)        
