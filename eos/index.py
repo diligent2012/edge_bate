@@ -9,15 +9,11 @@ import re
 from datetime import datetime
 from datetime import timedelta
 import MySQLdb
-import  pycurl 
-import StringIO 
 import time
 
 import smtplib
 from email.mime.text import MIMEText
 from email.header import Header
-
-
 
 
 def crawl_enter_list():
@@ -56,7 +52,7 @@ def crawl_enter_list():
                         insert_record_refer(count_flag, crawl_date)
 
     except Exception, e:
-        return result
+        print e.message
 
 
 def insert_data(platform, quantity, currency, date, crawl_date):
@@ -64,13 +60,13 @@ def insert_data(platform, quantity, currency, date, crawl_date):
         conn= MySQLdb.connect(
             host='127.0.0.1',
             port = 3306,
-            user='develop',
-            passwd='!123456Mysql.',
-            db ='t_drp_system',
+            user='omni_btc',
+            passwd='!omni123456btcMysql.pro',
+            db ='z_omni_btc',
         )
         cur = conn.cursor()
         cur.execute('set names utf8') #charset set code. it is not nessary now
-        sql = "INSERT INTO `ecs_t_btc_record` (`platform`, `quantity`, `currency`, `date`, `crawl_date`) VALUES ('%s', '%s', '%s', '%s', '%s')" % (platform, quantity, currency, date, crawl_date)
+        sql = "INSERT INTO `t_btc_record` (`platform`, `quantity`, `currency`, `date`, `crawl_date`) VALUES ('%s', '%s', '%s', '%s', '%s')" % (platform, quantity, currency, date, crawl_date)
         #sql = "INSERT INTO `ecs_t_marathon` (`name`, `start_run_time`) VALUES ('%s', '%s')" % (name, start_run_time)
         cur.execute(sql)
         conn.commit()
@@ -84,13 +80,13 @@ def insert_record_refer(flag, date):
         conn= MySQLdb.connect(
             host='127.0.0.1',
             port = 3306,
-            user='develop',
-            passwd='!123456Mysql.',
-            db ='t_drp_system',
+            user='omni_btc',
+            passwd='!omni123456btcMysql.pro',
+            db ='z_omni_btc',
         )
         cur = conn.cursor()
         cur.execute('set names utf8') #charset set code. it is not nessary now
-        sql = "INSERT INTO `ecs_t_record_refer` (`flag`, `date`) VALUES ('%s', '%s')" % (flag, date)
+        sql = "INSERT INTO `t_btc_record_refer` (`flag`, `date`) VALUES ('%s', '%s')" % (flag, date)
         #sql = "INSERT INTO `ecs_t_marathon` (`name`, `start_run_time`) VALUES ('%s', '%s')" % (name, start_run_time)
         cur.execute(sql)
         conn.commit()
@@ -104,14 +100,14 @@ def find_record_refer(flag):
         conn= MySQLdb.connect(
             host='127.0.0.1',
             port = 3306,
-            user='develop',
-            passwd='!123456Mysql.',
-            db ='t_drp_system',
+            user='omni_btc',
+            passwd='!omni123456btcMysql.pro',
+            db ='z_omni_btc',
         )
         cur = conn.cursor()
         crawl_date_refer = (datetime.now() - timedelta(minutes=3)).strftime("%Y-%m-%d %H:%M:%S")
         cur.execute('set names utf8') #charset set code. it is not nessary now
-        sql = "SELECT * FROM `ecs_t_record_refer`  WHERE flag = '%s' and date >= '%s' " % (flag, crawl_date_refer)
+        sql = "SELECT * FROM `t_btc_record_refer`  WHERE flag = '%s' and date >= '%s' " % (flag, crawl_date_refer)
         #sql = "INSERT INTO `ecs_t_marathon` (`name`, `start_run_time`) VALUES ('%s', '%s')" % (name, start_run_time)
         cur.execute(sql)
         conn.commit()
@@ -127,40 +123,8 @@ def find_record_refer(flag):
         print e.message
     return True
 
-mailto_list = ['changaiqing@vip.163.com']
-mail_host = 'smtp.163.com'
-mail_user = 'omni_noreply@163.com'
-mail_pass = 'omni163'
-mail_subject = 'BTC 交易数据统计'
-mail_content = ''
-
-
-
-def send_mail():
-    content = "test" #get_send_content()
-    msg = MIMEText(content,'html','utf-8')
-    msg['Subject'] = mail_subject
-    msg['From'] = "BTC Data Statistics" + "<" + mail_user + ">"
-    msg['To'] = ";" . join(mailto_list)
-    try:
-        server = smtplib.SMTP()
-        server.connect(mail_host)
-        server.login(mail_user,mail_pass)
-        print msg.as_string()
-        server.sendmail(mail_user, mailto_list, msg.as_string())
-        server.quit()
-        print 'suc'
-        return True
-    except Exception, e:
-        print str(e)
-        return False
-
 def crawl_start():
-    #crawl_enter_year()
-    #crawl_enter_month()
     crawl_enter_list()
-    #send_mail()
-
 
 def main():
     crawl_start();
