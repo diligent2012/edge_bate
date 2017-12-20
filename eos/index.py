@@ -124,6 +124,7 @@ def find_record_refer(flag):
     return True
 
 def crawl_start():
+    print "start : " + time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time()))
     crawl_enter_list()
 
 def main():
