@@ -32,7 +32,6 @@ def crawl_enter_list():
         info_list = soup.find_all('div',class_="col-md-12 text-center")
         date = time.strftime('%Y-%m-%d',time.localtime(time.time()))
         crawl_date = time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time()))
-        print info_list
         all_info = []
         for key,item in enumerate(info_list):
             for key_c, content in enumerate(item.find_all('tr')):
@@ -65,7 +64,7 @@ def crawl_enter_list():
             if(info['price'] == 'N/A'):
                 price = 0
             else:
-                price = info['price']
+                price = info['price'].replace(',','')
             insert_data(info['currency'], price, info['bourse'], date, crawl_date) 
 
 
@@ -86,6 +85,7 @@ def insert_data(currency, price, bourse, date, crawl_date):
         cur.execute('set names utf8') #charset set code. it is not nessary now
         sql = "INSERT INTO `t_btc_price` (`currency`, `price`, `bourse`, `date`, `crawl_date`) VALUES ('%s', '%s', '%s', '%s', '%s')" % (currency, price, bourse, date, crawl_date)
         #sql = "INSERT INTO `ecs_t_marathon` (`name`, `start_run_time`) VALUES ('%s', '%s')" % (name, start_run_time)
+        print sql
         cur.execute(sql)
         conn.commit()
         cur.close()
