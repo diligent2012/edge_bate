@@ -48,20 +48,20 @@ def crawl_enter_list():
             #print min_amount, max_amount
 
             buy_link = item.find('li',class_="buy-button")
-            sell_buy_id = buy_link.a['href'].split('?')[0].split('/')[2]
-            is_crawl = find_sell_refer(sell_buy_id)
+            buy_id = buy_link.a['href'].split('?')[0].split('/')[2]
+            is_crawl = find_sell_refer(buy_id)
             print is_crawl
             if(is_crawl):
                 print min_amount, max_amount, price_sell
-                insert_data(price_sell, min_amount, max_amount, sell_buy_id, date, crawl_date)
-                insert_sell_refer(sell_buy_id, date, crawl_date)
+                insert_data(price_sell, min_amount, max_amount, buy_id, date, crawl_date)
+                insert_sell_refer(buy_id, date, crawl_date)
 
 
     except Exception, e:
         print e.message
 
 
-def insert_data(price, min_amount, max_amount, sell_buy_id, date, crawl_date):
+def insert_data(price, min_amount, max_amount, buy_id, date, crawl_date):
     try:
         conn= MySQLdb.connect(
             host='127.0.0.1',
@@ -72,7 +72,7 @@ def insert_data(price, min_amount, max_amount, sell_buy_id, date, crawl_date):
         )
         cur = conn.cursor()
         cur.execute('set names utf8') #charset set code. it is not nessary now
-        sql = "INSERT INTO `t_btc_sell` (`price`, `min_amount`, `max_amount`, `sell_buy_id`, `date`, `crawl_date`) VALUES ('%s', '%s', '%s', '%s', '%s', '%s')" % (price, min_amount, max_amount, sell_buy_id, date, crawl_date)
+        sql = "INSERT INTO `t_btc_sell` (`price`, `min_amount`, `max_amount`, `buy_id`, `date`, `crawl_date`) VALUES ('%s', '%s', '%s', '%s', '%s', '%s')" % (price, min_amount, max_amount, buy_id, date, crawl_date)
         #sql = "INSERT INTO `ecs_t_marathon` (`name`, `start_run_time`) VALUES ('%s', '%s')" % (name, start_run_time)
         cur.execute(sql)
         conn.commit()
@@ -82,7 +82,7 @@ def insert_data(price, min_amount, max_amount, sell_buy_id, date, crawl_date):
         print e.message
 
 
-def insert_sell_refer(sell_buy_id, date, crawl_date):
+def insert_sell_refer(buy_id, date, crawl_date):
     try:
         conn= MySQLdb.connect(
             host='127.0.0.1',
@@ -93,7 +93,7 @@ def insert_sell_refer(sell_buy_id, date, crawl_date):
         )
         cur = conn.cursor()
         cur.execute('set names utf8') #charset set code. it is not nessary now
-        sql = "INSERT INTO `t_btc_sell_refer` (`sell_buy_id`, `date`, `crawl_date`) VALUES ('%s', '%s', '%s')" % (sell_buy_id, date, crawl_date)
+        sql = "INSERT INTO `t_btc_sell_refer` (`buy_id`, `date`, `crawl_date`) VALUES ('%s', '%s', '%s')" % (buy_id, date, crawl_date)
         #sql = "INSERT INTO `ecs_t_marathon` (`name`, `start_run_time`) VALUES ('%s', '%s')" % (name, start_run_time)
         cur.execute(sql)
         conn.commit()
@@ -102,7 +102,7 @@ def insert_sell_refer(sell_buy_id, date, crawl_date):
     except Exception, e:
         print e.message
 
-def find_sell_refer(sell_buy_id):
+def find_sell_refer(buy_id):
     try:
         conn= MySQLdb.connect(
             host='127.0.0.1',
@@ -113,7 +113,7 @@ def find_sell_refer(sell_buy_id):
         )
         cur = conn.cursor()
         cur.execute('set names utf8') #charset set code. it is not nessary now
-        sql = "SELECT * FROM `t_btc_sell_refer`  WHERE sell_buy_id = '%s'" % (sell_buy_id)
+        sql = "SELECT * FROM `t_btc_sell_refer`  WHERE buy_id = '%s'" % (buy_id)
         #sql = "INSERT INTO `ecs_t_marathon` (`name`, `start_run_time`) VALUES ('%s', '%s')" % (name, start_run_time)
         cur.execute(sql)
         conn.commit()
