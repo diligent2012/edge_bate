@@ -61,7 +61,12 @@ def crawl_enter_list():
         for info in all_info:
             date = time.strftime('%Y-%m-%d',time.localtime(time.time()))
             crawl_date = time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time()))
-            insert_data(info['currency'], info['price'], info['bourse'], date, crawl_date) 
+            price = 0
+            if(info['price'] == 'N/A'):
+                price = 0
+            else:
+                price = info['price']
+            insert_data(info['currency'], price, info['bourse'], date, crawl_date) 
 
 
     except Exception, e:
