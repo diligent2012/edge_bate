@@ -216,7 +216,7 @@ def start_monitor():
 
     is_crawl = find_rate_refer(key_flag)
     if(is_crawl):
-        insert_rate(min_buy, max_sell, entry_money_rate_str, date, crawl_date)
+        insert_rate(min_buy, max_sell, round(entry_money_rate * 100,2), date, crawl_date)
 
     if(entry_money_rate * 100 > 104):
         content = "卖出价格(出售): " + str(max_sell) + "; 成本价格(收购): " + str(min_buy) + "; 利润率: " + entry_money_rate_str
