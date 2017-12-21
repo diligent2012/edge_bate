@@ -16,6 +16,11 @@ from email.mime.text import MIMEText
 from email.header import Header
 from decimal import *
 
+import urllib
+import urllib2
+import json
+import requests
+
 
 mailto_list = ['changaiqing@vip.163.com','alexzc_zhang@163.com']
 mail_host = 'smtp.163.com'
@@ -239,7 +244,7 @@ def start_monitor():
     entry_money_rate = (max_sell - (max_sell + min_buy) * (0.005)) / min_buy
     entry_money_rate_str = '%.2f%%' % (entry_money_rate * 100)
 
-    entry_money_rate_spec = max_sell / min_buy
+    entry_money_rate_spec =  min_buy / max_sell
 
     content = "卖出价格(出售): " + str(max_sell) + "; 成本价格(收购): " + str(min_buy) + "; 利润率: " + entry_money_rate_str
 
@@ -258,8 +263,25 @@ def start_monitor():
         if(is_send):
             send_mail(content)
             insert_send_refer(key_flag, date, crawl_date)
+            send_wechat(max_sell, min_buy, entry_money_rate_str);
 
             
+def send_wechat(max_sell, min_buy, entry_money_rate_str):
+    post_url = 'https://www.datasource.top/api/portal/btc/send'
+    
+    headers = {
+        'content-type': 'application/x-www-form-urlencoded',
+    }
+
+    p_data = {
+        'max_sell':max_sell,
+        'min_buy':min_buy,
+        'entry_money_rate_str':entry_money_rate_str
+    }
+    data_u = urllib.urlencode(p_data)
+    resp = requests.post(post_url, data=data_u, headers=headers)
+    print resp.content
+    return resp.content
 
 def crawl_start():
     print "start : " + time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time()))
