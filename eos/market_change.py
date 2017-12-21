@@ -16,6 +16,11 @@ from email.mime.text import MIMEText
 from email.header import Header
 from decimal import *
 
+import urllib
+import urllib2
+import json
+import requests
+
 
 mailto_list = ['changaiqing@vip.163.com']
 mail_host = 'smtp.163.com'
@@ -183,9 +188,24 @@ def find_send_refer(flag):
         print e.message
     return True
 
+def send_wechat():
+    post_url = 'https://www.datasource.top/api/portal/btc/save'
+    
+    headers = {
+        'content-type': 'application/x-www-form-urlencoded',
+    }
+
+    p_data = {'debug':'1','data':"11"}
+    data_u = urllib.urlencode(p_data)
+    resp = requests.post(post_url, data=data_u, headers=headers)
+    print resp.content
+    return resp.content
+
 def crawl_start():
     print "start : " + time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time()))
     crawl_enter_list()
+    #send_wechat()
+
 
 def main():
     crawl_start();
