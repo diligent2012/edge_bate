@@ -46,6 +46,7 @@ def send_mail(content):
 
 def start_monitor():
     date = time.strftime('%Y-%m-%d',time.localtime(time.time()))
+    crawl_date = time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time()))
     #卖出价格(出售)
     min_sell =  find_min_sell(date)
 
@@ -58,7 +59,11 @@ def start_monitor():
     if( entry_money_rate * 100 > 104):
         content = "卖出价格(出售): " + str(min_sell) + "; 成本价格(收购): " + str(min_buy) + "; 利润率: " + entry_money_rate_str
         print content
-        send_mail(content)
+        key_flag = str(min_sell) + str(min_buy) + entry_money_rate_str
+        is_send = find_send_refer(key_flag)
+        if(is_send):
+            send_mail(content)
+            insert_send_refer(key_flag, date, crawl_date)
     #print '%.2f%%' % (entry_money_rate * 100)
     #entry_money_rate = (Decimal(min_sell) - (min_sell+min_buy) * 0.005) / min_buy 
     #print entry_money_rate
@@ -120,6 +125,54 @@ def find_min_buy(date):
     return False
 
 
+
+def insert_send_refer(flag, date, crawl_date):
+    try:
+        conn= MySQLdb.connect(
+            host='127.0.0.1',
+            port = 3306,
+            user='omni_btc',
+            passwd='!omni123456btcMysql.pro',
+            db ='z_omni_btc',
+        )
+        cur = conn.cursor()
+        cur.execute('set names utf8') #charset set code. it is not nessary now
+        sql = "INSERT INTO `t_btc_send_refer` (`flag`, `date`, `crawl_date`) VALUES ('%s', '%s', '%s')" % (flag, date, crawl_date)
+        #sql = "INSERT INTO `ecs_t_marathon` (`name`, `start_run_time`) VALUES ('%s', '%s')" % (name, start_run_time)
+        cur.execute(sql)
+        conn.commit()
+        cur.close()
+        conn.close()
+    except Exception, e:
+        print e.message
+
+def find_send_refer(flag):
+    try:
+        conn= MySQLdb.connect(
+            host='127.0.0.1',
+            port = 3306,
+            user='omni_btc',
+            passwd='!omni123456btcMysql.pro',
+            db ='z_omni_btc',
+        )
+        cur = conn.cursor()
+        cur.execute('set names utf8') #charset set code. it is not nessary now
+        sql = "SELECT count(*) as send_count FROM `t_btc_send_refer`  WHERE flag = '%s' " % (flag)
+        #sql = "INSERT INTO `ecs_t_marathon` (`name`, `start_run_time`) VALUES ('%s', '%s')" % (name, start_run_time)
+        print sql
+        cur.execute(sql)
+        conn.commit()
+        result = cur.fetchone()
+        if result[0] >= 3:
+            return False
+        else:
+            return True
+        
+        cur.close()
+        conn.close()
+    except Exception, e:
+        print e.message
+    return True
 
 def crawl_start():
     start_monitor()
