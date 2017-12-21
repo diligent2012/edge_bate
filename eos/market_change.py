@@ -71,7 +71,7 @@ def crawl_enter_list():
         price_rate_str = '%.2f%%' % (price_rate * 100)
         print price_rate_str
         content = "当天0点价格: " + str(market_price_first) + "; 当前价格: " + str(market_price) + "; 溢价率: " + price_rate_str
-        if(price_rate * 100 < 5):
+        if(price_rate * 100 >= 5):
 
             key_flag = str(market_price_first) + str(market_price) + price_rate_str
             is_send = find_send_refer(key_flag)
