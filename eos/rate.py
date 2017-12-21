@@ -17,7 +17,7 @@ from email.header import Header
 from decimal import *
 
 
-mailto_list = ['changaiqing@vip.163.com']
+mailto_list = ['changaiqing@vip.163.com','alexzc_zhang@163.com']
 mail_host = 'smtp.163.com'
 mail_user = 'omni_noreply@163.com'
 mail_pass = 'omni163'
