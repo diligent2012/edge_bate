@@ -44,7 +44,8 @@ def send_mail(content):
         print str(e)
         return False
 
-def crawl_enter_sell():
+
+def crawl_enter_list():
     result={}
     header = {
         'Accept-Language': 'zh-CN,zh;q=0.9',
@@ -57,77 +58,37 @@ def crawl_enter_sell():
 
     try:
         soup = BeautifulSoup(response.text, "html.parser")
-        info_list = soup.find_all('ul',class_="list-content")
+        info_list = soup.find('div',class_="current-rate")
+        market_price = info_list.span.get_text().strip().split(' ')[0]
         date = time.strftime('%Y-%m-%d',time.localtime(time.time()))
         crawl_date = time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time()))
-        for key,item in enumerate(info_list):
-            #print item
-            price = item.find('li',class_="price")
-            price.span.extract()
-            price.span.extract()
-            price_sell = price.get_text().strip().replace(',','')
 
+        market_price_first = find_market(date)
+        
 
-            minimum_amount = item.find('li',class_="minimum-amount")
-            minimum_amount.span.extract()
-            minimum_amount.span.extract()
-            min_amount =  minimum_amount.get_text().strip().split('-')[0].strip().replace(',','')
-            max_amount =  minimum_amount.get_text().strip().split('-')[1].strip().replace(',','')
-            #print min_amount, max_amount
-            
-            buy_link = item.find('li',class_="buy-button")
-            buy_id = buy_link.a['href'].split('?')[0].split('/')[2]
-            return price_sell
-            break
+        price_rate = (Decimal(market_price) - market_price_first) / market_price_first
+        print price_rate
+        price_rate_str = '%.2f%%' % (price_rate * 100)
+        print price_rate_str
+        content = "当天0点价格: " + str(market_price_first) + "; 当前价格: " + str(market_price) + "; 溢价率: " + price_rate_str
+        if(price_rate * 100 < 5):
+
+            key_flag = str(market_price_first) + str(market_price) + price_rate_str
+            is_send = find_send_refer(key_flag)
+            if(is_send):
+                content = "当天0点价格: " + str(market_price_first) + "; 当前价格: " + str(market_price) + "; 溢价率: " + price_rate_str
+                print content
+                send_mail(content)
+                insert_send_refer(key_flag, date, crawl_date)
+
+        
 
 
     except Exception, e:
         print e.message
 
-    return 0
 
-def crawl_enter_buy():
-    result={}
-    header = {
-        'Accept-Language': 'zh-CN,zh;q=0.9',
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/63.0.3239.108 Safari/537.36',
-        'Host': 'otcbtc.com',
-    }
-    response = requests.get('https://otcbtc.com/buy_offers?currency=eos&fiat_currency=cny&payment_type=all', headers=header, verify=False)
-    if response.status_code != 200:
-        return result
-
-    try:
-        soup = BeautifulSoup(response.text, "html.parser")
-        info_list = soup.find_all('ul',class_="list-content")
-        date = time.strftime('%Y-%m-%d',time.localtime(time.time()))
-        crawl_date = time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time()))
-        for key,item in enumerate(info_list):
-            #print item
-            price = item.find('li',class_="price")
-            price.span.extract()
-            price.span.extract()
-            price_buy = price.get_text().strip().replace(',','')
-
-            minimum_amount = item.find('li',class_="minimum-amount")
-            minimum_amount.span.extract()
-            minimum_amount.span.extract()
-            min_single =  minimum_amount.get_text().strip().split('-')[0].strip().replace(',','')
-            max_single =  minimum_amount.get_text().strip().split('-')[1].strip().replace(',','')
-
-            buy_link = item.find('li',class_="buy-button")
-            sell_id = buy_link.a['href'].split('?')[0].split('/')[2]
-
-            return price_buy
-            break
-
-
-    except Exception, e:
-        print e.message
-
-    return 0
-
-def insert_rate(buy_min_price, sell_max_price, rate, date, crawl_date ):
+def find_market(date):
     try:
         conn= MySQLdb.connect(
             host='127.0.0.1',
@@ -138,42 +99,41 @@ def insert_rate(buy_min_price, sell_max_price, rate, date, crawl_date ):
         )
         cur = conn.cursor()
         cur.execute('set names utf8') #charset set code. it is not nessary now
-        sql = "INSERT INTO `t_btc_rate` (`buy_min_price`, `sell_max_price`, `rate`, `date`, `crawl_date`) VALUES ('%s', '%s', '%s', '%s', '%s')" % (buy_min_price, sell_max_price, rate, date, crawl_date )
+        sql = "SELECT market_price FROM `t_btc_market_price`  WHERE  date = '%s' order by crawl_date limit 1 " % (date)
+        #sql = "INSERT INTO `ecs_t_marathon` (`name`, `start_run_time`) VALUES ('%s', '%s')" % (name, start_run_time)
         print sql
-        #sql = "INSERT INTO `ecs_t_marathon` (`name`, `start_run_time`) VALUES ('%s', '%s')" % (name, start_run_time)
         cur.execute(sql)
         conn.commit()
-        cur.close()
-        conn.close()
-    except Exception, e:
-        print e.message
-
-def find_rate_refer(flag):
-    try:
-        conn= MySQLdb.connect(
-            host='127.0.0.1',
-            port = 3306,
-            user='omni_btc',
-            passwd='!omni123456btcMysql.pro',
-            db ='z_omni_btc',
-        )
-        cur = conn.cursor()
-        cur.execute('set names utf8') #charset set code. it is not nessary now
-        sql = "SELECT * FROM `t_btc_rate_refer`  WHERE flag = '%s'" % (flag)
-        #sql = "INSERT INTO `ecs_t_marathon` (`name`, `start_run_time`) VALUES ('%s', '%s')" % (name, start_run_time)
-        cur.execute(sql)
-        conn.commit()
-        result = cur.fetchall()
-        if result:
-            return False
-        else:
-            return True
+        result = cur.fetchone()
+        return result[0]
         
         cur.close()
         conn.close()
     except Exception, e:
         print e.message
-    return True
+    return False
+
+
+def insert_data(market_price, date, crawl_date):
+    try:
+        conn= MySQLdb.connect(
+            host='127.0.0.1',
+            port = 3306,
+            user='omni_btc',
+            passwd='!omni123456btcMysql.pro',
+            db ='z_omni_btc',
+        )
+        cur = conn.cursor()
+        cur.execute('set names utf8') #charset set code. it is not nessary now
+        sql = "INSERT INTO `t_btc_market_price` (`market_price`, `date`, `crawl_date`) VALUES ('%s',  '%s', '%s')" % (market_price, date, crawl_date)
+        #sql = "INSERT INTO `ecs_t_marathon` (`name`, `start_run_time`) VALUES ('%s', '%s')" % (name, start_run_time)
+        cur.execute(sql)
+        conn.commit()
+        cur.close()
+        conn.close()
+    except Exception, e:
+        print e.message
+
 
 def insert_send_refer(flag, date, crawl_date):
     try:
@@ -223,44 +183,9 @@ def find_send_refer(flag):
         print e.message
     return True
 
-def start_monitor():
-    date = time.strftime('%Y-%m-%d',time.localtime(time.time()))
-    crawl_date = time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time()))
-    
-    #卖出价格(出售)
-    max_sell =  crawl_enter_sell()
-
-    # 成本价格(收购)
-    min_buy =  crawl_enter_buy()
-    print type(max_sell)
-    print type(min_buy)
-    max_sell = float(max_sell)
-    min_buy = float(min_buy)
-    entry_money_rate = (max_sell - (max_sell + min_buy) * (0.005)) / min_buy
-    entry_money_rate_str = '%.2f%%' % (entry_money_rate * 100)
-    content = "卖出价格(出售): " + str(max_sell) + "; 成本价格(收购): " + str(min_buy) + "; 利润率: " + entry_money_rate_str
-
-    key_flag = str(max_sell) + str(min_buy) + entry_money_rate_str
-
-    is_crawl = find_rate_refer(key_flag)
-    if(is_crawl):
-        insert_rate(min_buy, max_sell, round(entry_money_rate * 100,2), date, crawl_date)
-
-
-    if(entry_money_rate * 100 >= 104):
-        content = "卖出价格(出售): " + str(max_sell) + "; 成本价格(收购): " + str(min_buy) + "; 利润率: " + entry_money_rate_str
-        print content
-        
-        is_send = find_send_refer(key_flag)
-        if(is_send):
-            send_mail(content)
-            insert_send_refer(key_flag, date, crawl_date)
-
-            
-
 def crawl_start():
     print "start : " + time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time()))
-    start_monitor()
+    crawl_enter_list()
 
 def main():
     crawl_start();
