@@ -23,45 +23,39 @@ def crawl_enter_list():
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/63.0.3239.108 Safari/537.36',
         'Host': 'otcbtc.com',
     }
-    response = requests.get('https://otcbtc.com/sell_offers?currency=eos&fiat_currency=cny&payment_type=all', headers=header, verify=False)
+    response = requests.get('https://otcbtc.com/', headers=header, verify=False)
     if response.status_code != 200:
         return result
 
     try:
         soup = BeautifulSoup(response.text, "html.parser")
-        info_list = soup.find_all('ul',class_="list-content")
+        info_list = soup.find_all('div',class_="col-md-4")
         date = time.strftime('%Y-%m-%d',time.localtime(time.time()))
         crawl_date = time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time()))
+
         for key,item in enumerate(info_list):
-            #print item
-            price = item.find('li',class_="price")
-            price.span.extract()
-            price.span.extract()
-            price_sell = price.get_text().strip().replace(',','')
+            if(key < 3):
+                for content in item.find_all('td'):
+                    
+                    imp_content = content.text.split('(')[0]
+                    miao = content.text.split('(')[1].split(' ')[0]
 
+                    count_clutter = imp_content.split('=>')[1].strip()
 
-            minimum_amount = item.find('li',class_="minimum-amount")
-            minimum_amount.span.extract()
-            minimum_amount.span.extract()
-            min_amount =  minimum_amount.get_text().strip().split('-')[0].strip().replace(',','')
-            max_amount =  minimum_amount.get_text().strip().split('-')[1].strip().replace(',','')
-            #print min_amount, max_amount
-            
-            buy_link = item.find('li',class_="buy-button")
-            buy_id = buy_link.a['href'].split('?')[0].split('/')[2]
-            is_crawl = find_sell_refer(buy_id)
-            print is_crawl
-            if(is_crawl):
-                print min_amount, max_amount, price_sell
-                insert_data(price_sell, min_amount, max_amount, buy_id, date, crawl_date)
-                insert_sell_refer(buy_id, date, crawl_date)
-
+                    count = count_clutter.split(' ')[0].strip()
+                    currency = count_clutter.split(' ')[1].strip()
+                    print count + "" + currency
+                    count_flag = count + currency +  miao
+                    is_crawl = find_record_refer(count_flag)
+                    if(is_crawl):
+                        insert_data('otcbtc', count, currency, date, crawl_date)
+                        insert_record_refer(count_flag, crawl_date)
 
     except Exception, e:
         print e.message
 
 
-def insert_data(price, min_amount, max_amount, buy_id, date, crawl_date):
+def insert_data(platform, quantity, currency, date, crawl_date):
     try:
         conn= MySQLdb.connect(
             host='127.0.0.1',
@@ -72,7 +66,7 @@ def insert_data(price, min_amount, max_amount, buy_id, date, crawl_date):
         )
         cur = conn.cursor()
         cur.execute('set names utf8') #charset set code. it is not nessary now
-        sql = "INSERT INTO `t_btc_sell` (`price`, `min_amount`, `max_amount`, `buy_id`, `date`, `crawl_date`) VALUES ('%s', '%s', '%s', '%s', '%s', '%s')" % (price, min_amount, max_amount, buy_id, date, crawl_date)
+        sql = "INSERT INTO `t_btc_record` (`platform`, `quantity`, `currency`, `date`, `crawl_date`) VALUES ('%s', '%s', '%s', '%s', '%s')" % (platform, quantity, currency, date, crawl_date)
         #sql = "INSERT INTO `ecs_t_marathon` (`name`, `start_run_time`) VALUES ('%s', '%s')" % (name, start_run_time)
         cur.execute(sql)
         conn.commit()
@@ -81,8 +75,7 @@ def insert_data(price, min_amount, max_amount, buy_id, date, crawl_date):
     except Exception, e:
         print e.message
 
-
-def insert_sell_refer(buy_id, date, crawl_date):
+def insert_record_refer(flag, date):
     try:
         conn= MySQLdb.connect(
             host='127.0.0.1',
@@ -93,7 +86,7 @@ def insert_sell_refer(buy_id, date, crawl_date):
         )
         cur = conn.cursor()
         cur.execute('set names utf8') #charset set code. it is not nessary now
-        sql = "INSERT INTO `t_btc_sell_refer` (`buy_id`, `date`, `crawl_date`) VALUES ('%s', '%s', '%s')" % (buy_id, date, crawl_date)
+        sql = "INSERT INTO `t_btc_record_refer` (`flag`, `date`) VALUES ('%s', '%s')" % (flag, date)
         #sql = "INSERT INTO `ecs_t_marathon` (`name`, `start_run_time`) VALUES ('%s', '%s')" % (name, start_run_time)
         cur.execute(sql)
         conn.commit()
@@ -102,7 +95,7 @@ def insert_sell_refer(buy_id, date, crawl_date):
     except Exception, e:
         print e.message
 
-def find_sell_refer(buy_id):
+def find_record_refer(flag):
     try:
         conn= MySQLdb.connect(
             host='127.0.0.1',
@@ -112,8 +105,9 @@ def find_sell_refer(buy_id):
             db ='z_omni_btc',
         )
         cur = conn.cursor()
+        crawl_date_refer = (datetime.now() - timedelta(minutes=3)).strftime("%Y-%m-%d %H:%M:%S")
         cur.execute('set names utf8') #charset set code. it is not nessary now
-        sql = "SELECT * FROM `t_btc_sell_refer`  WHERE buy_id = '%s'" % (buy_id)
+        sql = "SELECT * FROM `t_btc_record_refer`  WHERE flag = '%s' and date >= '%s' " % (flag, crawl_date_refer)
         #sql = "INSERT INTO `ecs_t_marathon` (`name`, `start_run_time`) VALUES ('%s', '%s')" % (name, start_run_time)
         cur.execute(sql)
         conn.commit()
