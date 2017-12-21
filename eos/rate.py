@@ -238,6 +238,9 @@ def start_monitor():
     min_buy = float(min_buy)
     entry_money_rate = (max_sell - (max_sell + min_buy) * (0.005)) / min_buy
     entry_money_rate_str = '%.2f%%' % (entry_money_rate * 100)
+
+    entry_money_rate_spec = max_sell / min_buy
+
     content = "卖出价格(出售): " + str(max_sell) + "; 成本价格(收购): " + str(min_buy) + "; 利润率: " + entry_money_rate_str
 
     key_flag = str(max_sell) + str(min_buy) + entry_money_rate_str
@@ -247,7 +250,7 @@ def start_monitor():
         insert_rate(min_buy, max_sell, round(entry_money_rate * 100,2), date, crawl_date)
 
 
-    if(entry_money_rate * 100 >= 104 || entry_money_rate * 100 <= 97):
+    if(entry_money_rate * 100 >= 104 or entry_money_rate_spec * 100 <= 97):
         content = "卖出价格(出售): " + str(max_sell) + "; 成本价格(收购): " + str(min_buy) + "; 利润率: " + entry_money_rate_str
         print content
         
