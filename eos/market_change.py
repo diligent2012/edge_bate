@@ -85,6 +85,7 @@ def crawl_enter_list():
                 print content
                 send_mail(content)
                 insert_send_refer(key_flag, date, crawl_date)
+                send_wechat(str(market_price_first), str(market_price), price_rate_str)
 
         
 
@@ -188,14 +189,18 @@ def find_send_refer(flag):
         print e.message
     return True
 
-def send_wechat():
-    post_url = 'https://www.datasource.top/api/portal/btc/save'
+def send_wechat(market_price_first, market_price, price_rate_str):
+    post_url = 'https://www.datasource.top/api/portal/btc/send'
     
     headers = {
         'content-type': 'application/x-www-form-urlencoded',
     }
 
-    p_data = {'debug':'1','data':"11"}
+    p_data = {
+        'market_price_first':market_price_first,
+        'market_price':market_price,
+        'price_rate_str':price_rate_str
+    }
     data_u = urllib.urlencode(p_data)
     resp = requests.post(post_url, data=data_u, headers=headers)
     print resp.content
