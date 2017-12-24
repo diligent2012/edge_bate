@@ -263,7 +263,7 @@ def start_monitor():
         for rate in rate_list:
             sell_price = round(float(rate) * float(price) * 0.995,2)
             rate_price = sell_price - price
-            rate_total_price = rate_price * buy_quantity
+            rate_total_price = rate_price * float(buy_quantity)
             is_cal = find_rate_is_cal(buy_id, rate)
             if(is_cal):
                 insert_buy_rate(buy_id, sell_price, rate, rate_price, rate_total_price, crawl_date)
