@@ -182,7 +182,7 @@ def find_order_buy():
     return False
 
 
-def insert_buy_rate(buy_id, min_sell_price, rate, rate_price, cal_date):
+def insert_buy_rate(buy_id, min_sell_price, rate, rate_price, rate_total_price, cal_date):
     try:
         conn= MySQLdb.connect(
             host='127.0.0.1',
@@ -193,7 +193,7 @@ def insert_buy_rate(buy_id, min_sell_price, rate, rate_price, cal_date):
         )
         cur = conn.cursor()
         cur.execute('set names utf8') #charset set code. it is not nessary now
-        sql = "INSERT INTO `omni_btc_buy_rate` (`buy_id`, `min_sell_price`, `rate`, `rate_price` , `cal_date`) VALUES ('%s', '%s', '%s', '%s', '%s')" % (buy_id, min_sell_price, rate, rate_price, cal_date)
+        sql = "INSERT INTO `omni_btc_buy_rate` (`buy_id`, `min_sell_price`, `rate`, `rate_price`, `rate_total_price`, `cal_date`) VALUES ('%s', '%s', '%s', '%s', '%s')" % (buy_id, min_sell_price, rate, rate_price, rate_total_price, cal_date)
         print sql
         #sql = "INSERT INTO `ecs_t_marathon` (`name`, `start_run_time`) VALUES ('%s', '%s')" % (name, start_run_time)
         cur.execute(sql)
@@ -254,6 +254,7 @@ def start_monitor():
     rate_list = [1.03,1.02,1.01]
     for item_buy in order_buy:
         price = item_buy[3] # 购买价格
+        buy_quantity = item_buy[2] # 购买数量
         buy_id = item_buy[0]# 购买表主键
 
         curr_min_sell_price =  crawl_enter_sell() # 当前售卖最低价格
@@ -262,9 +263,10 @@ def start_monitor():
         for rate in rate_list:
             sell_price = round(float(rate) * float(price) * 0.995,2)
             rate_price = sell_price - price
+            rate_total_price = rate_price * buy_quantity
             is_cal = find_rate_is_cal(buy_id, rate)
             if(is_cal):
-                insert_buy_rate(buy_id, sell_price, rate, rate_price, crawl_date)
+                insert_buy_rate(buy_id, sell_price, rate, rate_price, rate_total_price, crawl_date)
 
             if (curr_min_sell_price >= sell_price):
                 key_flag = str(curr_min_sell_price) + str(price) + str(rate_price)
