@@ -193,7 +193,7 @@ def insert_buy_rate(buy_id, min_sell_price, rate, rate_price, rate_total_price, 
         )
         cur = conn.cursor()
         cur.execute('set names utf8') #charset set code. it is not nessary now
-        sql = "INSERT INTO `omni_btc_buy_rate` (`buy_id`, `min_sell_price`, `rate`, `rate_price`, `rate_total_price`, `cal_date`) VALUES ('%s', '%s', '%s', '%s', '%s')" % (buy_id, min_sell_price, rate, rate_price, rate_total_price, cal_date)
+        sql = "INSERT INTO `omni_btc_buy_rate` (`buy_id`, `min_sell_price`, `rate`, `rate_price`, `rate_total_price`, `cal_date`) VALUES ('%s', '%s', '%s', '%s', '%s', '%s')" % (buy_id, min_sell_price, rate, rate_price, rate_total_price, cal_date)
         print sql
         #sql = "INSERT INTO `ecs_t_marathon` (`name`, `start_run_time`) VALUES ('%s', '%s')" % (name, start_run_time)
         cur.execute(sql)
