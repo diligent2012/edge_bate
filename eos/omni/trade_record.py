@@ -32,6 +32,7 @@ def crawl_enter_list():
         info_list = soup.find_all('div',class_="col-md-4")
         date = time.strftime('%Y-%m-%d',time.localtime(time.time()))
         crawl_date = time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time()))
+        crawl_date_hour = time.strftime('%Y-%m-%d %H:00:00',time.localtime(time.time()))
 
         for key,item in enumerate(info_list):
             if(key < 3):
@@ -48,14 +49,14 @@ def crawl_enter_list():
                     count_flag = count + currency +  miao
                     is_crawl = find_record_refer(count_flag)
                     if(is_crawl):
-                        insert_data('otcbtc', count, currency, date, crawl_date)
+                        insert_data('otcbtc', count, currency, date, crawl_date_hour, crawl_date)
                         insert_record_refer(count_flag, crawl_date)
 
     except Exception, e:
         print e.message
 
 
-def insert_data(platform, quantity, currency, date, crawl_date):
+def insert_data(platform, quantity, currency, date, date_hour, crawl_date):
     try:
         conn= MySQLdb.connect(
             host='127.0.0.1',
@@ -66,7 +67,7 @@ def insert_data(platform, quantity, currency, date, crawl_date):
         )
         cur = conn.cursor()
         cur.execute('set names utf8') #charset set code. it is not nessary now
-        sql = "INSERT INTO `omni_btc_trade_record` (`platform`, `quantity`, `currency`, `date`, `crawl_date`) VALUES ('%s', '%s', '%s', '%s', '%s')" % (platform, quantity, currency, date, crawl_date)
+        sql = "INSERT INTO `omni_btc_trade_record` (`platform`, `quantity`, `currency`, `date`, `date_hour`, `crawl_date`) VALUES ('%s', '%s', '%s', '%s', '%s', '%s')" % (platform, quantity, currency, date, date_hour, crawl_date)
         #sql = "INSERT INTO `ecs_t_marathon` (`name`, `start_run_time`) VALUES ('%s', '%s')" % (name, start_run_time)
         cur.execute(sql)
         conn.commit()
