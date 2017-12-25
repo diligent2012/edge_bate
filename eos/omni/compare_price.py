@@ -132,7 +132,7 @@ def crawl_enter_buy():
 
     return 0
 
-def insert_rate(buy_min_price, sell_max_price, rate, date, crawl_date ):
+def insert_rate(buy_min_price, sell_max_price, rate, date, date_hour, crawl_date ):
     try:
         conn= MySQLdb.connect(
             host='127.0.0.1',
@@ -143,7 +143,7 @@ def insert_rate(buy_min_price, sell_max_price, rate, date, crawl_date ):
         )
         cur = conn.cursor()
         cur.execute('set names utf8') #charset set code. it is not nessary now
-        sql = "INSERT INTO `omni_btc_compare_price` (`buy_min_price`, `sell_max_price`, `rate`, `date`, `crawl_date`) VALUES ('%s', '%s', '%s', '%s', '%s')" % (buy_min_price, sell_max_price, rate, date, crawl_date )
+        sql = "INSERT INTO `omni_btc_compare_price` (`buy_min_price`, `sell_max_price`, `rate`, `date`, `date_hour`, `crawl_date`) VALUES ('%s', '%s', '%s', '%s', '%s', '%s')" % (buy_min_price, sell_max_price, rate, date, date_hour, crawl_date )
         print sql
         #sql = "INSERT INTO `ecs_t_marathon` (`name`, `start_run_time`) VALUES ('%s', '%s')" % (name, start_run_time)
         cur.execute(sql)
@@ -157,6 +157,9 @@ def insert_rate(buy_min_price, sell_max_price, rate, date, crawl_date ):
 def start_monitor():
     date = time.strftime('%Y-%m-%d',time.localtime(time.time()))
     crawl_date = time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time()))
+
+    crawl_date_hour = time.strftime('%Y-%m-%d %H:00:00',time.localtime(time.time()))
+    
     
     #卖出价格(出售)
     max_sell =  crawl_enter_sell()
@@ -175,7 +178,7 @@ def start_monitor():
     print content
     #key_flag = str(max_sell) + str(min_buy) + entry_money_rate_str
 
-    insert_rate(min_buy, max_sell, round(entry_money_rate * 100,2), date, crawl_date)
+    insert_rate(min_buy, max_sell, round(entry_money_rate * 100,2), date, crawl_date_hour, crawl_date)
 
 
     # if(entry_money_rate * 100 >= 104 or entry_money_rate_spec * 100 <= 97):
