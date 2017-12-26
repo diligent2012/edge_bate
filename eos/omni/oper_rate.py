@@ -22,6 +22,9 @@ import urllib2
 import json
 import requests
 
+from requests.packages.urllib3.exceptions import InsecureRequestWarning
+requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
+
 
 ##################以下为现在的逻辑
 

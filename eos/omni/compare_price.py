@@ -21,6 +21,9 @@ import urllib2
 import json
 import requests
 
+from requests.packages.urllib3.exceptions import InsecureRequestWarning
+requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
+
 
 mailto_list = ['changaiqing@vip.163.com']
 mail_host = 'smtp.163.com'

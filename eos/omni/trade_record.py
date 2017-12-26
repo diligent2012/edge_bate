@@ -15,6 +15,9 @@ import smtplib
 from email.mime.text import MIMEText
 from email.header import Header
 
+from requests.packages.urllib3.exceptions import InsecureRequestWarning
+requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
+
 
 def crawl_enter_list():
     result={}
