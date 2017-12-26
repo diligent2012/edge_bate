@@ -169,7 +169,6 @@ def find_order_buy():
         cur = conn.cursor()
         cur.execute('set names utf8') #charset set code. it is not nessary now
         sql = "SELECT * FROM `omni_btc_buy`  WHERE is_sell = 9 and is_out = 1"
-        print sql
         cur.execute(sql)
         conn.commit()
         result = cur.fetchall()
@@ -194,7 +193,6 @@ def insert_buy_rate(buy_id, min_sell_price, rate, rate_price, rate_total_price, 
         cur = conn.cursor()
         cur.execute('set names utf8') #charset set code. it is not nessary now
         sql = "INSERT INTO `omni_btc_buy_rate` (`buy_id`, `min_sell_price`, `rate`, `rate_price`, `rate_total_price`, `cal_date`) VALUES ('%s', '%s', '%s', '%s', '%s', '%s')" % (buy_id, min_sell_price, rate, rate_price, rate_total_price, cal_date)
-        print sql
         #sql = "INSERT INTO `ecs_t_marathon` (`name`, `start_run_time`) VALUES ('%s', '%s')" % (name, start_run_time)
         cur.execute(sql)
         conn.commit()
@@ -216,7 +214,6 @@ def find_rate_is_cal(buy_id, rate):
         cur = conn.cursor()
         cur.execute('set names utf8') #charset set code. it is not nessary now
         sql = "SELECT * FROM `omni_btc_buy_rate`  WHERE buy_id = '%s' and rate = %s" % (buy_id, rate)
-        print sql
         #sql = "INSERT INTO `ecs_t_marathon` (`name`, `start_run_time`) VALUES ('%s', '%s')" % (name, start_run_time)
         cur.execute(sql)
         conn.commit()
@@ -254,16 +251,23 @@ def start_monitor():
     rate_list = [1.03,1.02,1.01]
     for item_buy in order_buy:
         price = item_buy[3] # 购买价格
+
         buy_quantity = item_buy[2] # 购买数量
         buy_id = item_buy[0]# 购买表主键
 
-        curr_min_sell_price =  crawl_enter_sell() # 当前售卖最低价格
+        # 当前售卖最低价格
+        curr_min_sell_price =  crawl_enter_sell() 
         curr_min_sell_price = float(curr_min_sell_price);
 
         for rate in rate_list:
+
+            # 建议售卖价格
             sell_price = round(float(rate) * float(price) * 0.995,2)
+
             rate_price = sell_price - price
             rate_total_price = rate_price * float(buy_quantity)
+
+            print  buy_id, price, rate
             is_cal = find_rate_is_cal(buy_id, rate)
             if(is_cal):
                 insert_buy_rate(buy_id, sell_price, rate, rate_price, rate_total_price, crawl_date)
@@ -272,7 +276,7 @@ def start_monitor():
                 key_flag = str(curr_min_sell_price) + str(price) + str(rate_price)
                 is_send = find_send_refer(key_flag)
                 if(is_send):
-                    content = "\n当前售卖价格: " + str(curr_min_sell_price) + ";\n"+"当初购买价格: " + str(price) + ";\n"+" 利润: " + str(rate_price) + ";\n"+" 对应产品ID为: " + str(buy_id)
+                    content = "\n当前售卖价格: " + str(curr_min_sell_price) + ";\n" + "当初购买价格: " + str(price) + ";\n" + "建议出售价格: " + str(sell_price) + ";\n" + " 利润: " + str(rate_price) + ";\n" + " 利润率: " + str(rate) + ";\n" + " 对应产品ID为: " + str(buy_id)
                     print content
                     send_mail(content)
                     insert_send_refer(key_flag, date, crawl_date)
