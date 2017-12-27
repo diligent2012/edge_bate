@@ -251,7 +251,7 @@ def start_monitor():
     date = time.strftime('%Y-%m-%d',time.localtime(time.time()))
     crawl_date = time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time()))
     #rate_list = [1.03,1.05,1.10,1.15,1.20]
-    rate_list = [1.03,1.02,1.01]
+    rate_list = [1.03,1.02]
     for item_buy in order_buy:
         price = item_buy[3] # 购买价格
 
