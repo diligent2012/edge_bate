@@ -298,8 +298,9 @@ def start_monitor():
     #rate_list = [1.03,1.05,1.10,1.15,1.20]
     rate_list = [1.03,1.02]
     for item_buy in order_buy:
-        price = item_buy[3] # 购买价格
-        buy_quantity = item_buy[2] # 购买数量
+        
+        price = item_buy[4] # 购买价格
+        buy_quantity = item_buy[3] # 购买数量
         buy_id = item_buy[0]# 购买表主键
         currency = item_buy[-1]# 购买币种
 
