@@ -20,6 +20,7 @@ import urllib
 import urllib2
 import json
 import requests
+from decimal import *
 
 from requests.packages.urllib3.exceptions import InsecureRequestWarning
 requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
@@ -147,7 +148,7 @@ def insert_rate(buy_min_price, sell_max_price, rate, date, date_hour, crawl_date
         cur = conn.cursor()
         cur.execute('set names utf8') #charset set code. it is not nessary now
         sql = "INSERT INTO `omni_btc_compare_price` (`buy_min_price`, `sell_max_price`, `rate`, `date`, `date_hour`, `crawl_date`) VALUES ('%s', '%s', '%s', '%s', '%s', '%s')" % (buy_min_price, sell_max_price, rate, date, date_hour, crawl_date )
-        print sql
+        #print sql
         #sql = "INSERT INTO `ecs_t_marathon` (`name`, `start_run_time`) VALUES ('%s', '%s')" % (name, start_run_time)
         cur.execute(sql)
         conn.commit()
@@ -157,10 +158,44 @@ def insert_rate(buy_min_price, sell_max_price, rate, date, date_hour, crawl_date
         print e.message
 
 
+# 获取3天最低价的平均价格
+def get_avg_min_price(date, limit = 3):
+    try:
+        conn= MySQLdb.connect(
+            host='127.0.0.1',
+            port = 3306,
+            user='omni_manage_pro',
+            passwd='!omni123456manageMysql.pro',
+            db ='z_omni_manage_pro',
+        )
+        cur = conn.cursor()
+        cur.execute('set names utf8') #charset set code. it is not nessary now
+        sql = "SELECT * FROM `omni_btc_compare_price`  WHERE date = '%s' order by buy_min_price limit %s " % (date, limit)
+        #sql = "INSERT INTO `ecs_t_marathon` (`name`, `start_run_time`) VALUES ('%s', '%s')" % (name, start_run_time)
+        cur.execute(sql)
+        conn.commit()
+        result = cur.fetchall()
+
+        avg_price = 0
+        for item in result:
+            avg_price += Decimal(item[2])
+
+        return round(avg_price/limit,2)
+        if result:
+            return False
+        else:
+            return True
+        
+        cur.close()
+        conn.close()
+    except Exception, e:
+        print e.message
+    return True
+
+
 def start_monitor():
     date = time.strftime('%Y-%m-%d',time.localtime(time.time()))
     crawl_date = time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time()))
-
     crawl_date_hour = time.strftime('%Y-%m-%d %H:00:00',time.localtime(time.time()))
     
     
@@ -177,40 +212,109 @@ def start_monitor():
 
     entry_money_rate_spec =  min_buy / max_sell
 
-    content = "卖出价格(出售): " + str(max_sell) + "; 成本价格(收购): " + str(min_buy) + "; 利润率: " + entry_money_rate_str
-    print content
-    #key_flag = str(max_sell) + str(min_buy) + entry_money_rate_str
-
+    #content = "卖出价格(出售): " + str(max_sell) + "; 成本价格(收购): " + str(min_buy) + "; 利润率: " + entry_money_rate_str
+    #print content
+    
     insert_rate(min_buy, max_sell, round(entry_money_rate * 100,2), date, crawl_date_hour, crawl_date)
 
+    # 售卖价格大于收购价格 1.2元 发送通知消息
+    if ((max_sell - min_buy) > 1.2):
+        key_flag = str(max_sell) + str(min_buy) + str(entry_money_rate_str) + str(crawl_date_hour)
+        is_send = find_send_refer(key_flag)
+        if(is_send):
+            content = "\n卖出价格(出售): " + str(max_sell) + ";\n成本价格(收购): " + str(min_buy) + ";\n 利润率: " + entry_money_rate_str
+            print content
+            send_mail(content)
+            insert_send_refer(key_flag, date, crawl_date)
+            #send_wechat(content);
+    
 
+
+    # 收购价格低于前三天的平均最低价格,发送通知消息
+    avg_min_pricd = get_avg_min_price(date)
+    if(min_buy <= avg_min_pricd):
+        key_flag = str(min_buy) + str(avg_min_pricd) + str(crawl_date_hour)
+        print key_flag
+        is_send = find_send_refer(key_flag)
+        if(is_send):
+            content = "\n成本价格(收购): " + str(min_buy) + ";\n前三天的平均最低价格: " + str(avg_min_pricd)
+            print content
+            send_mail(content)
+            insert_send_refer(key_flag, date, crawl_date)
+            #send_wechat(content);
+
+
+    # 
     # if(entry_money_rate * 100 >= 104 or entry_money_rate_spec * 100 <= 97):
     #     content = "卖出价格(出售): " + str(max_sell) + "; 成本价格(收购): " + str(min_buy) + "; 利润率: " + entry_money_rate_str
     #     print content
         
-    #     is_send = find_send_refer(key_flag)
-    #     if(is_send):
-    #         send_mail(content)
-    #         insert_send_refer(key_flag, date, crawl_date)
-    #         send_wechat(max_sell, min_buy, entry_money_rate_str);
+    #     
 
-            
-# def send_wechat(max_sell, min_buy, entry_money_rate_str):
-#     post_url = 'https://www.datasource.top/api/portal/btc/send'
+  
+def insert_send_refer(flag, date, crawl_date):
+    try:
+        conn= MySQLdb.connect(
+            host='127.0.0.1',
+            port = 3306,
+            user='omni_manage_pro',
+            passwd='!omni123456manageMysql.pro',
+            db ='z_omni_manage_pro',
+        )
+        cur = conn.cursor()
+        cur.execute('set names utf8') #charset set code. it is not nessary now
+        sql = "INSERT INTO `t_btc_send_refer` (`flag`, `date`, `crawl_date`) VALUES ('%s', '%s', '%s')" % (flag, date, crawl_date)
+        #sql = "INSERT INTO `ecs_t_marathon` (`name`, `start_run_time`) VALUES ('%s', '%s')" % (name, start_run_time)
+        cur.execute(sql)
+        conn.commit()
+        cur.close()
+        conn.close()
+    except Exception, e:
+        print e.message
+
+
+def find_send_refer(flag):
+    try:
+        conn= MySQLdb.connect(
+            host='127.0.0.1',
+            port = 3306,
+            user='omni_manage_pro',
+            passwd='!omni123456manageMysql.pro',
+            db ='z_omni_manage_pro',
+        )
+        cur = conn.cursor()
+        cur.execute('set names utf8') #charset set code. it is not nessary now
+        sql = "SELECT count(*) as send_count FROM `t_btc_send_refer`  WHERE flag = '%s' " % (flag)
+        #sql = "INSERT INTO `ecs_t_marathon` (`name`, `start_run_time`) VALUES ('%s', '%s')" % (name, start_run_time)
+        cur.execute(sql)
+        conn.commit()
+        result = cur.fetchone()
+        if result[0] >= 3:
+            return False
+        else:
+            return True
+        
+        cur.close()
+        conn.close()
+    except Exception, e:
+        print e.message
+    return True
+
+# 发送微信通知
+def send_wechat(content):
+    post_url = 'https://www.datasource.top/api/portal/btc/send'
     
-#     headers = {
-#         'content-type': 'application/x-www-form-urlencoded',
-#     }
+    headers = {
+        'content-type': 'application/x-www-form-urlencoded',
+    }
 
-#     p_data = {
-#         'max_sell':max_sell,
-#         'min_buy':min_buy,
-#         'entry_money_rate_str':entry_money_rate_str
-#     }
-#     data_u = urllib.urlencode(p_data)
-#     resp = requests.post(post_url, data=data_u, headers=headers)
-#     print resp.content
-#     return resp.content
+    p_data = {
+        'content':content
+    }
+    data_u = urllib.urlencode(p_data)
+    resp = requests.post(post_url, data=data_u, headers=headers)
+    print resp
+
 
 def crawl_start():
     print "start : " + time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time()))
