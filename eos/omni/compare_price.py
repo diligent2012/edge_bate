@@ -26,7 +26,7 @@ from requests.packages.urllib3.exceptions import InsecureRequestWarning
 requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 
 
-mailto_list = ['changaiqing@vip.163.com']
+mailto_list = ['changaiqing@vip.163.com','249400834@qq.com']
 mail_host = 'smtp.163.com'
 mail_user = 'omni_noreply@163.com'
 mail_pass = 'omni163'
@@ -226,7 +226,7 @@ def start_monitor():
             print content
             send_mail(content)
             insert_send_refer(key_flag, date, crawl_date)
-            #send_wechat(content);
+            send_wechat(content);
     
 
 
@@ -241,7 +241,7 @@ def start_monitor():
             print content
             send_mail(content)
             insert_send_refer(key_flag, date, crawl_date)
-            #send_wechat(content);
+            send_wechat(content);
 
 
     # 

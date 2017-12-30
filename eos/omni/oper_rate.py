@@ -28,7 +28,7 @@ requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 
 ##################以下为现在的逻辑
 
-mailto_list = ['changaiqing@vip.163.com']
+mailto_list = ['changaiqing@vip.163.com','249400834@qq.com']
 mail_host = 'smtp.163.com'
 mail_user = 'omni_noreply@163.com'
 mail_pass = 'omni163'
