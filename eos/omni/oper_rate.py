@@ -277,6 +277,23 @@ def find_rate_is_cal(buy_id, rate):
         print e.message
     return True
 
+def check_send_range():
+    crawl_date_hour = time.strftime('%Y-%m-%d %H:00:00',time.localtime(time.time()))
+    crawl_date_hour_start = time.strftime('%Y-%m-%d 00:00:00',time.localtime(time.time()))
+    crawl_date_hour_end = time.strftime('%Y-%m-%d 07:00:00',time.localtime(time.time()))
+
+    Flag=True
+
+    starttime=time.strptime(crawl_date_hour_start,'%Y-%m-%d %H:%M:%S')
+    endtime=time.strptime(crawl_date_hour_end,'%Y-%m-%d %H:%M:%S')
+    weibotime=time.strptime(str(crawl_date_hour),'%Y-%m-%d %H:%M:%S')
+
+    if int(time.mktime(starttime))<= int(time.mktime(weibotime)) and int(time.mktime(endtime))>=int(time.mktime(weibotime)):
+        Flag=False
+    else:
+        Flag=True
+
+    return Flag
 
 # 开始监控
 def start_monitor():
@@ -347,7 +364,8 @@ def start_monitor():
 
                 key_flag = str(curr_sell_price) + str(price) + str(rate_price)
                 is_send = find_send_refer(key_flag)
-                if(is_send):
+                
+                if(is_send and check_send_range()):
                     content = "\n当前售卖价格: " + str(curr_sell_price) + ";\n" + "当初购买价格: " + str(price) + ";\n" + "建议出售价格: " + str(curr_sell_price) + ";\n" + " 利润: " + str(rate_price) + ";\n" + " 利润率: " + str(rate) + ";\n" + " 对应产品ID为: " + str(buy_id)
                     print content
                     send_mail(content)
