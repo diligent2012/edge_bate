@@ -6,7 +6,7 @@ import requests
 import json
 from bs4 import BeautifulSoup
 import re
-from datetime import datetime
+from datetime import datetime, date
 from datetime import timedelta
 import MySQLdb
 import time
@@ -159,7 +159,7 @@ def insert_rate(buy_min_price, sell_max_price, rate, date, date_hour, crawl_date
 
 
 # 获取3天最低价的平均价格
-def get_avg_min_price(date, limit = 3):
+def get_avg_min_price(limit = 3):
     try:
         conn= MySQLdb.connect(
             host='127.0.0.1',
@@ -169,18 +169,40 @@ def get_avg_min_price(date, limit = 3):
             db ='z_omni_manage_pro',
         )
         cur = conn.cursor()
+        today = date.today()
+        today_one = today - timedelta(days=1)
         cur.execute('set names utf8') #charset set code. it is not nessary now
-        sql = "SELECT * FROM `omni_btc_compare_price`  WHERE date = '%s' order by buy_min_price limit %s " % (date, limit)
+        sql = "SELECT * FROM `omni_btc_compare_price`  WHERE date = '%s' order by buy_min_price limit %s " % (today_one, limit)
         #sql = "INSERT INTO `ecs_t_marathon` (`name`, `start_run_time`) VALUES ('%s', '%s')" % (name, start_run_time)
         cur.execute(sql)
         conn.commit()
-        result = cur.fetchall()
+        result_one = cur.fetchall()
 
+        today_two = today - timedelta(days=2)
+        sql = "SELECT * FROM `omni_btc_compare_price`  WHERE date = '%s' order by buy_min_price limit %s " % (today_two, limit)
+        #sql = "INSERT INTO `ecs_t_marathon` (`name`, `start_run_time`) VALUES ('%s', '%s')" % (name, start_run_time)
+        cur.execute(sql)
+        conn.commit()
+        result_two = cur.fetchall()
+
+        today_three = today - timedelta(days=3)
+        sql = "SELECT * FROM `omni_btc_compare_price`  WHERE date = '%s' order by buy_min_price limit %s " % (today_three, limit)
+        #sql = "INSERT INTO `ecs_t_marathon` (`name`, `start_run_time`) VALUES ('%s', '%s')" % (name, start_run_time)
+        cur.execute(sql)
+        conn.commit()
+        result_three = cur.fetchall()
+                
         avg_price = 0
-        for item in result:
+        for item in result_one:
             avg_price += Decimal(item[2])
 
-        return round(avg_price/limit,2)
+        for item in result_two:
+            avg_price += Decimal(item[2])
+
+        for item in result_three:
+            avg_price += Decimal(item[2])
+
+        return round(avg_price/(limit * 3),2)
         if result:
             return False
         else:
@@ -231,7 +253,10 @@ def start_monitor():
 
 
     # 收购价格低于前三天的平均最低价格,发送通知消息
+    
+
     avg_min_pricd = get_avg_min_price(date)
+    print avg_min_pricd
     if(min_buy <= avg_min_pricd):
         key_flag = str(min_buy) + str(avg_min_pricd) + str(crawl_date_hour)
         print key_flag
