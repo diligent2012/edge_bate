@@ -221,7 +221,7 @@ def start_monitor():
     if ((max_sell - min_buy) > 1.2):
         key_flag = str(max_sell) + str(min_buy) + str(entry_money_rate_str) + str(crawl_date_hour)
         is_send = find_send_refer(key_flag)
-        if(is_send):
+        if(is_send and check_send_range()):
             content = "\n卖出价格(出售): " + str(max_sell) + ";\n成本价格(收购): " + str(min_buy) + ";\n 利润率: " + entry_money_rate_str
             print content
             send_mail(content)
@@ -236,7 +236,7 @@ def start_monitor():
         key_flag = str(min_buy) + str(avg_min_pricd) + str(crawl_date_hour)
         print key_flag
         is_send = find_send_refer(key_flag)
-        if(is_send):
+        if(is_send and check_send_range()):
             content = "\n成本价格(收购): " + str(min_buy) + ";\n前三天的平均最低价格: " + str(avg_min_pricd)
             print content
             send_mail(content)
@@ -299,6 +299,25 @@ def find_send_refer(flag):
     except Exception, e:
         print e.message
     return True
+
+
+def check_send_range():
+    crawl_date_hour = time.strftime('%Y-%m-%d %H:00:00',time.localtime(time.time()))
+    crawl_date_hour_start = time.strftime('%Y-%m-%d 00:00:00',time.localtime(time.time()))
+    crawl_date_hour_end = time.strftime('%Y-%m-%d 07:00:00',time.localtime(time.time()))
+
+    Flag=True
+
+    starttime=time.strptime(crawl_date_hour_start,'%Y-%m-%d %H:%M:%S')
+    endtime=time.strptime(crawl_date_hour_end,'%Y-%m-%d %H:%M:%S')
+    weibotime=time.strptime(str(crawl_date_hour),'%Y-%m-%d %H:%M:%S')
+
+    if int(time.mktime(starttime))<= int(time.mktime(weibotime)) and int(time.mktime(endtime))>=int(time.mktime(weibotime)):
+        Flag=False
+    else:
+        Flag=True
+
+    return Flag
 
 # 发送微信通知
 def send_wechat(content):
