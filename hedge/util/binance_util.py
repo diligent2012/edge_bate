@@ -25,6 +25,20 @@ def get_order_book(symbol='EOSBTC'):
     order_book = client.get_order_book(symbol = symbol)
     return order_book
 
+
+def get_ticker(symbol='EOSBTC'):
+    ticker = client.get_ticker(symbol = symbol)
+    return ticker
+
+def get_orderbook_tickers():
+    orderbook_tickers = client.get_orderbook_tickers()
+    return orderbook_tickers
+
+
+def get_aggregate_trades(symbol='EOSBTC'):
+    aggregate_trades = client.get_aggregate_trades(symbol = symbol)
+    return aggregate_trades
+
 # 限价单 买入
 def order_limit_buy(symbol = 'EOSBTC', quantity = 1, price = 0.001):
     order_limit_buy_result = client.order_limit_buy(symbol = symbol, quantity = quantity, price = price)
@@ -44,3 +58,22 @@ def order_market_buy(symbol = 'EOSBTC', quantity = 1):
 def order_market_sell(symbol = 'EOSBTC', quantity = 1):
     order_market_sell_result = client.order_market_sell(symbol = symbol, quantity = quantity)
     return order_market_sell_result
+
+def get_open_orders(symbol = 'EOSBTC'):
+    open_orders = client.get_open_orders(symbol = symbol)
+    return open_orders
+
+def cancel_order(symbol , orderId):
+    cancel_order = client.cancel_order(symbol = symbol, orderId = orderId)
+    return cancel_order
+
+
+def get_asset_balance(asset = 'EOS'):
+    asset_balance = client.get_asset_balance(asset = asset)
+    return asset_balance
+
+
+def get_symbol_info(symbol = 'EOSBTC'):
+    symbol_info = client.get_symbol_info(symbol = symbol)
+    return symbol_info
+
