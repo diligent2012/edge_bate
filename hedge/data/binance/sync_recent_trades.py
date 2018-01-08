@@ -8,7 +8,6 @@ from binance_ref.client import Client
 from binance_ref.exceptions import BinanceAPIException, BinanceRequestException, BinanceWithdrawException
 import time
 from binance_ref.enums import *
-
 from db_util import insert_binance_recent_trades_data
 from binance_util import get_recent_trades
 
@@ -22,6 +21,7 @@ JOIN_ORDER_SYMBOL = [
 # 获取最近的交易（最多500）
 def sync_recent_trades(symbol='EOSBTC'):
     recent_trades = get_recent_trades(symbol)
+    sync_time = time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time()))
     for key,item in enumerate(recent_trades):
         isBuyerMaker = 0
         if (item['isBuyerMaker']):
@@ -29,10 +29,7 @@ def sync_recent_trades(symbol='EOSBTC'):
         isBestMatch = 0
         if (item['isBestMatch']):
             isBestMatch = 1
-        if(key == len(recent_trades) - 1):
-            print item
-
-        insert_binance_recent_trades_data(isBuyerMaker, item['price'], item['qty'], item['time'], item['id'], isBestMatch)
+        insert_binance_recent_trades_data(isBuyerMaker, item['price'], item['qty'], item['time'], item['id'], isBestMatch, sync_time)
 
 # 入口方法
 def main():

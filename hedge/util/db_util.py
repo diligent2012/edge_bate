@@ -11,7 +11,7 @@ import time
 import random
 
 
-def insert_binance_recent_trades_data(data_isBuyerMaker, data_price, data_qty, data_time, data_id, data_isBestMatch):
+def insert_binance_recent_trades_data(data_isBuyerMaker, data_price, data_qty, data_time, data_id, data_isBestMatch, sync_time):
     try:
         conn= MySQLdb.connect(
             host='127.0.0.1',
@@ -22,7 +22,6 @@ def insert_binance_recent_trades_data(data_isBuyerMaker, data_price, data_qty, d
         )
         cur = conn.cursor()
         cur.execute('set names utf8') #charset set code. it is not nessary now
-        sync_time = time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time()))
         sql = "INSERT INTO `omni_btc_binance_recent_trades_data` (`data_isBuyerMaker`, `data_price`, `data_qty`, `data_time`, `data_id`, `data_isBestMatch`, `sync_time`) VALUES ('%s', '%s', '%s', '%s', '%s', '%s', '%s')" % (data_isBuyerMaker, data_price, data_qty, data_time, data_id, data_isBestMatch, sync_time)
         #sql = "INSERT INTO `ecs_t_marathon` (`name`, `start_run_time`) VALUES ('%s', '%s')" % (name, start_run_time)
         cur.execute(sql)
