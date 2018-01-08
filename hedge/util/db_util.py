@@ -28,6 +28,6 @@ def insert_binance_recent_trades_data(data_isBuyerMaker, data_price, data_qty, d
         conn.commit()
         cur.close()
         conn.close()
-    except Exception, e:
-        print e.message
+    except Exception as e:
+        print e
 
