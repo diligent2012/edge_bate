@@ -21,68 +21,103 @@ import time
 from binance_ref.enums import *
 from decimal import *
 
-from db_util import insert_binance_recent_trades_data, insert_btc_binance_order, find_btc_binance_order_record
-from binance_util import get_client, get_all_tickers, get_order_book, get_recent_trades, get_ticker, get_aggregate_trades, get_orderbook_tickers, get_open_orders,  get_asset_balance, cancel_order, get_symbol_info,get_all_orders, get_klines
+from db_util import insert_binance_recent_trades_data, find_btc_binance_order_oper_sell, find_btc_binance_order_record, insert_btc_binance_order_stop_buy_record, find_btc_binance_order_stop_buy_record
+from binance_util import get_client, get_all_tickers, get_order_book, get_recent_trades, get_ticker, get_aggregate_trades, get_orderbook_tickers, get_open_orders,  get_asset_balance, cancel_order, get_symbol_info, get_all_orders, get_klines, create_stop_buy_order
 from account_util import get_account_list
 from helper_util import id_generator
 
-from common_util import common_sync_all_order
+from common_util import common_sync_all_order, common_get_curr_min_price_recent
 
 
 # 代码执行针对订单有效时间
 #LIMIT_DATE = '2018-01-07 00:00:00'
 
 def start_trade_buy():
+
     account_list = get_account_list()
     for key,a_item in enumerate(account_list):
         client = get_client(a_item['api_key'], a_item['api_secret'])
-        
-        #获取所有订单
-        all_orders = get_all_orders(client, 'EOSBTC');
-        # 如果不为空
-        if all_orders:
-            for key,item in enumerate(all_orders):
-                #print item
-                #trade_time_ref = time.strftime("%Y-%m-%d %H:%M:%S",time.localtime(int(item['time'] / 1000)))
-                #if (a_item['buy_limit_date'] < trade_time_ref and 'FILLED' == item['status']):
-                    # if ('BUY' == item['side']):
-                    #     account = a_item['account']
-                    #     orderId = item['orderId']
-                    #     price = item['price']
-                    #     origQty = item['origQty']
-                    #     trade_time = item['time']
-                sellClientOrderId = id_generator()
-                data = {}
-                data['sellClientOrderId'] = sellClientOrderId
-                data['account'] = a_item['account']
-                data['orderId'] = item['orderId']
-                data['clientOrderId'] = item['clientOrderId']
-                data['origQty'] = item['origQty']
-                data['icebergQty'] = item['icebergQty']
-                data['symbol'] = item['symbol']
-                data['side'] = item['side']
-                data['timeInForce'] = item['timeInForce']
-                data['status'] = item['status']
-                data['stopPrice'] = item['stopPrice']
-                data['time'] = item['time']
-                data['isWorking'] = item['isWorking']
-                data['o_type'] = item['type']
-                data['price'] = item['price']
-                data['executedQty'] = item['executedQty']
-                btc_binance_order_record = find_btc_binance_order_record(item['orderId'])
+        account = a_item['account']
+        btc_binance_trade = find_btc_binance_order_oper_sell(account)
+        if(btc_binance_trade):
+            for key,item in enumerate(btc_binance_trade):
+                status = item[11]
+                side = item[9]
+                origQty = item[5]
+                executedQty = item[7]
+                orderId = item[3]
+                sell_price = item[16]
+
+                curr_min_price = common_get_curr_min_price_recent(client)
+
+                # 当前价格 大于 最近卖出价格,不买入
+                if(curr_min_price > sell_price):
+                    print "不买入", curr_min_price, sell_price
+                    print '当前最低价格: %s' % curr_min_price
+                    print '最近卖出价格: %s ; 卖出数量: %s' % (sell_price, executedQty)
+                    break
                 
-                if not btc_binance_order_record:
-                    insert_btc_binance_order(data)
-          
+                buy_price, stop_buy_price = oper_buy_price(curr_min_price, sell_price)
+                print buy_price, stop_buy_price
+
+                if ('FILLED' == status):
+                    print "===================第一档==================="
+                    print '当前最低价格: %s' % curr_min_price
+                    print '卖出订单ID: %s' % orderId
+                    print '最近卖出价格: %s ; 卖出数量: %s' % (sell_price, executedQty)
+                    print '触发价格: %s ; 止损价格: %s' % (buy_price, stop_buy_price)
+                    set_stop_price_order(client, buy_price, stop_buy_price, executedQty)
+                    
+def oper_buy_price(curr_min_price, sell_price):
+    # if(curr_min_price > sell_price):
+    #     stop_rate = 0.998
+    #     stop_buy_price = round(float(sell_price) * stop_rate,8)
+    #     buy_price = round(float(Decimal(stop_buy_price) * Decimal(1 - 0.0005)),8)
+    #     return buy_price, stop_buy_price
+    
+    stop_rate = float(Decimal(1) - (Decimal(sell_price) - Decimal(curr_min_price))/Decimal(curr_min_price) * Decimal(0.05))
+    stop_buy_price = round(float(sell_price) * stop_rate,8)
+    buy_price = round(float(Decimal(stop_buy_price) * Decimal(1 - 0.0005)),8)
+    return buy_price, stop_buy_price
+   
 
 
+# 开始设置止盈价格
+def set_stop_price_order(client, buy_price, stop_buy_price, buy_qty):
+    order_symbol = 'EOSBTC'
+    order_side = SIDE_BUY
+    order_type = ORDER_TYPE_TAKE_PROFIT_LIMIT
+    order_timeInForce = TIME_IN_FORCE_GTC
+    order_price = buy_price 
+    order_stopPrice = stop_buy_price
+    order_quantity = buy_qty
+    print order_symbol, order_side, order_type, order_timeInForce, order_quantity, order_price, order_stopPrice
+    #检查是否和上一次设置的止盈价格相同,如果相同,则不用取消重新设置; 如果不相同,则取消重新设置
+    set_stop_record_buy_result = find_btc_binance_order_stop_buy_record()
+    if(set_stop_record_buy_result):
 
+        stopPrice = set_stop_record_buy_result['stopPrice']
+        price = set_stop_record_buy_result['price']
+        origQty = set_stop_record_buy_result['origQty']
+        orderId = set_stop_record_buy_result['orderId']
+
+        # 判断 触发价格、止盈价格、购买数量是否相同; 如果相同,则不用取消重新设置; 如果不相同,则取消重新设置
+        if( order_price == price and order_stopPrice == stopPrice and order_quantity == origQty):
+            print "相同,不用设置"
+        else:
+            print "重新设置止损"
+            cancel_order(client, order_symbol, orderId)
+            buy_order_result = create_stop_buy_order(client, order_symbol, order_side, order_type, order_timeInForce, order_quantity, order_price, order_stopPrice)
+            insert_btc_binance_order_stop_buy_record(buy_order_result)
+    else:
+        print "第一次设置"
+        buy_order_result = create_stop_buy_order(client, order_symbol, order_side, order_type, order_timeInForce, order_quantity, order_price, order_stopPrice)
+        insert_btc_binance_order_stop_buy_record(buy_order_result)
 
 # 入口方法
 def main():
     print "start : " + time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time()))
-    common_sync_all_order()
-    
+    start_trade_buy()
 
 if __name__ == '__main__':
     main() 

@@ -115,7 +115,31 @@ def find_btc_binance_order_record(orderId):
     return False
 
 
-def find_btc_binance_order_oper(account):
+def find_btc_binance_order_oper_buy(account):
+    try:
+        conn= MySQLdb.connect(
+            host='127.0.0.1',
+            port = 3306,
+            user='omni_manage_pro',
+            passwd='!omni123456manageMysql.pro',
+            db ='z_omni_manage_pro',
+        )
+        cur = conn.cursor(MySQLdb.cursors.DictCursor)
+        cur.execute('set names utf8') #charset set code. it is not nessary now
+        sql = "SELECT * FROM `omni_btc_binance_order`  WHERE is_up = 1 and side = 'BUY' and account = '%s' " % (account)
+        #print sql
+        cur.execute(sql)
+        conn.commit()
+        result = cur.fetchall()
+        return result
+        cur.close()
+        conn.close()
+    except Exception as e:
+        print e
+    return False
+
+
+def find_btc_binance_order_oper_sell(account):
     try:
         conn= MySQLdb.connect(
             host='127.0.0.1',
@@ -126,7 +150,7 @@ def find_btc_binance_order_oper(account):
         )
         cur = conn.cursor()
         cur.execute('set names utf8') #charset set code. it is not nessary now
-        sql = "SELECT * FROM `omni_btc_binance_order`  WHERE is_up = 1 and account = '%s' " % (account)
+        sql = "SELECT * FROM `omni_btc_binance_order`  WHERE is_up = 1 and side = 'SELL' and account = '%s' order by time desc " % (account)
         #print sql
         cur.execute(sql)
         conn.commit()
@@ -173,7 +197,7 @@ def find_btc_binance_order_sell_record_surplus(account, sellClientOrderId):
             passwd='!omni123456manageMysql.pro',
             db ='z_omni_manage_pro',
         )
-        cur = conn.cursor()
+        cur = conn.cursor(MySQLdb.cursors.DictCursor)
         cur.execute('set names utf8') #charset set code. it is not nessary now
         sql = "SELECT * FROM `omni_btc_binance_order`  WHERE side = 'SELL'  and account = '%s' and clientOrderId like '%s' " % (account, '%s%s' % (sellClientOrderId,'%'))
         #sql = "SELECT * FROM `omni_btc_binance_order`  WHERE side = 'SELL'  and account = '%s'  " % (account)
@@ -242,7 +266,7 @@ def find_btc_binance_order_stop_record(newClientOrderId):
             passwd='!omni123456manageMysql.pro',
             db ='z_omni_manage_pro',
         )
-        cur = conn.cursor()
+        cur = conn.cursor(MySQLdb.cursors.DictCursor)
         cur.execute('set names utf8') #charset set code. it is not nessary now
         #sql = "SELECT * FROM `omni_btc_binance_order_stop_record`  WHERE price = '%s' and stopPrice = '%s' and origQty = '%s' and clientOrderId = '%s' " % (sell_price, stop_sell_price, buy_qty, newClientOrderId)
         sql = "SELECT * FROM `omni_btc_binance_order_stop_record`  WHERE parentClientOrderId = '%s' order by transactTime desc" % (newClientOrderId)
@@ -258,8 +282,74 @@ def find_btc_binance_order_stop_record(newClientOrderId):
     return False
 
 
+# 插入 买入时, 止盈设置纪录
+def insert_btc_binance_order_stop_buy_record(data):
+    try:
+        
+        orderId = data['orderId']
+        clientOrderId = data['clientOrderId']
 
-# 插入 订单 数据
+        origQty = data['origQty']
+        symbol = data['symbol']
+
+        side = data['side']
+        timeInForce = data['timeInForce']
+
+        status = data['status']
+        stopPrice = data['stopPrice']
+
+        transactTime = data['transactTime']
+        o_type = data['type']
+
+        price = data['price']
+        executedQty = data['executedQty']
+
+        conn= MySQLdb.connect(
+            host='127.0.0.1',
+            port = 3306,
+            user='omni_manage_pro',
+            passwd='!omni123456manageMysql.pro',
+            db ='z_omni_manage_pro',
+        )
+        cur = conn.cursor()
+        cur.execute('set names utf8') #charset set code. it is not nessary now
+        sql = "INSERT INTO `omni_btc_binance_order_stop_buy_record` (`orderId`,`clientOrderId`,`origQty`,`executedQty`,`symbol`,`side`,`timeInForce`,`status`,`stopPrice`,`transactTime`,`o_type`,`price`) VALUES ('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s')" % (orderId,clientOrderId,origQty,executedQty,symbol,side,timeInForce,status,stopPrice,transactTime,o_type,price)
+        cur.execute(sql)
+        conn.commit()
+        result = cur.fetchall()
+        return result
+        cur.close()
+        conn.close()
+    except Exception as e:
+        print e
+    return False
+
+# 查询 买入时, 止盈设置纪录
+def find_btc_binance_order_stop_buy_record():
+    try:
+        conn= MySQLdb.connect(
+            host='127.0.0.1',
+            port = 3306,
+            user='omni_manage_pro',
+            passwd='!omni123456manageMysql.pro',
+            db ='z_omni_manage_pro',
+        )
+        cur = conn.cursor(MySQLdb.cursors.DictCursor)
+        cur.execute('set names utf8') #charset set code. it is not nessary now
+        #sql = "SELECT * FROM `omni_btc_binance_order_stop_record`  WHERE price = '%s' and stopPrice = '%s' and origQty = '%s' and clientOrderId = '%s' " % (sell_price, stop_sell_price, buy_qty, newClientOrderId)
+        sql = "SELECT * FROM `omni_btc_binance_order_stop_buy_record`  order by transactTime desc" 
+        #print sql
+        cur.execute(sql)
+        conn.commit()
+        result = cur.fetchone()
+        return result
+        cur.close()
+        conn.close()
+    except Exception as e:
+        print e
+    return False
+
+# 插入 资产 数据
 def insert_btc_binance_asset(account, asset, free, locked, date):
     try:
         conn= MySQLdb.connect(
@@ -281,8 +371,6 @@ def insert_btc_binance_asset(account, asset, free, locked, date):
     except Exception as e:
         print e
     return False
-
-
 
 #-----------------------------------------------
 

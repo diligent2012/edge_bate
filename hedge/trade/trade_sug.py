@@ -178,6 +178,18 @@ def get_curr_max_price(client):
         
     return max_price  
 
+
+def test():
+    account_list = get_account_list()
+    for key,a_item in enumerate(account_list):
+        client = get_client(a_item['api_key'], a_item['api_secret'])
+
+        ticker =  get_ticker(client)
+        for key,item in enumerate(ticker):
+            if ('EOSBTC' == item['symbol']):
+                print item['askPrice']
+                print item['lastPrice']
+                print item['highPrice']
 # 入口方法
 def main():
     print "start : " + time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time()))
