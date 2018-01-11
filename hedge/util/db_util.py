@@ -101,12 +101,12 @@ def find_btc_binance_order_record(orderId):
             passwd='!omni123456manageMysql.pro',
             db ='z_omni_manage_pro',
         )
-        cur = conn.cursor()
+        cur = conn.cursor(MySQLdb.cursors.DictCursor)
         cur.execute('set names utf8') #charset set code. it is not nessary now
         sql = "SELECT * FROM `omni_btc_binance_order`  WHERE orderId = '%s' " % (orderId)
         cur.execute(sql)
         conn.commit()
-        result = cur.fetchall()
+        result = cur.fetchone()
         return result
         cur.close()
         conn.close()
@@ -212,8 +212,39 @@ def find_btc_binance_order_sell_record_surplus(account, sellClientOrderId):
         print e
     return False
 
+
+# 更新 订单 所有信息
+def update_btc_binance_order(data):
+    try:
+
+        orderId = data['orderId']
+        status = data['status']
+        time = data['time']
+        isWorking = data['isWorking']
+
+        conn= MySQLdb.connect(
+            host='127.0.0.1',
+            port = 3306,
+            user='omni_manage_pro',
+            passwd='!omni123456manageMysql.pro',
+            db ='z_omni_manage_pro',
+        )
+        cur = conn.cursor()
+        cur.execute('set names utf8') #charset set code. it is not nessary now
+        sql = "UPDATE `omni_btc_binance_order` SET `status` = '%s',`time` = '%s', `isWorking` = '%s'  WHERE orderId = '%s' " % (status, time, isWorking, orderId)
+        #print sql
+        cur.execute(sql)
+        conn.commit()
+        result = cur.fetchall()
+        return result
+        cur.close()
+        conn.close()
+    except Exception as e:
+        print e
+    return False
+
 # 更新 订单 上下架
-def update_btc_binance_order(orderId, is_up = 9):
+def update_btc_binance_order_up(orderId, is_up = 9):
     try:
         conn= MySQLdb.connect(
             host='127.0.0.1',
@@ -224,7 +255,7 @@ def update_btc_binance_order(orderId, is_up = 9):
         )
         cur = conn.cursor()
         cur.execute('set names utf8') #charset set code. it is not nessary now
-        sql = "UPDATE `omni_btc_binance_trade` SET `is_up` = '%s' WHERE orderId = '%s' " % (is_up, orderId)
+        sql = "UPDATE `omni_btc_binance_order` SET `is_up` = '%s' WHERE orderId = '%s' " % (is_up, orderId)
         #print sql
         cur.execute(sql)
         conn.commit()
