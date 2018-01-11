@@ -17,7 +17,7 @@ import time
 from binance_ref.enums import *
 from decimal import *
 
-from db_util import insert_binance_recent_trades_data, find_btc_binance_order_oper_buy, find_btc_binance_order_sell_record, find_btc_binance_order_sell_record_surplus, insert_btc_binance_order_stop_record, find_btc_binance_order_stop_record
+from db_util import insert_binance_recent_trades_data, find_btc_binance_order_oper_buy, find_btc_binance_order_sell_record, find_btc_binance_order_sell_record_surplus, insert_btc_binance_order_stop_record, find_btc_binance_order_stop_record, find_btc_binance_order_selling
 from binance_util import get_client, get_all_tickers, get_order_book, create_stop_order, get_recent_trades, get_ticker, get_aggregate_trades, get_orderbook_tickers, get_open_orders, get_asset_balance, cancel_order, get_symbol_info, get_all_orders,get_klines
 from account_util import get_account_list
 from helper_util import id_generator
@@ -32,81 +32,87 @@ def start_trade_sell():
         account = a_item['account']
         # 同步已经成交的订单
         common_sync_all_order()
+
+        is_selling = find_btc_binance_order_selling(account)
+        if(is_selling):
+            break
         
         btc_binance_trade = find_btc_binance_order_oper_buy(account)
         if(btc_binance_trade):
             for key,item in enumerate(btc_binance_trade):
-                #print item
-                origQty = item['origQty']
-                executedQty = item['executedQty']
-                status = item['status']
-                side = item['side']
-                sellClientOrderId = item['sellClientOrderId']
-                buy_price = item['price']
-                orderId = item['orderId']
 
-                curr_max_price = common_get_curr_max_price_recent(client)
+                if (0 == key):
+                    #print item
+                    origQty = item['origQty']
+                    executedQty = item['executedQty']
+                    status = item['status']
+                    side = item['side']
+                    sellClientOrderId = item['sellClientOrderId']
+                    buy_price = item['price']
+                    orderId = item['orderId']
 
-                is_sell_record = False # 是否存在对应的卖出纪录, 没有则进入,有的话就跳过
-                is_find_btc_binance_order_sell_record = find_btc_binance_order_sell_record(account, sellClientOrderId)
-                if is_find_btc_binance_order_sell_record:
-                    is_sell_record = True
+                    curr_max_price = common_get_curr_max_price_recent(client)
 
-                is_sell_surplus = False # 是否对应的卖出还有剩余, 有剩余则进入,没有的就跳过
-                surplus_qty = 0.0 # 剩余数量
-                is_sell_surplus, surplus_qty = get_sell_surplus(account, sellClientOrderId, executedQty)
+                    is_sell_record = False # 是否存在对应的卖出纪录, 没有则进入,有的话就跳过
+                    is_find_btc_binance_order_sell_record = find_btc_binance_order_sell_record(account, sellClientOrderId)
+                    if is_find_btc_binance_order_sell_record:
+                        is_sell_record = True
 
-                sell_price, stop_sell_price = oper_stop_price(curr_max_price, buy_price)
-                is_oper_sell = oper_is_sell(stop_sell_price, buy_price)
+                    is_sell_surplus = False # 是否对应的卖出还有剩余, 有剩余则进入,没有的就跳过
+                    surplus_qty = 0.0 # 剩余数量
+                    is_sell_surplus, surplus_qty = get_sell_surplus(account, sellClientOrderId, executedQty)
 
-                print '买入订单ID: %s 是否可以卖出: %s' % (orderId, is_oper_sell)
-                # 买入的要卖出
-                # 条件为: 
-                # 1、必须有一定的利润
-                if is_oper_sell:
+                    sell_price, stop_sell_price = oper_stop_price(curr_max_price, buy_price)
+                    is_oper_sell = oper_is_sell(stop_sell_price, buy_price)
 
-                    # 2、状态为完成的
-                    # 3、买卖类型为买
-                    if(status == 'FILLED' and 'BUY' == side):
-                        # 4、对应的卖出纪录不存在
-                        if(not is_sell_record):
-                            print "===================第一档==================="
-                            print '当前最高价格: %s' % curr_max_price
-                            print '买入订单ID: %s' % orderId
-                            print '买入价格: %s ; 买入数量: %s' % (buy_price, executedQty)
-                            print '触发价格: %s ; 止损价格: %s' % (sell_price, stop_sell_price)
-                            set_stop_price_order(client, sell_price, stop_sell_price, executedQty, sellClientOrderId)
+                    print '买入订单ID: %s 是否可以卖出: %s' % (orderId, is_oper_sell)
+                    # 买入的要卖出
+                    # 条件为: 
+                    # 1、必须有一定的利润
+                    if is_oper_sell:
 
-                        # 4、对应的卖出纪录存在, 但是数量不相等的(就是没有全部卖出,需要继续卖)
-                        elif(is_sell_surplus):
-                            print "===================第二档==================="
-                            print '当前最高价格: %s' % curr_max_price
-                            print '买入订单ID: %s' % orderId
-                            print '买入价格: %s ; 买入数量: %s' % (buy_price, executedQty)
-                            print '触发价格: %s ; 止损价格: %s' % (sell_price, stop_sell_price)
-                            set_stop_price_order(client, sell_price, stop_sell_price, surplus_qty, sellClientOrderId)
-                
-                    # 2、状态为取消的
-                    # 3、买卖类型为买
-                    # 4、没有全部买入成功的(买成功部分)
-                    if(status == 'CANCELED' and 'BUY' == side and origQty > executedQty and 0.0 != executedQty):
-                        # 5、对应的卖出纪录不存在
-                        if(not is_sell_record):
-                            print "===================第三档==================="
-                            print '当前最高价格: %s' % curr_max_price
-                            print '买入订单ID: %s' % orderId
-                            print '买入价格: %s ; 买入数量: %s' % (buy_price, executedQty)
-                            print '触发价格: %s ; 止损价格: %s' % (sell_price, stop_sell_price)
-                            set_stop_price_order(client, sell_price, stop_sell_price, executedQty, sellClientOrderId)
-                        
-                        # 5、对应的卖出纪录存在, 但是数量不相等的(就是没有全部卖出,需要继续卖)
-                        elif(is_sell_surplus):
-                            print "===================第四档==================="
-                            print '当前最高价格: %s' % curr_max_price
-                            print '买入订单ID: %s' % orderId
-                            print '买入价格: %s ; 买入数量: %s' % (buy_price, executedQty)
-                            print '触发价格: %s ; 止损价格: %s' % (sell_price, stop_sell_price)
-                            set_stop_price_order(client, sell_price, stop_sell_price, surplus_qty, sellClientOrderId)
+                        # 2、状态为完成的
+                        # 3、买卖类型为买
+                        if(status == 'FILLED' and 'BUY' == side):
+                            # 4、对应的卖出纪录不存在
+                            if(not is_sell_record):
+                                print "===================第一档==================="
+                                print '当前最高价格: %s' % curr_max_price
+                                print '买入订单ID: %s' % orderId
+                                print '买入价格: %s ; 买入数量: %s' % (buy_price, executedQty)
+                                print '触发价格: %s ; 止损价格: %s' % (sell_price, stop_sell_price)
+                                set_stop_price_order(client, sell_price, stop_sell_price, executedQty, sellClientOrderId)
+
+                            # 4、对应的卖出纪录存在, 但是数量不相等的(就是没有全部卖出,需要继续卖)
+                            elif(is_sell_surplus):
+                                print "===================第二档==================="
+                                print '当前最高价格: %s' % curr_max_price
+                                print '买入订单ID: %s' % orderId
+                                print '买入价格: %s ; 买入数量: %s' % (buy_price, executedQty)
+                                print '触发价格: %s ; 止损价格: %s' % (sell_price, stop_sell_price)
+                                set_stop_price_order(client, sell_price, stop_sell_price, surplus_qty, sellClientOrderId)
+                    
+                        # 2、状态为取消的
+                        # 3、买卖类型为买
+                        # 4、没有全部买入成功的(买成功部分)
+                        if(status == 'CANCELED' and 'BUY' == side and origQty > executedQty and 0.0 != executedQty):
+                            # 5、对应的卖出纪录不存在
+                            if(not is_sell_record):
+                                print "===================第三档==================="
+                                print '当前最高价格: %s' % curr_max_price
+                                print '买入订单ID: %s' % orderId
+                                print '买入价格: %s ; 买入数量: %s' % (buy_price, executedQty)
+                                print '触发价格: %s ; 止损价格: %s' % (sell_price, stop_sell_price)
+                                set_stop_price_order(client, sell_price, stop_sell_price, executedQty, sellClientOrderId)
+                            
+                            # 5、对应的卖出纪录存在, 但是数量不相等的(就是没有全部卖出,需要继续卖)
+                            elif(is_sell_surplus):
+                                print "===================第四档==================="
+                                print '当前最高价格: %s' % curr_max_price
+                                print '买入订单ID: %s' % orderId
+                                print '买入价格: %s ; 买入数量: %s' % (buy_price, executedQty)
+                                print '触发价格: %s ; 止损价格: %s' % (sell_price, stop_sell_price)
+                                set_stop_price_order(client, sell_price, stop_sell_price, surplus_qty, sellClientOrderId)
 
 # 开始设置止损价格
 def set_stop_price_order(client, sell_price, stop_sell_price, sell_qty, newClientOrderId):

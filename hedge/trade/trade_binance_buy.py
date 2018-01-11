@@ -21,7 +21,7 @@ import time
 from binance_ref.enums import *
 from decimal import *
 
-from db_util import insert_binance_recent_trades_data, find_btc_binance_order_oper_sell, find_btc_binance_order_record, insert_btc_binance_order_stop_buy_record, find_btc_binance_order_stop_buy_record
+from db_util import insert_binance_recent_trades_data, find_btc_binance_order_oper_sell, find_btc_binance_order_record, insert_btc_binance_order_stop_buy_record, find_btc_binance_order_stop_buy_record, find_btc_binance_order_buying
 from binance_util import get_client, get_all_tickers, get_order_book, get_recent_trades, get_ticker, get_aggregate_trades, get_orderbook_tickers, get_open_orders,  get_asset_balance, cancel_order, get_symbol_info, get_all_orders, get_klines, create_stop_buy_order
 from account_util import get_account_list
 from helper_util import id_generator
@@ -41,6 +41,9 @@ def start_trade_buy():
 
         # 同步已经成交的订单
         common_sync_all_order()
+        is_buying = find_btc_binance_order_buying(account)
+        if(is_buying):
+            break
 
         btc_binance_trade = find_btc_binance_order_oper_sell(account)
         if(btc_binance_trade):
