@@ -81,7 +81,6 @@ def insert_btc_binance_order(data):
         cur = conn.cursor()
         cur.execute('set names utf8') #charset set code. it is not nessary now
         sql = "INSERT INTO `omni_btc_binance_order` (`account`,`sellClientOrderId`,`orderId`,`clientOrderId`,`origQty`,`icebergQty`,`executedQty`,`symbol`,`side`,`timeInForce`,`status`,`stopPrice`,`time`,`isWorking`,`o_type`,`price`) VALUES ('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s')" % (account,sellClientOrderId,orderId,clientOrderId,origQty,icebergQty,executedQty,symbol,side,timeInForce,status,stopPrice,time,isWorking,o_type,price)
-        print sql
         cur.execute(sql)
         conn.commit()
         result = cur.fetchall()
@@ -151,7 +150,7 @@ def find_btc_binance_order_sell_record(account, sellClientOrderId):
         )
         cur = conn.cursor()
         cur.execute('set names utf8') #charset set code. it is not nessary now
-        sql = "SELECT * FROM `omni_btc_binance_order`  WHERE side = 'SELL' and status = 'FILLED' and account = '%s' and clientOrderId = '%s' " % (account, sellClientOrderId)
+        sql = "SELECT * FROM `omni_btc_binance_order`  WHERE side = 'SELL' and status = 'FILLED' and account = '%s' and clientOrderId like '%s' " % (account, '%s%s' % (sellClientOrderId,'%'))
         #print sql
         cur.execute(sql)
         conn.commit()
@@ -176,7 +175,7 @@ def find_btc_binance_order_sell_record_surplus(account, sellClientOrderId):
         )
         cur = conn.cursor()
         cur.execute('set names utf8') #charset set code. it is not nessary now
-        sql = "SELECT * FROM `omni_btc_binance_order`  WHERE side = 'SELL'  and account = '%s' and clientOrderId = '%s' " % (account, sellClientOrderId)
+        sql = "SELECT * FROM `omni_btc_binance_order`  WHERE side = 'SELL'  and account = '%s' and clientOrderId like '%s' " % (account, '%s%s' % (sellClientOrderId,'%'))
         #sql = "SELECT * FROM `omni_btc_binance_order`  WHERE side = 'SELL'  and account = '%s'  " % (account)
         #print sql
         cur.execute(sql)
@@ -223,7 +222,6 @@ def insert_btc_binance_order_stop_record(data, parentClientOrderId):
         cur = conn.cursor()
         cur.execute('set names utf8') #charset set code. it is not nessary now
         sql = "INSERT INTO `omni_btc_binance_order_stop_record` (`orderId`,`clientOrderId`,`origQty`,`executedQty`,`symbol`,`side`,`timeInForce`,`status`,`stopPrice`,`transactTime`,`o_type`,`price`,`parentClientOrderId`) VALUES ('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s')" % (orderId,clientOrderId,origQty,executedQty,symbol,side,timeInForce,status,stopPrice,transactTime,o_type,price, parentClientOrderId)
-        print sql
         cur.execute(sql)
         conn.commit()
         result = cur.fetchall()
@@ -274,7 +272,6 @@ def insert_btc_binance_asset(account, asset, free, locked, date):
         cur = conn.cursor()
         cur.execute('set names utf8') #charset set code. it is not nessary now
         sql = "INSERT INTO `omni_btc_binance_asset` (`account`,`asset`,`free`,`locked`,`date`) VALUES ('%s', '%s', '%s', '%s', '%s')" % (account, asset, free, locked, date)
-        print sql
         cur.execute(sql)
         conn.commit()
         result = cur.fetchall()
@@ -327,7 +324,6 @@ def insert_btc_binance_trade_buy(account, buy_order_id, buy_price, buy_qty, buy_
         cur = conn.cursor()
         cur.execute('set names utf8') #charset set code. it is not nessary now
         sql = "INSERT INTO `omni_btc_binance_trade_buy` (`account`, `buy_order_id`, `buy_price`, `buy_qty`, `buy_time`, `b_id`) VALUES ('%s', '%s', '%s', '%s', '%s', '%s')" % (account, buy_order_id, buy_price, buy_qty, buy_time, b_id)
-        print sql
         cur.execute(sql)
         conn.commit()
         result = cur.fetchall()
