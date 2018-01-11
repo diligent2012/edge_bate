@@ -8,7 +8,7 @@ from binance_ref.exceptions import BinanceAPIException, BinanceRequestException,
 import time
 from binance_ref.enums import *
 
-from db_util import insert_btc_binance_order, find_btc_binance_order_record
+from db_util import insert_btc_binance_order, find_btc_binance_order_record, update_btc_binance_order, find_btc_binance_order_sell_record
 from binance_util import get_client, get_all_orders, get_recent_trades, get_klines, get_ticker, get_order_book
 from account_util import get_account_list
 from helper_util import id_generator
@@ -49,6 +49,52 @@ def common_sync_all_order():
                 if not btc_binance_order_record:
                     print "有新纪录"
                     insert_btc_binance_order(data)
+                    common_update_order_up(data)
+
+
+# 更新订单的上下架状态
+def common_update_order_up(data):
+    orderId = data['orderId']
+    account = data['account']
+    side = data['side']
+    status = data['status']
+    sellClientOrderId = data['sellClientOrderId']
+    origQty = data['origQty']
+    executedQty = data['executedQty']
+
+    # 第一种场景
+    # 买入订单状态为FILLED
+    if ('BUY' == side and 'FILLED' == status):
+        is_result = find_btc_binance_order_sell_record(account, sellClientOrderId)
+        # 有对应的卖出订单,状态也为FILLED. 置为9
+        if is_result:
+            #置为9
+            print "订单号 %s 置为 9" % orderId 
+            update_btc_binance_order(orderId, 9)
+            
+        #没有对应的卖出订单,为1
+        else:
+            #置为1
+            print "订单号 %s 置为 1" % orderId 
+            #update_btc_binance_order(orderId, 1)
+    
+    # 第二种场景
+    # 卖出订单状态为FILLED
+    if ('SELL' == side and 'FILLED' == status):
+        #置为9
+        print "订单号 %s 置为 9" % orderId 
+        update_btc_binance_order(orderId, 9)
+
+    
+    # 第三种场景
+    # 卖出订单状态为CANCELED, 并且卖出数量和已经卖出数量不一致的,卖出数量不为0.0
+    if ('SELL' == side and 'CANCELED' == status and origQty > executedQty and 0.0 != executedQty):
+        # 置为1
+        print "订单号 %s 置为 1" % orderId 
+        #update_btc_binance_order(orderId, 1)
+
+    
+
 
 
 # 获取当前的最高价格, 通过最近交易数据获取

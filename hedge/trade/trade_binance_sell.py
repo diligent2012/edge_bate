@@ -30,7 +30,7 @@ def start_trade_sell():
     for key,a_item in enumerate(account_list):
         client = get_client(a_item['api_key'], a_item['api_secret'])
         account = a_item['account']
-        # 同步已经成交的卖出订单
+        # 同步已经成交的订单
         common_sync_all_order()
         
         btc_binance_trade = find_btc_binance_order_oper_buy(account)
@@ -110,7 +110,6 @@ def start_trade_sell():
 
 # 开始设置止损价格
 def set_stop_price_order(client, sell_price, stop_sell_price, sell_qty, newClientOrderId):
-    return
     order_symbol = 'EOSBTC'
     order_side = SIDE_SELL
     order_type = ORDER_TYPE_TAKE_PROFIT_LIMIT

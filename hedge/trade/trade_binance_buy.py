@@ -38,6 +38,10 @@ def start_trade_buy():
     for key,a_item in enumerate(account_list):
         client = get_client(a_item['api_key'], a_item['api_secret'])
         account = a_item['account']
+
+        # 同步已经成交的订单
+        common_sync_all_order()
+
         btc_binance_trade = find_btc_binance_order_oper_sell(account)
         if(btc_binance_trade):
             for key,item in enumerate(btc_binance_trade):
