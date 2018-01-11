@@ -45,32 +45,33 @@ def start_trade_buy():
         btc_binance_trade = find_btc_binance_order_oper_sell(account)
         if(btc_binance_trade):
             for key,item in enumerate(btc_binance_trade):
-                status = item[11]
-                side = item[9]
-                origQty = item[5]
-                executedQty = item[7]
-                orderId = item[3]
-                sell_price = item[16]
+                if 0 == key:
+                    status = item['status']
+                    side = item['side']
+                    origQty = item['origQty']
+                    #executedQty = item['executedQty']
+                    orderId = item['orderId']
+                    sell_price = item['price']
 
-                curr_min_price = common_get_curr_min_price_recent(client)
+                    curr_min_price = common_get_curr_min_price_recent(client)
 
-                # 当前价格 大于 最近卖出价格,不买入
-                if(curr_min_price > sell_price):
-                    print "不买入", curr_min_price, sell_price
-                    print '当前最低价格: %s' % curr_min_price
-                    print '最近卖出价格: %s ; 卖出数量: %s' % (sell_price, executedQty)
-                    break
-                
-                buy_price, stop_buy_price = oper_buy_price(curr_min_price, sell_price)
-                print buy_price, stop_buy_price
+                    # 当前价格 大于 最近卖出价格,不买入
+                    if(curr_min_price > sell_price):
+                        print "不买入", curr_min_price, sell_price
+                        print '当前最低价格: %s' % curr_min_price
+                        print '最近卖出价格: %s ; 卖出数量: %s' % (sell_price, origQty)
+                        break
+                    
+                    buy_price, stop_buy_price = oper_buy_price(curr_min_price, sell_price)
+                    print buy_price, stop_buy_price
 
-                if ('FILLED' == status):
-                    print "===================第一档==================="
-                    print '当前最低价格: %s' % curr_min_price
-                    print '卖出订单ID: %s' % orderId
-                    print '最近卖出价格: %s ; 卖出数量: %s' % (sell_price, executedQty)
-                    print '触发价格: %s ; 止损价格: %s' % (buy_price, stop_buy_price)
-                    set_stop_price_order(client, buy_price, stop_buy_price, executedQty)
+                    if ('FILLED' == status):
+                        print "===================第一档==================="
+                        print '当前最低价格: %s' % curr_min_price
+                        print '卖出订单ID: %s' % orderId
+                        print '最近卖出价格: %s ; 卖出数量: %s' % (sell_price, origQty)
+                        print '触发价格: %s ; 止损价格: %s' % (buy_price, stop_buy_price)
+                        set_stop_price_order(client, buy_price, stop_buy_price, origQty)
                     
 def oper_buy_price(curr_min_price, sell_price):
     # if(curr_min_price > sell_price):
