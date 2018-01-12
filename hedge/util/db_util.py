@@ -11,7 +11,7 @@ import time
 import random
 
 
-def insert_binance_recent_trades_data(data_isBuyerMaker, data_price, data_qty, data_time, data_id, data_isBestMatch, sync_time):
+def insert_binance_recent_trades_data(data_isBuyerMaker, data_price, data_qty, data_time, data_id, data_isBestMatch, sync_time, change_rate):
     try:
         conn= MySQLdb.connect(
             host='127.0.0.1',
@@ -22,7 +22,7 @@ def insert_binance_recent_trades_data(data_isBuyerMaker, data_price, data_qty, d
         )
         cur = conn.cursor()
         cur.execute('set names utf8') #charset set code. it is not nessary now
-        sql = "INSERT INTO `omni_btc_binance_recent_trades_data` (`data_isBuyerMaker`, `data_price`, `data_qty`, `data_time`, `data_id`, `data_isBestMatch`, `sync_time`) VALUES ('%s', '%s', '%s', '%s', '%s', '%s', '%s')" % (data_isBuyerMaker, data_price, data_qty, data_time, data_id, data_isBestMatch, sync_time)
+        sql = "INSERT INTO `omni_btc_binance_recent_trades_data` (`data_isBuyerMaker`, `data_price`, `data_qty`, `data_time`, `data_id`, `data_isBestMatch`, `sync_time`, `change_rate`) VALUES ('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s')" % (data_isBuyerMaker, data_price, data_qty, data_time, data_id, data_isBestMatch, sync_time, change_rate)
         #sql = "INSERT INTO `ecs_t_marathon` (`name`, `start_run_time`) VALUES ('%s', '%s')" % (name, start_run_time)
         cur.execute(sql)
         conn.commit()
@@ -150,11 +150,11 @@ def find_btc_binance_order_oper_sell(account):
         )
         cur = conn.cursor(MySQLdb.cursors.DictCursor)
         cur.execute('set names utf8') #charset set code. it is not nessary now
-        sql = "SELECT * FROM `omni_btc_binance_order`  WHERE side = 'SELL'  and status = 'FILLED'  and account = '%s' order by time desc  " % (account)
+        sql = "SELECT * FROM `omni_btc_binance_order`  WHERE side = 'SELL'  and status = 'FILLED'  and account = '%s' order by time desc  limit 1" % (account)
         #print sql
         cur.execute(sql)
         conn.commit()
-        result = cur.fetchall()
+        result = cur.fetchone()
         return result
         cur.close()
         conn.close()
@@ -477,6 +477,62 @@ def insert_btc_binance_asset(account, asset, free, locked, date):
     except Exception as e:
         print e
     return False
+
+
+# 查询 最近交易
+def find_btc_binance_recent_trades_data():
+    try:
+        conn= MySQLdb.connect(
+            host='127.0.0.1',
+            port = 3306,
+            user='omni_manage_pro',
+            passwd='!omni123456manageMysql.pro',
+            db ='z_omni_manage_pro',
+        )
+        cur = conn.cursor(MySQLdb.cursors.DictCursor)
+        cur.execute('set names utf8') #charset set code. it is not nessary now
+        #sql = "SELECT * FROM `omni_btc_binance_order_stop_record`  WHERE price = '%s' and stopPrice = '%s' and origQty = '%s' and clientOrderId = '%s' " % (sell_price, stop_sell_price, buy_qty, newClientOrderId)
+        sql = "SELECT * FROM `omni_btc_binance_recent_trades_data`  order by transactTime desc" 
+        #print sql
+        cur.execute(sql)
+        conn.commit()
+        result = cur.fetchall()
+        return result
+        cur.close()
+        conn.close()
+    except Exception as e:
+        print e
+    return False
+
+
+# 查询 最近交易 中最新的一条
+def find_btc_binance_recent_trades_data_newest_one():
+    try:
+        conn= MySQLdb.connect(
+            host='127.0.0.1',
+            port = 3306,
+            user='omni_manage_pro',
+            passwd='!omni123456manageMysql.pro',
+            db ='z_omni_manage_pro',
+        )
+        cur = conn.cursor(MySQLdb.cursors.DictCursor)
+        cur.execute('set names utf8') #charset set code. it is not nessary now
+        sql = "SELECT * FROM `omni_btc_binance_recent_trades_data` order by data_time desc limit 1" 
+        #print sql
+        cur.execute(sql)
+        conn.commit()
+        result = cur.fetchone()
+        return result
+        cur.close()
+        conn.close()
+    except Exception as e:
+        print e
+    return False
+
+
+
+
+
 
 #-----------------------------------------------
 
