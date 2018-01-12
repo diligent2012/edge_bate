@@ -9,7 +9,7 @@ from binance_ref.exceptions import BinanceAPIException, BinanceRequestException,
 import time
 from binance_ref.enums import *
 from db_util import insert_binance_recent_trades_data
-from binance_util import get_recent_trades
+from account_util import get_account_list
 
 # 订单操作的币种
 JOIN_ORDER_SYMBOL = [
@@ -17,6 +17,14 @@ JOIN_ORDER_SYMBOL = [
     'EOSETH',
     'ETHBTC'
 ]
+
+# 获取最近的交易（最多500）
+def get_recent_trades(symbol='EOSBTC'):
+    account_list = get_account_list()
+    account = account_list[0]
+    client = Client(account['api_key'], account['api_secret'])
+    recent_trades = client.get_recent_trades(symbol = symbol)
+    return recent_trades
 
 # 获取最近的交易（最多500）
 def sync_recent_trades(symbol='EOSBTC'):
