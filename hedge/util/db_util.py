@@ -139,7 +139,7 @@ def find_btc_binance_order_oper_buy(account):
     return False
 
 
-def find_btc_binance_order_oper_sell(account):
+def find_btc_binance_order_sell_newest_one(account):
     try:
         conn= MySQLdb.connect(
             host='127.0.0.1',
@@ -214,6 +214,7 @@ def find_btc_binance_order_selling(account):
     return False
 
 
+
 def find_btc_binance_order_sell_record(account, sellClientOrderId):
     try:
         conn= MySQLdb.connect(
@@ -273,6 +274,10 @@ def update_btc_binance_order(data):
         time = data['time']
         isWorking = data['isWorking']
 
+        origQty = data['origQty']
+        icebergQty = data['icebergQty']
+        executedQty = data['executedQty']
+
         conn= MySQLdb.connect(
             host='127.0.0.1',
             port = 3306,
@@ -282,7 +287,7 @@ def update_btc_binance_order(data):
         )
         cur = conn.cursor()
         cur.execute('set names utf8') #charset set code. it is not nessary now
-        sql = "UPDATE `omni_btc_binance_order` SET `status` = '%s',`time` = '%s', `isWorking` = '%s'  WHERE orderId = '%s' " % (status, time, isWorking, orderId)
+        sql = "UPDATE `omni_btc_binance_order` SET `status` = '%s',`time` = '%s', `isWorking` = '%s', `origQty` = '%s', `icebergQty` = '%s', `executedQty` = '%s'  WHERE orderId = '%s' " % (status, time, isWorking, origQty, icebergQty, executedQty, orderId)
         #print sql
         cur.execute(sql)
         conn.commit()
@@ -431,7 +436,7 @@ def insert_btc_binance_order_stop_buy_record(data):
     return False
 
 # 查询 买入时, 止盈设置纪录
-def find_btc_binance_order_stop_buy_record():
+def find_btc_binance_order_stop_buy_record_newest_one():
     try:
         conn= MySQLdb.connect(
             host='127.0.0.1',
@@ -443,7 +448,7 @@ def find_btc_binance_order_stop_buy_record():
         cur = conn.cursor(MySQLdb.cursors.DictCursor)
         cur.execute('set names utf8') #charset set code. it is not nessary now
         #sql = "SELECT * FROM `omni_btc_binance_order_stop_record`  WHERE price = '%s' and stopPrice = '%s' and origQty = '%s' and clientOrderId = '%s' " % (sell_price, stop_sell_price, buy_qty, newClientOrderId)
-        sql = "SELECT * FROM `omni_btc_binance_order_stop_buy_record`  order by transactTime desc" 
+        sql = "SELECT * FROM `omni_btc_binance_order_stop_buy_record`  order by transactTime desc limit 1" 
         #print sql
         cur.execute(sql)
         conn.commit()
@@ -492,7 +497,7 @@ def find_btc_binance_recent_trades_data():
         cur = conn.cursor(MySQLdb.cursors.DictCursor)
         cur.execute('set names utf8') #charset set code. it is not nessary now
         #sql = "SELECT * FROM `omni_btc_binance_order_stop_record`  WHERE price = '%s' and stopPrice = '%s' and origQty = '%s' and clientOrderId = '%s' " % (sell_price, stop_sell_price, buy_qty, newClientOrderId)
-        sql = "SELECT * FROM `omni_btc_binance_recent_trades_data`  order by transactTime desc" 
+        sql = "SELECT * FROM `omni_btc_binance_recent_trades_data` order by transactTime desc " 
         #print sql
         cur.execute(sql)
         conn.commit()

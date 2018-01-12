@@ -1,16 +1,6 @@
 # coding=utf-8
 # 币安平台自动交易
-# 
-
-# 
-# 
-# 什么时候买呢 
-# 比较当前买的价格,精确到5位数
-# 然后降低1个百分点买,如果
-# 
-# 
-# 什么时候卖
-# 获取当前订单卖出的前3个的价格和数量
+# 买入
 
 import sys,os
 sys.path.append("../platform/")
@@ -41,6 +31,7 @@ def start_trade_buy():
 
         # 同步已经成交的订单
         common_sync_all_order()
+        
         is_buying = find_btc_binance_order_buying(account)
         if(is_buying):
             break
@@ -75,14 +66,9 @@ def start_trade_buy():
                         print '最近卖出价格: %s ; 卖出数量: %s' % (sell_price, origQty)
                         print '触发价格: %s ; 止损价格: %s' % (buy_price, stop_buy_price)
                         set_stop_price_order(client, buy_price, stop_buy_price, origQty)
-                    
+      
+# 计算买入触发价格和止损价格              
 def oper_buy_price(curr_min_price, sell_price):
-    # if(curr_min_price > sell_price):
-    #     stop_rate = 0.998
-    #     stop_buy_price = round(float(sell_price) * stop_rate,8)
-    #     buy_price = round(float(Decimal(stop_buy_price) * Decimal(1 - 0.0005)),8)
-    #     return buy_price, stop_buy_price
-    
     stop_rate = float(Decimal(1) - (Decimal(sell_price) - Decimal(curr_min_price))/Decimal(curr_min_price) * Decimal(0.05))
     stop_buy_price = round(float(sell_price) * stop_rate,8)
     buy_price = round(float(Decimal(stop_buy_price) * Decimal(1 - 0.0005)),8)

@@ -15,91 +15,85 @@ from helper_util import id_generator
 
 
 # 同步所有订单
-def common_sync_all_order():
-    account_list = get_account_list()
-    for key,a_item in enumerate(account_list):
-        client = get_client(a_item['api_key'], a_item['api_secret'])
+def common_sync_all_order(client, account):
+    #account_list = get_account_list()
+    #for key,a_item in enumerate(account_list):
+        #client = get_client(a_item['api_key'], a_item['api_secret'])
         
-        #获取所有订单
-        all_orders = get_all_orders(client, 'EOSBTC');
-        # 如果不为空
-        if all_orders:
-            for key,item in enumerate(all_orders):
-                #print item
-                
-                sellClientOrderId = id_generator()
-                data = {}
-                data['sellClientOrderId'] = sellClientOrderId
-                data['account'] = a_item['account']
-                data['orderId'] = item['orderId']
-                data['clientOrderId'] = item['clientOrderId']
-                data['origQty'] = item['origQty']
-                data['icebergQty'] = item['icebergQty']
-                data['symbol'] = item['symbol']
-                data['side'] = item['side']
-                data['timeInForce'] = item['timeInForce']
-                data['status'] = item['status']
-                data['stopPrice'] = item['stopPrice']
-                data['time'] = item['time']
-                data['isWorking'] = item['isWorking']
-                data['o_type'] = item['type']
-                data['price'] = item['price']
-                data['executedQty'] = item['executedQty']
-                btc_binance_order_record = find_btc_binance_order_record(item['orderId'])
-                if not btc_binance_order_record:
-                    print "有新纪录"
-                    insert_btc_binance_order(data)
-                    common_update_order_up(data)
-                else:
-                    update_btc_binance_order(data)
-                    #common_update_order_up(btc_binance_order_record)
+    #获取所有订单
+    all_orders = get_all_orders(client, 'EOSBTC');
+    # 如果不为空
+    if all_orders:
+        for key,item in enumerate(all_orders):
+            
+            sellClientOrderId = id_generator()
+            data = {}
+            data['sellClientOrderId'] = sellClientOrderId
+            data['account'] = account #a_item['account']
+            data['orderId'] = item['orderId']
+            data['clientOrderId'] = item['clientOrderId']
+            data['origQty'] = item['origQty']
+            data['icebergQty'] = item['icebergQty']
+            data['symbol'] = item['symbol']
+            data['side'] = item['side']
+            data['timeInForce'] = item['timeInForce']
+            data['status'] = item['status']
+            data['stopPrice'] = item['stopPrice']
+            data['time'] = item['time']
+            data['isWorking'] = item['isWorking']
+            data['o_type'] = item['type']
+            data['price'] = item['price']
+            data['executedQty'] = item['executedQty']
+
+            btc_binance_order_record = find_btc_binance_order_record(item['orderId'])
+            if not btc_binance_order_record:
+                print "新纪录"
+                insert_btc_binance_order(data)
+            else:
+                print "老纪录"
+                update_btc_binance_order(data)
+                #print btc_binance_order_record
+                common_update_order_up(btc_binance_order_record)
 
 
 
 # 更新订单的上下架状态
 def common_update_order_up(data):
-    orderId = data['orderId']
-    account = data['account']
-    side = data['side']
-    status = data['status']
-    sellClientOrderId = data['sellClientOrderId']
-    origQty = data['origQty']
-    executedQty = data['executedQty']
+    orderId = data['orderId'] # 订单ID
+    account = data['account'] # 当前账户
+    side = data['side'] # 买OR卖
+    status = data['status'] # 状态
+    sellClientOrderId = data['sellClientOrderId'] #买入对应卖出的客户端ID
+    origQty = float(data['origQty']) # 订单数量
+    executedQty = float(data['executedQty']) # 订单已经卖出数量
    
-    # 第一种场景
-    # 买入订单状态为FILLED
+    if (9 == int(data['is_auto'])): # 是否加入自动程序
+        return
+        
+    # 置为9,下架的交易条件
+        # 买入订单状态为FILLED,有对应的卖出订单,状态也为FILLED.该笔买入订单下架
+    # 置为1,上架的交易条件
+        # 买入订单状态为FILLED,没有对应的卖出订单,该笔买入订单上架
     if ('BUY' == side and 'FILLED' == status):
-        print sellClientOrderId
         is_result = find_btc_binance_order_sell_record(account, sellClientOrderId)
-        # 有对应的卖出订单,状态也为FILLED. 置为9
         if is_result:
-            #置为9
-            print "订单号 %s 置为 9" % orderId 
+            print "第01种场景: 订单号 %s 置为 9" % orderId 
             update_btc_binance_order_up(orderId, 9)
-            
-        #没有对应的卖出订单,为1
         else:
-            #置为1
-            print "订单号 %s 置为 1" % orderId 
-            #update_btc_binance_order_up(orderId, 1)
-    
-    # 第二种场景
-    # 卖出订单状态为FILLED
+            print "第02种场景: 订单号 %s 置为 1" % orderId 
+            update_btc_binance_order_up(orderId, 1)
+
+    # 置为9,下架的交易条件
+        # 卖出订单状态为FILLED,该笔卖出订单下架
     if ('SELL' == side and 'FILLED' == status):
-        #置为9
-        print "订单号 %s 置为 9" % orderId 
-        #update_btc_binance_order_up(orderId, 9)
+        print "第03种场景: 订单号 %s 置为 9" % orderId 
+        update_btc_binance_order_up(orderId, 9)
 
-    
-    # 第三种场景
-    # 卖出订单状态为CANCELED, 并且卖出数量和已经卖出数量不一致的,卖出数量不为0.0
+    # 置为1,上架的交易条件
+        # 卖出订单状态为CANCELED, 并且卖出数量和已经卖出数量不一致的,卖出数量不为0.0, 该笔卖出订单上架
     if ('SELL' == side and 'CANCELED' == status and origQty > executedQty and 0.0 != executedQty):
-        # 置为1
-        print "订单号 %s 置为 1" % orderId 
-        #update_btc_binance_order_up(orderId, 1)
-
-    
-
+        print "第04种场景: 订单号 %s 置为 1" % orderId 
+        update_btc_binance_order_up(orderId, 1)
 
 
 # 获取当前的最高价格, 通过最近交易数据获取
