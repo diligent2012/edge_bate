@@ -49,7 +49,7 @@ def get_aggregate_trades(client, symbol='EOSBTC'):
 
 
 # 止损
-def create_stop_order(client, symbol, side, o_type, timeInForce, quantity, price, stopPrice, newClientOrderId ):
+def create_stop_sell_order(client, symbol, side, o_type, timeInForce, quantity, price, stopPrice, newClientOrderId ):
     try:
         create_order_result = client.create_order(symbol = symbol, side = side, type = o_type, timeInForce = timeInForce, quantity = quantity, price = price, stopPrice = stopPrice, newClientOrderId = newClientOrderId)
         return create_order_result

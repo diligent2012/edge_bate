@@ -51,7 +51,6 @@ def start_buy():
         # 当最近交易价格中 最低价格 低于 卖出价格,才进入买入逻辑
         if (min_price < newest_one_sell_price):
 
-            print min_price, newest_one_sell_price
             # 计算并获取 触发价格、止盈价格 
             buy_price, stop_buy_price = get_stop_buy_price(min_price, newest_one_sell_price)
 
@@ -60,14 +59,14 @@ def start_buy():
             print '最近交易最低价格: %s ; 最高价格: %s' % (min_price, max_price)
             print '触发价格: %s ; 止盈价格: %s' % (buy_price, stop_buy_price)
             print '上一次卖出价格: %s' % newest_one_sell_price
-            print '卖出订单ID: %s' % (newest_one_sell_orderId) 
+            print '卖出订单ID: %s' % newest_one_sell_orderId
             
             set_stop_buy_price_order(client, buy_price, stop_buy_price, newest_one_sell_origQty)
         else:
             print "===================不可以==================="
             print '最近交易最低价格: %s ; 最高价格: %s' % (min_price, max_price)
             print '上一次卖出价格: %s' % newest_one_sell_price
-            print '卖出订单ID: %s' % (newest_one_sell_orderId)       
+            print '卖出订单ID: %s' % newest_one_sell_orderId     
     
     
 # 开始设置止盈价格
