@@ -241,7 +241,7 @@ def find_btc_binance_recent_trades_data_newest_one(symbol):
         #print sql
         cur.execute(sql)
         conn.commit()
-        result = cur.fetchone()
+        result = cur.fetchall()
         return result
         cur.close()
         conn.close()
