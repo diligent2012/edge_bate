@@ -6,6 +6,7 @@
 import sys,os
 # sys.path.append("../../platform/")
 sys.path.append("../../common/otcbtc")
+sys.path.append("../../common")
 reload(sys)
 sys.setdefaultencoding('utf-8')
 
@@ -38,6 +39,7 @@ requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 
 
 from global_setting import *
+from util import *
 
 
 user_agent_list = [
@@ -209,15 +211,12 @@ def split_market_price(market_price_info, symbol):
 def start():
     print "start : " + time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time()))
     market_price_info = get_market_price()
-
     symbols = get_symbols()
-
     all_price_info = []
     for key,item in enumerate(symbols):
         symbol = item['symbol']
         sell_price = get_trade_sell_price(symbol)
         buy_price = get_trade_buy_price(symbol)
-
         item = {}
         item['sell_price'] = sell_price 
         item['buy_price'] = buy_price
@@ -226,11 +225,9 @@ def start():
         item['market_price'] = json.dumps(market_price_json)
         all_price_info.append(item)
 
-
-    #print all_price_info
     v_content = view_content(all_price_info)
-    print v_content
-    send_wechat(v_content)
+    if (allow_send_time()):
+        send_wechat(v_content)
     print "end : " + time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time()))
 
 def view_content(all_price_info):
@@ -238,27 +235,14 @@ def view_content(all_price_info):
     for key,item in enumerate(all_price_info):
         row =   "\n币种: " + str(item['symbol']) + "; " + "卖出价格: " + str(item['sell_price']) + "; " + "买入价格: " + str(item['buy_price'])
 
-        market_row = ";\n市场价格"
-        for key,item_m in enumerate(json.loads(item['market_price'])):
-            m_row = ";\n  " + "交易所: " + str(item_m['bourse']) + "; " + "价格: " + str(item_m['price'])
-            #market_row += m_row
-        #row += market_row
+        # market_row = ";\n市场价格"
+        # for key,item_m in enumerate(json.loads(item['market_price'])):
+        #     m_row = ";\n  " + "交易所: " + str(item_m['bourse']) + "; " + "价格: " + str(item_m['price'])
+        #     market_row += m_row
+        # row += market_row
         content += row
     return content
 
-# 发送微信通知
-def send_wechat(content):
-    post_url = 'https://www.datasource.top/api/portal/btc/send'
-    
-    headers = {
-        'content-type': 'application/x-www-form-urlencoded',
-    }
-
-    p_data = {
-        'content':content
-    }
-    data_u = urllib.urlencode(p_data)
-    resp = requests.post(post_url, data=data_u, headers=headers)
 
 def main():
     start();
