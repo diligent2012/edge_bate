@@ -233,7 +233,7 @@ def start():
 def view_content(all_price_info):
     content = ""
     for key,item in enumerate(all_price_info):
-        row =   "\n币种: " + str(item['symbol']) + "; " + "卖出价格: " + str(item['sell_price']) + "; " + "买入价格: " + str(item['buy_price'])
+        row =   "\nOTCBTC 平台\n币种: " + str(item['symbol']) + "; " + "卖出价格: " + str(item['sell_price']) + "; " + "买入价格: " + str(item['buy_price'])
 
         # market_row = ";\n市场价格"
         # for key,item_m in enumerate(json.loads(item['market_price'])):
