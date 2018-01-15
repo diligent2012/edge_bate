@@ -262,7 +262,7 @@ def insert_binance_recent_trades_data(data_isBuyerMaker, data_price, data_qty, d
         cur = conn.cursor()
         cur.execute('set names utf8') #charset set code. it is not nessary now
         sql = "INSERT INTO `omni_btc_binance_recent_trades_data` (`data_isBuyerMaker`, `data_price`, `data_qty`, `data_time`, `data_id`, `data_isBestMatch`, `sync_time`, `change_rate`, `data_symbol`) VALUES ('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s')" % (data_isBuyerMaker, data_price, data_qty, data_time, data_id, data_isBestMatch, sync_time, change_rate, data_symbol)
-        print sql
+        #print sql
         #sql = "INSERT INTO `ecs_t_marathon` (`name`, `start_run_time`) VALUES ('%s', '%s')" % (name, start_run_time)
         cur.execute(sql)
         conn.commit()
