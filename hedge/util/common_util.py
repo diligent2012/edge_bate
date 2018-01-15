@@ -103,19 +103,19 @@ def common_update_order_up(data):
 
 
 # 获取当前的最高价格, 通过最近交易数据获取
-def common_get_curr_max_price_recent(client):
-    recent_trades = get_recent_trades(client)
-    max_price = 0.0
-    for key,item in enumerate(recent_trades):
-        if(0 == key):
-            max_price = item['price']
-        else:
-            if(item['price'] > max_price):
-                max_price = item['price']
+# def common_get_curr_max_price_recent(client):
+#     recent_trades = get_recent_trades(client)
+#     max_price = 0.0
+#     for key,item in enumerate(recent_trades):
+#         if(0 == key):
+#             max_price = item['price']
+#         else:
+#             if(item['price'] > max_price):
+#                 max_price = item['price']
     
-    # 将当前最高价格提高百分比
-    max_price = float(max_price) * float(1)
-    return round(max_price,8)
+#     # 将当前最高价格提高百分比
+#     max_price = float(max_price) * float(1)
+#     return round(max_price,8)
 
 
 
@@ -157,15 +157,15 @@ def common_get_curr_max_price_recent(client):
 #     return round(max_price,8)
 
 
-def common_get_curr_min_price_recent(client):
-    recent_trades = get_recent_trades(client)
-    min_price = 0.0
-    for key,item in enumerate(recent_trades):
-        if(key  == len(recent_trades) - 1):
-            min_price = item['price']
+# def common_get_curr_min_price_recent(client):
+#     recent_trades = get_recent_trades(client)
+#     min_price = 0.0
+#     for key,item in enumerate(recent_trades):
+#         if(key  == len(recent_trades) - 1):
+#             min_price = item['price']
     
-    # 将当前最低价格降低百分比
-    min_price = float(min_price) * float(1)
-    return round(min_price,8)
+#     # 将当前最低价格降低百分比
+#     min_price = float(min_price) * float(1)
+#     return round(min_price,8)
 
 

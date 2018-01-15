@@ -37,7 +37,7 @@ def start_buy():
         if(is_buying):
             break
 
-        # 获取上一次卖出的价格
+        # 获取最近一次卖出的交易数据
         order_sell_newest_one = find_btc_binance_order_sell_newest_one(account)
 
         newest_one_sell_time = int(order_sell_newest_one['time']) #上一次卖出的时间
