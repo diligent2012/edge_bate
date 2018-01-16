@@ -53,7 +53,7 @@ user_agent_list = [
 ]
 
 
-def get_trade_sell_price():
+def get_github_eos_code():
     result={}
     header = {
     }
@@ -129,7 +129,7 @@ def get_send_content(watch, star, fork, commits, branches, releases, contributor
 #入口
 def start():
     print "start : " + time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time()))
-    get_trade_sell_price()
+    get_github_eos_code()
     print "end : " + time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time()))
 
     
