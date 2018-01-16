@@ -10,27 +10,10 @@ import MySQLdb
 import time
 import random
 
-# 插入 买入时, 止盈设置纪录
-def insert_btc_binance_order_stop_buy_record(data):
+
+# 插入 github eos code 变动记录
+def insert_btc_eos_github_code(watch, star, fork, commits, branches, releases, contributors, date):
     try:
-        
-        orderId = data['orderId']
-        clientOrderId = data['clientOrderId']
-
-        origQty = data['origQty']
-        symbol = data['symbol']
-
-        side = data['side']
-        timeInForce = data['timeInForce']
-
-        status = data['status']
-        stopPrice = data['stopPrice']
-
-        transactTime = data['transactTime']
-        o_type = data['type']
-
-        price = data['price']
-        executedQty = data['executedQty']
 
         conn= MySQLdb.connect(
             host='127.0.0.1',
@@ -41,10 +24,36 @@ def insert_btc_binance_order_stop_buy_record(data):
         )
         cur = conn.cursor()
         cur.execute('set names utf8') #charset set code. it is not nessary now
-        sql = "INSERT INTO `omni_btc_binance_order_stop_buy_record` (`orderId`,`clientOrderId`,`origQty`,`executedQty`,`symbol`,`side`,`timeInForce`,`status`,`stopPrice`,`transactTime`,`o_type`,`price`) VALUES ('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s')" % (orderId,clientOrderId,origQty,executedQty,symbol,side,timeInForce,status,stopPrice,transactTime,o_type,price)
+        sql = "INSERT INTO `omni_btc_eos_github_code` (`watch`, `star`, `fork`, `commits`, `branches`, `releases`, `contributors`, `date`) VALUES ('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s')" % (watch, star, fork, commits, branches, releases, contributors, date)
         cur.execute(sql)
         conn.commit()
         result = cur.fetchall()
+        if result:
+            return True
+        cur.close()
+        conn.close()
+    except Exception as e:
+        print e
+    return False
+
+
+# 查询 上一次 代码变更数据
+def find_btc_eos_github_code_prev_one():
+    try:
+        conn= MySQLdb.connect(
+            host='127.0.0.1',
+            port = 3306,
+            user='omni_manage_pro',
+            passwd='!omni123456manageMysql.pro',
+            db ='z_omni_manage_pro',
+        )
+        cur = conn.cursor(MySQLdb.cursors.DictCursor)
+        cur.execute('set names utf8') #charset set code. it is not nessary now
+        sql = "SELECT * FROM `omni_btc_eos_github_code`  order by date desc " 
+        #print sql
+        cur.execute(sql)
+        conn.commit()
+        result = cur.fetchone()
         return result
         cur.close()
         conn.close()

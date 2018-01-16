@@ -40,6 +40,7 @@ requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 
 from global_setting import *
 from util import *
+from db import * 
 
 
 user_agent_list = [
@@ -65,32 +66,73 @@ def get_trade_sell_price():
     try:
         soup = BeautifulSoup(response.text, "html.parser")
         info_list = soup.find('ul',class_="pagehead-actions").find_all('li')
-        print "Watch(查看): " + info_list[0].find('a',class_="social-count").get_text().strip().replace(',','')
-        print "Star(点赞): " + info_list[1].find('a',class_="social-count").get_text().strip().replace(',','')
-        print "Fork(收藏): " + info_list[2].find('a',class_="social-count").get_text().strip().replace(',','')
-
+        watch = info_list[0].find('a',class_="social-count").get_text().strip().replace(',','')
+        star = info_list[1].find('a',class_="social-count").get_text().strip().replace(',','')
+        fork = info_list[2].find('a',class_="social-count").get_text().strip().replace(',','')
+        # print "Watch(查看): " + watch
+        # print "Star(点赞): " + star
+        # print "Fork(收藏): " + fork
         info_list_branch = soup.find('ul',class_="numbers-summary").find_all('li')
-        
-        print "commits(提交): " + info_list_branch[0].find('span',class_="num").get_text().strip().replace(',','')
-        print "branches(分支): " + info_list_branch[1].find('span',class_="num").get_text().strip().replace(',','')
-        print "releases(发布): " + info_list_branch[2].find('span',class_="num").get_text().strip().replace(',','')
-        print "contributors(贡献者): " + info_list_branch[3].find('span',class_="num").get_text().strip().replace(',','')
-        
-
+        commits = info_list_branch[0].find('span',class_="num").get_text().strip().replace(',','')
+        branches = info_list_branch[1].find('span',class_="num").get_text().strip().replace(',','')
+        releases = info_list_branch[2].find('span',class_="num").get_text().strip().replace(',','')
+        contributors = info_list_branch[3].find('span',class_="num").get_text().strip().replace(',','')
+        # print "commits(提交): " + commits
+        # print "branches(分支): " + branches
+        # print "releases(发布): " + releases
+        # print "contributors(贡献者): " + contributors
+        date = time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time()))
+        content = get_send_content(watch, star, fork, commits, branches, releases, contributors)
+        insert_btc_eos_github_code(watch, star, fork, commits, branches, releases, contributors, date)
+        if (allow_send_time()):
+            send_wechat(content)
 
     except Exception, e:
         print e.message
 
     return 0
 
+def get_send_content(watch, star, fork, commits, branches, releases, contributors):
+    prev_data = find_btc_eos_github_code_prev_one()
+
+    prev_commits = prev_data['commits']
+    prev_branches = prev_data['branches']
+    prev_releases = prev_data['releases']
+    prev_contributors = prev_data['contributors']
+
+    prev_watch = prev_data['watch']
+    prev_star = prev_data['star']
+    prev_fork = prev_data['fork']
+
+    commits_rate = round( (float(commits) - prev_commits) / prev_commits, 4) 
+    branches_rate = round( (float(branches) - prev_branches) / prev_branches, 4)
+    releases_rate = round( (float(releases) - prev_releases) / prev_releases, 4)
+    contributors_rate = round( (float(contributors) - prev_contributors) / prev_contributors,4)
+
+    watch_rate =  round( (float(watch) - prev_watch) / prev_watch,4 )
+    star_rate = round( (float(star) - prev_star) / prev_star,4 )
+    fork_rate = round( (float(fork) - prev_fork) / prev_fork,4 )
+
+    content = "\nGitHub EOS 代码变更"
+    content += "\ncommits: 上次:" + str(prev_commits) + " 当前: " + str(commits) + " 涨幅:" + str(commits_rate)
+    content += "\nbranches: 上次:" + str(prev_branches) + " 当前: " + str(branches) + " 涨幅:" + str(branches_rate)
+    content += "\nreleases: 上次:" + str(prev_releases) + " 当前: " + str(releases) + " 涨幅:" + str(releases_rate)
+    content += "\ncontributors: 上次:" + str(prev_contributors) + " 当前: " + str(contributors) + " 涨幅:" + str(contributors_rate)
+    
+    content += "\nwatch: 上次:" + str(prev_watch) + " 当前: " + str(watch) + " 涨幅:" + str(watch_rate)
+    content += "\nstar: 上次:" + str(prev_star) + " 当前: " + str(star) + " 涨幅:" + str(star_rate)
+    content += "\nfork: 上次:" + str(prev_fork) + " 当前: " + str(fork) + " 涨幅:" + str(fork_rate)
+    return  content
+
+    
 
 #入口
 def start():
     print "start : " + time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time()))
     get_trade_sell_price()
-   
     print "end : " + time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time()))
 
+    
 
 def main():
     start();
