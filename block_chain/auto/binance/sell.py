@@ -149,7 +149,7 @@ def start_auto_sell():
                 min_price, max_price = get_recent_trade_max_min_price_by_trade_time(client, symbol, order_time)
 
                 if(prev_buy_price):
-                    is_sell, oper_record_log = oper_is_sell(min_price, prev_sell_price, oper_record_log)
+                    is_sell, oper_record_log = oper_is_sell(min_price, prev_buy_price, oper_record_log)
                     if (is_sell):
 
                         # 计算并获取 触发价格、止损价格 
