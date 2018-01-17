@@ -45,6 +45,9 @@ def allow_send_time():
 def format_time(order_time):
     return time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(order_time/1000))
 
+def format_time_for_date(date):
+    return int(time.mktime(time.strptime(date, "%Y-%m-%d %H:%M:%S")))
+
 def id_generator(size=17, chars=string.ascii_uppercase + string.digits):
     r_id = ''.join(random.choice(chars) for _ in range(size))
     return '888%s' % str(r_id)

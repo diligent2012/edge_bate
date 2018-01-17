@@ -31,6 +31,7 @@ def start_auto_buy():
             client = Client(a_item['api_key'], a_item['api_secret'])
             account = a_item['account']
             qty = a_item['qty']
+            start_auto_date = format_time_for_date(a_item['start_auto_date'])
             binance_symbols = a_item['allow_symbol']
             
             # 循环不同的币种
@@ -42,7 +43,7 @@ def start_auto_buy():
                 oper_record_log += "\n30、币种: %s" % (symbol)
 
                 # 同步账户下的订单
-                oper_record_log = sync_all_order(client, account, symbol, oper_record_log)
+                oper_record_log = sync_all_order(client, account, symbol, start_auto_date, oper_record_log)
 
                 # 查看是否有卖出单子在进行
                 is_selling_rst, oper_record_log = is_selling(account, symbol, oper_record_log)
@@ -127,8 +128,8 @@ def get_prev_sell_price(account, symbol, oper_record_log):
         origQty = order_sell_newest_one['origQty'] #上一次卖出的数量
         executedQty = order_sell_newest_one['executedQty'] #上一次卖出的实际数量
         oper_record_log += "\n60、上一次卖出数据: 订单ID: %s 币种: %s  触发价格: %s 止损价格: %s 需要卖出数量: %s 实际卖出数量: %s 卖出时间: %s" % (str(orderId), str(symbol), str(price), str(stopPrice), str(origQty), str(executedQty), format_time(order_time))
-        return stopPrice, order_time, oper_record_log
-
+        
+        return price, order_time, oper_record_log
     return False, False, oper_record_log
 
 # 开始设置止盈价格

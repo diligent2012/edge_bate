@@ -247,7 +247,7 @@ def find_btc_binance_order_sell_newest_one(account, symbol):
         )
         cur = conn.cursor(MySQLdb.cursors.DictCursor)
         cur.execute('set names utf8') #charset set code. it is not nessary now
-        sql = "SELECT * FROM `omni_btc_binance_order`  WHERE side = 'SELL'  and status = 'FILLED'  and account = '%s' and symbol = '%s' order by time desc " % (account, symbol)
+        sql = "SELECT * FROM `omni_btc_binance_order`  WHERE is_up = 1 and side = 'SELL'  and status = 'FILLED' and account = '%s' and symbol = '%s' order by time desc " % (account, symbol)
         #print sql
         cur.execute(sql)
         conn.commit()
@@ -594,7 +594,7 @@ def update_btc_binance_order(data):
     return False
 
 # 查询是否有正在进行的订单
-def find_btc_binance_order_is_up(account):
+def find_btc_binance_order_is_up(account, start_auto_date):
     try:
         conn= MySQLdb.connect(
             host='127.0.0.1',
@@ -603,9 +603,10 @@ def find_btc_binance_order_is_up(account):
             passwd='!omni123456manageMysql.pro',
             db ='z_omni_manage_pro',
         )
+
         cur = conn.cursor(MySQLdb.cursors.DictCursor)
         cur.execute('set names utf8') #charset set code. it is not nessary now
-        sql = "SELECT * FROM `omni_btc_binance_order`  WHERE is_up = 1 and account = '%s' order by time desc" % (account)
+        sql = "SELECT * FROM `omni_btc_binance_order`  WHERE is_up = 1 and stopPrice != 0.0 and account = '%s' and time > '%s' order by time desc" % (account, start_auto_date)
         #print sql
         cur.execute(sql)
         conn.commit()
@@ -644,7 +645,7 @@ def find_btc_binance_order_sell_record(account, sellClientOrderId):
     return False
 
 # 更新 订单 上下架
-def update_btc_binance_order_up(orderId, is_up = 9):
+def update_btc_binance_order_up(orderId, is_up):
     try:
         conn= MySQLdb.connect(
             host='127.0.0.1',

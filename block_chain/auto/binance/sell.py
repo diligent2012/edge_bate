@@ -25,6 +25,7 @@ def start_auto_sell():
         for key,a_item in enumerate(account_list):
             client = Client(a_item['api_key'], a_item['api_secret'])
             account = a_item['account']
+            start_auto_date = format_time_for_date(a_item['start_auto_date'])
             binance_symbols = a_item['allow_symbol']
             
             # 循环不同的币种
@@ -38,7 +39,7 @@ def start_auto_sell():
                 oper_record_log += "\n30、币种: %s" % (symbol)
 
                 # 同步账户下的订单
-                oper_record_log = sync_all_order(client, account, symbol, oper_record_log)
+                oper_record_log = sync_all_order(client, account, symbol, start_auto_date, oper_record_log)
 
                 # 查看是否有买入单子在进行
                 is_buying_rst, oper_record_log = is_buying(account, symbol, oper_record_log)
@@ -59,7 +60,6 @@ def start_auto_sell():
                         sell_price, stop_sell_price = get_stop_sell_price_order(max_price, stopPrice, get_stop_sell_price_order)
                         
                         if(0.0 != sell_price and 0.0 != stop_sell_price):
-
                             # 开始设置卖出止损
                             set_stop_sell_price(client, sell_price, stop_sell_price, origQty, symbol, sellClientOrderId)
                 else:
@@ -151,18 +151,18 @@ def set_stop_sell_price(client, sell_price, stop_sell_price, sell_qty, symbol, s
 
             # 判断 触发价格、止损价格、购买数量是否相同; 如果相同,则不用设置;
             if( order_price == price and order_stopPrice == stopPrice and order_quantity == origQty):
-                print "相同,不用设置"
+                oper_record_log += "\n90-C、和上次设置止损相同 设置币种: %s 设置交易数量: %s 设置交易触发价格: %s 设置交易止损价格: %s 设置买卖类型: %s 设置交易类型: %s 设置交易时区: %s " % (order_symbol, order_quantity, order_price, order_stopPrice, order_side, order_type, order_timeInForce)
             
             # 如果不相同,则取消订单 并重新设置
             else:
-                print "重新设置止损"
+                oper_record_log += "\n90-B、重新设置止损 设置币种: %s 设置交易数量: %s 设置交易触发价格: %s 设置交易止损价格: %s 设置买卖类型: %s 设置交易类型: %s 设置交易时区: %s " % (order_symbol, order_quantity, order_price, order_stopPrice, order_side, order_type, order_timeInForce)
                 cancel_order(client, order_symbol, orderId)
                 sell_order_result = create_stop_sell_order(client, order_symbol, order_side, order_type, order_timeInForce, order_quantity, order_price, order_stopPrice, newSellClientOrderId)
                 insert_btc_binance_order_stop_sell_record(sell_order_result, parentClientOrderId)
             
         # 第一次设置止损价格,触发价格、止损价格、数量
         else:
-            print "第一次设置"
+            oper_record_log += "\n90-A、第一次设置止损 设置币种: %s 设置交易数量: %s 设置交易触发价格: %s 设置交易止损价格: %s 设置买卖类型: %s 设置交易类型: %s 设置交易时区: %s " % (order_symbol, order_quantity, order_price, order_stopPrice, order_side, order_type, order_timeInForce)
             sell_order_result = create_stop_sell_order(client, order_symbol, order_side, order_type, order_timeInForce, order_quantity, order_price, order_stopPrice, newSellClientOrderId)
             insert_btc_binance_order_stop_sell_record(sell_order_result, parentClientOrderId)
        
