@@ -8,6 +8,7 @@ from binance_lib.client import Client
 from binance_lib.exceptions import BinanceAPIException, BinanceRequestException, BinanceWithdrawException
 import time
 from binance_lib.enums import *
+import traceback
 
 from db import *
 from util import *
@@ -55,9 +56,9 @@ def sync_all_order(client, account, symbol, oper_record_log):
                 #common_update_order_up(btc_binance_order_record)
     
     if (0 == old_connt and 0 == new_count):
-        oper_record_log += "\n同步数据 账户: %s 币种: %s 没有数据" % (account, symbol)
+        oper_record_log += "\n40-A、同步数据 账户: %s 币种: %s 没有数据" % (account, symbol)
     else:
-        oper_record_log += "\n同步数据 账户: %s 币种: %s 新纪录数量: %s 老纪录数量: %s" % (account, symbol, new_count,old_connt)
+        oper_record_log += "\n40-B、同步数据 账户: %s 币种: %s 新纪录数量: %s 老纪录数量: %s" % (account, symbol, new_count,old_connt)
 
     return oper_record_log
 
@@ -131,3 +132,22 @@ def get_recent_trade_max_min_price_by_trade_time(client, symbol, trade_time = 0)
                 min_price = item['price']
     
     return min_price, max_price
+
+# 止损
+def create_stop_sell_order(client, symbol, side, o_type, timeInForce, quantity, price, stopPrice, newClientOrderId ):
+    try:
+        create_order_result = client.create_order(symbol = symbol, side = side, type = o_type, timeInForce = timeInForce, quantity = quantity, price = price, stopPrice = stopPrice, newClientOrderId = newClientOrderId)
+        return create_order_result
+    except BinanceAPIException as e:
+        send_exception(traceback.format_exc())
+    return False
+
+
+# 止盈
+def create_stop_buy_order(client, symbol, side, o_type, timeInForce, quantity, price, stopPrice):
+    try:
+        create_order_result = client.create_order(symbol = symbol, side = side, type = o_type, timeInForce = timeInForce, quantity = quantity, price = price, stopPrice = stopPrice)
+        return create_order_result
+    except BinanceAPIException as e:
+        send_exception(traceback.format_exc())
+    return False
