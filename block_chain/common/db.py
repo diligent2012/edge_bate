@@ -38,7 +38,6 @@ def insert_btc_eos_github_code(watch, star, fork, commits, branches, releases, c
         print e
     return False
 
-
 # 查询 上一次 代码变更数据
 def find_btc_eos_github_code_prev_one():
     try:
@@ -62,7 +61,6 @@ def find_btc_eos_github_code_prev_one():
     except Exception as e:
         print e
     return False
-
 
 # 插入 github eos code 变动记录
 def insert_btc_eos_github_code_tag(tag, date):
@@ -113,13 +111,6 @@ def find_btc_eos_github_code_tag(tag):
     except Exception as e:
         print e
     return False
-
-
-
-
-
-
-
 
 def insert_otcbtc_trade_record_refer(flag, date):
     try:
@@ -189,4 +180,482 @@ def insert_otcbtc_trade_record(quantity, currency, duration, date, crawl_date, d
     except Exception as e:
         print e
 
+# 查询是否有正在买的订单
+def find_btc_binance_order_buying(account, symbol):
+    try:
+        conn= MySQLdb.connect(
+            host='127.0.0.1',
+            port = 3306,
+            user='omni_manage_pro',
+            passwd='!omni123456manageMysql.pro',
+            db ='z_omni_manage_pro',
+        )
+        cur = conn.cursor(MySQLdb.cursors.DictCursor)
+        cur.execute('set names utf8') #charset set code. it is not nessary now
+        sql = "SELECT * FROM `omni_btc_binance_order`  WHERE side = 'BUY'  and status = 'NEW'  and account = '%s' and symbol = '%s' order by time desc " % (account, symbol)
+        #print sql
+        cur.execute(sql)
+        conn.commit()
+        result = cur.fetchone()
+        if result:
+            return True
+        cur.close()
+        conn.close()
+    except Exception as e:
+        print e
+    return False
 
+# 查询是否有正在卖的订单
+def find_btc_binance_order_selling(account, symbol):
+    try:
+        conn= MySQLdb.connect(
+            host='127.0.0.1',
+            port = 3306,
+            user='omni_manage_pro',
+            passwd='!omni123456manageMysql.pro',
+            db ='z_omni_manage_pro',
+        )
+        cur = conn.cursor(MySQLdb.cursors.DictCursor)
+        cur.execute('set names utf8') #charset set code. it is not nessary now
+        sql = "SELECT * FROM `omni_btc_binance_order`  WHERE side = 'SELL'  and status = 'NEW'  and account = '%s' and symbol = '%s' order by time desc " % (account, symbol)
+        #sql = "SELECT * FROM `omni_btc_binance_order`  WHERE side = 'SELL' order by time desc " 
+        #print sql
+        cur.execute(sql)
+        conn.commit()
+        result = cur.fetchall()
+        if result:
+            return result
+        cur.close()
+        conn.close()
+    except Exception as e:
+        print e
+    return False
+
+# 获取最近一次卖出的交易数据
+def find_btc_binance_order_sell_newest_one(account, symbol):
+    try:
+        conn= MySQLdb.connect(
+            host='127.0.0.1',
+            port = 3306,
+            user='omni_manage_pro',
+            passwd='!omni123456manageMysql.pro',
+            db ='z_omni_manage_pro',
+        )
+        cur = conn.cursor(MySQLdb.cursors.DictCursor)
+        cur.execute('set names utf8') #charset set code. it is not nessary now
+        sql = "SELECT * FROM `omni_btc_binance_order`  WHERE side = 'SELL'  and status = 'FILLED'  and account = '%s' and symbol = '%s' order by time desc " % (account, symbol)
+        #print sql
+        cur.execute(sql)
+        conn.commit()
+        result = cur.fetchone()
+        return result
+        cur.close()
+        conn.close()
+    except Exception as e:
+        print e
+    return False
+
+# 查询买入时, 止盈设置纪录
+def find_btc_binance_order_stop_buy_record_newest_one(symbol):
+    try:
+        conn= MySQLdb.connect(
+            host='127.0.0.1',
+            port = 3306,
+            user='omni_manage_pro',
+            passwd='!omni123456manageMysql.pro',
+            db ='z_omni_manage_pro',
+        )
+        cur = conn.cursor(MySQLdb.cursors.DictCursor)
+        cur.execute('set names utf8') #charset set code. it is not nessary now
+        #sql = "SELECT * FROM `omni_btc_binance_order_stop_record`  WHERE price = '%s' and stopPrice = '%s' and origQty = '%s' and clientOrderId = '%s' " % (sell_price, stop_sell_price, buy_qty, newClientOrderId)
+        sql = "SELECT * FROM `omni_btc_binance_order_stop_buy_record` WHERE symbol = '%s' order by transactTime desc " % (symbol)
+        #print sql
+        cur.execute(sql)
+        conn.commit()
+        result = cur.fetchone()
+        return result
+        cur.close()
+        conn.close()
+    except Exception as e:
+        print e
+    return False
+
+# 插入 买入时, 止盈设置纪录
+def insert_btc_binance_order_stop_buy_record(data):
+    try:
+        
+        orderId = data['orderId']
+        clientOrderId = data['clientOrderId']
+
+        origQty = data['origQty']
+        symbol = data['symbol']
+
+        side = data['side']
+        timeInForce = data['timeInForce']
+
+        status = data['status']
+        stopPrice = data['stopPrice']
+
+        transactTime = data['transactTime']
+        o_type = data['type']
+
+        price = data['price']
+        executedQty = data['executedQty']
+
+        conn= MySQLdb.connect(
+            host='127.0.0.1',
+            port = 3306,
+            user='omni_manage_pro',
+            passwd='!omni123456manageMysql.pro',
+            db ='z_omni_manage_pro',
+        )
+        cur = conn.cursor()
+        cur.execute('set names utf8') #charset set code. it is not nessary now
+        sql = "INSERT INTO `omni_btc_binance_order_stop_buy_record` (`orderId`,`clientOrderId`,`origQty`,`executedQty`,`symbol`,`side`,`timeInForce`,`status`,`stopPrice`,`transactTime`,`o_type`,`price`) VALUES ('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s')" % (orderId,clientOrderId,origQty,executedQty,symbol,side,timeInForce,status,stopPrice,transactTime,o_type,price)
+        cur.execute(sql)
+        conn.commit()
+        result = cur.fetchall()
+        return result
+        cur.close()
+        conn.close()
+    except Exception as e:
+        print e
+    return False
+
+# 获取上一次没有全部卖出的订单
+def find_btc_binance_order_buy_newest_one_not_all_sell(account, symbol):
+    try:
+        conn= MySQLdb.connect(
+            host='127.0.0.1',
+            port = 3306,
+            user='omni_manage_pro',
+            passwd='!omni123456manageMysql.pro',
+            db ='z_omni_manage_pro',
+        )
+        cur = conn.cursor(MySQLdb.cursors.DictCursor)
+        cur.execute('set names utf8') #charset set code. it is not nessary now
+        sql = "SELECT * FROM `omni_btc_binance_order`  WHERE is_up = 1 and executedQty !=  0.00000000 and side = 'SELL'  and status = 'CANCELED'  and account = '%s' and symbol = '%s' order by time desc " % (account, symbol)
+        #print sql
+        cur.execute(sql)
+        conn.commit()
+        result = cur.fetchone()
+        return result
+        cur.close()
+        conn.close()
+    except Exception as e:
+        print e
+    return False
+
+# 获取上一次买入的订单
+def find_btc_binance_order_buy_newest_one(account, symbol):
+    try:
+        conn= MySQLdb.connect(
+            host='127.0.0.1',
+            port = 3306,
+            user='omni_manage_pro',
+            passwd='!omni123456manageMysql.pro',
+            db ='z_omni_manage_pro',
+        )
+        cur = conn.cursor(MySQLdb.cursors.DictCursor)
+        cur.execute('set names utf8') #charset set code. it is not nessary now
+        sql = "SELECT * FROM `omni_btc_binance_order`  WHERE is_up = 1 and side = 'BUY'  and status = 'FILLED'  and account = '%s' and symbol = '%s' order by time desc  " % (account, symbol)
+        #print sql
+        cur.execute(sql)
+        conn.commit()
+        result = cur.fetchone()
+        return result
+        cur.close()
+        conn.close()
+    except Exception as e:
+        print e
+    return False
+
+# 获取上一次 卖出 止损 设置的信息
+def find_btc_binance_order_stop_sell_record_newest_one(newClientOrderId):
+    try:
+        conn= MySQLdb.connect(
+            host='127.0.0.1',
+            port = 3306,
+            user='omni_manage_pro',
+            passwd='!omni123456manageMysql.pro',
+            db ='z_omni_manage_pro',
+        )
+        cur = conn.cursor(MySQLdb.cursors.DictCursor)
+        cur.execute('set names utf8') #charset set code. it is not nessary now
+        #sql = "SELECT * FROM `omni_btc_binance_order_stop_record`  WHERE price = '%s' and stopPrice = '%s' and origQty = '%s' and clientOrderId = '%s' " % (sell_price, stop_sell_price, buy_qty, newClientOrderId)
+        sql = "SELECT * FROM `omni_btc_binance_order_stop_sell_record`  WHERE parentClientOrderId = '%s' order by transactTime desc " % (newClientOrderId)
+        #print sql
+        cur.execute(sql)
+        conn.commit()
+        result = cur.fetchone()
+        return result
+        cur.close()
+        conn.close()
+    except Exception as e:
+        print e
+    return False
+
+# 查询 最近交易 中最新的一条
+def find_btc_binance_recent_trades_data_newest_one(symbol):
+    try:
+        conn= MySQLdb.connect(
+            host='127.0.0.1',
+            port = 3306,
+            user='omni_manage_pro',
+            passwd='!omni123456manageMysql.pro',
+            db ='z_omni_manage_pro',
+        )
+        cur = conn.cursor(MySQLdb.cursors.DictCursor)
+        cur.execute('set names utf8') #charset set code. it is not nessary now
+        sql = "SELECT * FROM `omni_btc_binance_recent_trades_data` WHERE data_symbol = '%s' order by data_time desc" % (symbol)
+        #print sql
+        cur.execute(sql)
+        conn.commit()
+        result = cur.fetchone()
+        return result
+        cur.close()
+        conn.close()
+    except Exception as e:
+        print e
+    return False
+
+# 记录 最近交易的数据
+def insert_binance_recent_trades_data(data_isBuyerMaker, data_price, data_qty, data_time, data_id, data_isBestMatch, sync_time, change_rate, data_symbol):
+    try:
+        conn= MySQLdb.connect(
+            host='127.0.0.1',
+            port = 3306,
+            user='omni_manage_pro',
+            passwd='!omni123456manageMysql.pro',
+            db ='z_omni_manage_pro',
+        )
+        cur = conn.cursor()
+        cur.execute('set names utf8') #charset set code. it is not nessary now
+        sql = "INSERT INTO `omni_btc_binance_recent_trades_data` (`data_isBuyerMaker`, `data_price`, `data_qty`, `data_time`, `data_id`, `data_isBestMatch`, `sync_time`, `change_rate`, `data_symbol`) VALUES ('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s')" % (data_isBuyerMaker, data_price, data_qty, data_time, data_id, data_isBestMatch, sync_time, change_rate, data_symbol)
+        #print sql
+        #sql = "INSERT INTO `ecs_t_marathon` (`name`, `start_run_time`) VALUES ('%s', '%s')" % (name, start_run_time)
+        cur.execute(sql)
+        conn.commit()
+        cur.close()
+        conn.close()
+    except Exception as e:
+        print e
+
+# 插入 资产 数据
+def insert_btc_binance_asset(account, asset, free, locked, date):
+    try:
+        conn= MySQLdb.connect(
+            host='127.0.0.1',
+            port = 3306,
+            user='omni_manage_pro',
+            passwd='!omni123456manageMysql.pro',
+            db ='z_omni_manage_pro',
+        )
+        cur = conn.cursor()
+        cur.execute('set names utf8') #charset set code. it is not nessary now
+        sql = "INSERT INTO `omni_btc_binance_asset` (`account`,`asset`,`free`,`locked`,`date`) VALUES ('%s', '%s', '%s', '%s', '%s')" % (account, asset, free, locked, date)
+        cur.execute(sql)
+        conn.commit()
+        result = cur.fetchall()
+        return result
+        cur.close()
+        conn.close()
+    except Exception as e:
+        print e
+    return False
+
+# 根据orderId查询交易订单
+def find_btc_binance_order_record(orderId):
+    try:
+
+        conn= MySQLdb.connect(
+            host='127.0.0.1',
+            port = 3306,
+            user='omni_manage_pro',
+            passwd='!omni123456manageMysql.pro',
+            db ='z_omni_manage_pro',
+        )
+        cur = conn.cursor(MySQLdb.cursors.DictCursor)
+        cur.execute('set names utf8') #charset set code. it is not nessary now
+        sql = "SELECT * FROM `omni_btc_binance_order`  WHERE orderId = '%s' " % (orderId)
+        cur.execute(sql)
+        conn.commit()
+        result = cur.fetchone()
+        return result
+        cur.close()
+        conn.close()
+    except Exception as e:
+        print e
+    return False
+
+# 插入 订单 数据
+def insert_btc_binance_order(data):
+    try:
+        sellClientOrderId = data['sellClientOrderId']
+        account = data['account']
+        orderId = data['orderId']
+        clientOrderId = data['clientOrderId']
+        origQty = data['origQty']
+        icebergQty = data['icebergQty']
+        symbol = data['symbol']
+        side = data['side']
+        timeInForce = data['timeInForce']
+        status = data['status']
+        stopPrice = data['stopPrice']
+        time = data['time']
+        isWorking = data['isWorking']
+        o_type = data['o_type']
+        price = data['price']
+        executedQty = data['executedQty']
+
+        conn= MySQLdb.connect(
+            host='127.0.0.1',
+            port = 3306,
+            user='omni_manage_pro',
+            passwd='!omni123456manageMysql.pro',
+            db ='z_omni_manage_pro',
+        )
+        cur = conn.cursor()
+        cur.execute('set names utf8') #charset set code. it is not nessary now
+        sql = "INSERT INTO `omni_btc_binance_order` (`account`,`sellClientOrderId`,`orderId`,`clientOrderId`,`origQty`,`icebergQty`,`executedQty`,`symbol`,`side`,`timeInForce`,`status`,`stopPrice`,`time`,`isWorking`,`o_type`,`price`) VALUES ('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s')" % (account,sellClientOrderId,orderId,clientOrderId,origQty,icebergQty,executedQty,symbol,side,timeInForce,status,stopPrice,time,isWorking,o_type,price)
+        cur.execute(sql)
+        conn.commit()
+        result = cur.fetchall()
+        return result
+        cur.close()
+        conn.close()
+    except Exception as e:
+        print e
+    return False
+
+# 更新 订单 所有信息
+def update_btc_binance_order(data):
+    try:
+
+        orderId = data['orderId']
+        status = data['status']
+        time = data['time']
+        isWorking = data['isWorking']
+
+        origQty = data['origQty']
+        icebergQty = data['icebergQty']
+        executedQty = data['executedQty']
+
+        conn= MySQLdb.connect(
+            host='127.0.0.1',
+            port = 3306,
+            user='omni_manage_pro',
+            passwd='!omni123456manageMysql.pro',
+            db ='z_omni_manage_pro',
+        )
+        cur = conn.cursor()
+        cur.execute('set names utf8') #charset set code. it is not nessary now
+        sql = "UPDATE `omni_btc_binance_order` SET `status` = '%s',`time` = '%s', `isWorking` = '%s', `origQty` = '%s', `icebergQty` = '%s', `executedQty` = '%s'  WHERE orderId = '%s' " % (status, time, isWorking, origQty, icebergQty, executedQty, orderId)
+        #print sql
+        cur.execute(sql)
+        conn.commit()
+        result = cur.fetchall()
+        return result
+        cur.close()
+        conn.close()
+    except Exception as e:
+        print e
+    return False
+
+# 查询是否有正在进行的订单
+def find_btc_binance_order_is_up(account):
+    try:
+        conn= MySQLdb.connect(
+            host='127.0.0.1',
+            port = 3306,
+            user='omni_manage_pro',
+            passwd='!omni123456manageMysql.pro',
+            db ='z_omni_manage_pro',
+        )
+        cur = conn.cursor(MySQLdb.cursors.DictCursor)
+        cur.execute('set names utf8') #charset set code. it is not nessary now
+        sql = "SELECT * FROM `omni_btc_binance_order`  WHERE is_up = 1 and account = '%s' order by time desc" % (account)
+        #print sql
+        cur.execute(sql)
+        conn.commit()
+        result = cur.fetchone()
+        if result:
+            return True
+        cur.close()
+        conn.close()
+    except Exception as e:
+        print e
+    return False
+
+# 查询买入订单 对应 的卖出订单
+def find_btc_binance_order_sell_record(account, sellClientOrderId):
+    try:
+        conn= MySQLdb.connect(
+            host='127.0.0.1',
+            port = 3306,
+            user='omni_manage_pro',
+            passwd='!omni123456manageMysql.pro',
+            db ='z_omni_manage_pro',
+        )
+        cur = conn.cursor()
+        cur.execute('set names utf8') #charset set code. it is not nessary now
+        sql = "SELECT * FROM `omni_btc_binance_order`  WHERE side = 'SELL' and status = 'FILLED' and account = '%s' and clientOrderId like '%s' " % (account, '%s%s' % (sellClientOrderId,'%'))
+        #print sql
+        cur.execute(sql)
+        conn.commit()
+        result = cur.fetchone()
+        if result:
+            return True
+        cur.close()
+        conn.close()
+    except Exception as e:
+        print e
+    return False
+
+# 更新 订单 上下架
+def update_btc_binance_order_up(orderId, is_up = 9):
+    try:
+        conn= MySQLdb.connect(
+            host='127.0.0.1',
+            port = 3306,
+            user='omni_manage_pro',
+            passwd='!omni123456manageMysql.pro',
+            db ='z_omni_manage_pro',
+        )
+        cur = conn.cursor()
+        cur.execute('set names utf8') #charset set code. it is not nessary now
+        sql = "UPDATE `omni_btc_binance_order` SET `is_up` = '%s' WHERE orderId = '%s' " % (is_up, orderId)
+        #print sql
+        cur.execute(sql)
+        conn.commit()
+        result = cur.fetchall()
+        return result
+        cur.close()
+        conn.close()
+    except Exception as e:
+        print e
+    return False
+
+# 插入 自动交易的日志表
+def insert_btc_binance_order_auto_log(account, side, symbol, log_content):
+    try:
+        date = time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time()))
+        conn= MySQLdb.connect(
+            host='127.0.0.1',
+            port = 3306,
+            user='omni_manage_pro',
+            passwd='!omni123456manageMysql.pro',
+            db ='z_omni_manage_pro',
+        )
+        cur = conn.cursor()
+        cur.execute('set names utf8') #charset set code. it is not nessary now
+        sql = "INSERT INTO `omni_btc_binance_order_auto_log` (`account`, `side`, `symbol`,`log_content`,`date`) VALUES ('%s', '%s', '%s',  '%s', '%s')" % (account, side, symbol, log_content,date)
+        cur.execute(sql)
+        conn.commit()
+        result = cur.fetchall()
+        return result
+        cur.close()
+        conn.close()
+    except Exception as e:
+        print e
+    return False

@@ -5,7 +5,6 @@
 
 import sys,os
 # sys.path.append("../../platform/")
-sys.path.append("../../common/otcbtc")
 sys.path.append("../../common")
 reload(sys)
 sys.setdefaultencoding('utf-8')
@@ -38,7 +37,7 @@ requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 
 
 
-from global_setting import *
+from setting import *
 from util import *
 
 
@@ -211,7 +210,7 @@ def split_market_price(market_price_info, symbol):
 def start():
     print "start : " + time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time()))
     market_price_info = get_market_price()
-    symbols = get_symbols()
+    symbols = get_otcbtc_symbols()
     all_price_info = []
     for key,item in enumerate(symbols):
         symbol = item['symbol']

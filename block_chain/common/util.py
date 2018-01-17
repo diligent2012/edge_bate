@@ -32,6 +32,13 @@ def allow_send_time():
     return Flag
 
 
+def format_time(order_time):
+    return time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(order_time/1000))
+
+def id_generator(size=17, chars=string.ascii_uppercase + string.digits):
+    r_id = ''.join(random.choice(chars) for _ in range(size))
+    return '888%s' % str(r_id)
+
 # 发送微信通知
 def send_wechat(content):
     post_url = 'https://www.datasource.top/api/portal/btc/send'
