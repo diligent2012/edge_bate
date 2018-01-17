@@ -98,6 +98,9 @@ def start_buy():
                     else:
                         #如果没有,提醒手动买入
                         oper_record_log += "\n获取不到上次卖出数据,请手动买入: 账户: %s 币种: %s " % (str(account), str(symbol))
+
+                        
+
                         
                 insert_btc_binance_order_auto_log(account, 'BUY', symbol, oper_record_log)
     except Exception as e:
@@ -148,19 +151,19 @@ def set_stop_buy_price_order(client, buy_price, stop_buy_price, buy_qty, symbol,
 # 计算买入触发价格和止盈价格              
 def get_stop_buy_price(min_price, sell_price):
     try:
-        stop_rate = float(Decimal(1) - (Decimal(sell_price) - Decimal(min_price))/Decimal(min_price) * Decimal(0.05))
-        stop_buy_price = round(float(sell_price) * stop_rate,8)
-        buy_price = round(float(Decimal(stop_buy_price) * Decimal(1 - 0.0005)),8)
-        return buy_price, stop_buy_price
+        # 触发价格 = 低价格 * 0.98
+        buy_price =  round(Decimal(min_price) * Decimal(0.98),8)
+        # 止盈价格 = 触发价格 * 1.0005
+        stop_buy_price = round(Decimal(buy_price) * Decimal(1.0005),8)
+        return  buy_price, stop_buy_price
     except Exception as e:
         send_exception(traceback.format_exc())
-
+    return 0.0, 0.0
 # 入口方法
 def main():
-    insert_btc_binance_order_auto_log(str("444"),str("444"),str("444"),str("444"))
-    # print "start : " + time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time()))
-    # start_buy()
-    # print "end : " + time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time()))
+    print "start : " + time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time()))
+    start_buy()
+    print "end : " + time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time()))
 
 if __name__ == '__main__':
     main() 

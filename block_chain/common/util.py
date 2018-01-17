@@ -82,9 +82,8 @@ def insert_btc_binance_exception_log(exception_content):
         )
         cur = conn.cursor()
         cur.execute('set names utf8') #charset set code. it is not nessary now
-        #sql = 'INSERT INTO omni_btc_binance_exception_log (`exception_content`,`date`) VALUES ("%s", "%s")' % (exception_content,date)
         sql = "INSERT INTO `omni_btc_binance_exception_log` (`exception_content`,`date`) VALUES ('%s', '%s')" % (exception_content,date)
-        print sql
+        #print sql
         cur.execute(sql)
         pk_id = conn.insert_id()
         conn.commit()
