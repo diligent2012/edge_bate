@@ -1,6 +1,8 @@
 #!/usr/bin/python
 #coding:utf-8
 import sys  
+sys.path.append("..")
+reload(sys)
 import sqlite3
 import requests
 import json
@@ -11,7 +13,9 @@ import time
 import random
 from datetime import datetime
 from datetime import timedelta
+import traceback
 
+from util import *
 
 # 插入 github eos code 变动记录
 def insert_btc_eos_github_code(watch, star, fork, commits, branches, releases, contributors, date):
@@ -35,7 +39,7 @@ def insert_btc_eos_github_code(watch, star, fork, commits, branches, releases, c
         cur.close()
         conn.close()
     except Exception as e:
-        print e
+        send_exception(traceback.format_exc())
     return False
 
 # 查询 上一次 代码变更数据
@@ -59,7 +63,7 @@ def find_btc_eos_github_code_prev_one():
         cur.close()
         conn.close()
     except Exception as e:
-        print e
+        send_exception(traceback.format_exc())
     return False
 
 # 插入 github eos code 变动记录
@@ -84,7 +88,7 @@ def insert_btc_eos_github_code_tag(tag, date):
         cur.close()
         conn.close()
     except Exception as e:
-        print e
+        send_exception(traceback.format_exc())
     return False
 
 # 查询 
@@ -109,7 +113,7 @@ def find_btc_eos_github_code_tag(tag):
         cur.close()
         conn.close()
     except Exception as e:
-        print e
+        send_exception(traceback.format_exc())
     return False
 
 def insert_otcbtc_trade_record_refer(flag, date):
@@ -131,7 +135,7 @@ def insert_otcbtc_trade_record_refer(flag, date):
         cur.close()
         conn.close()
     except Exception as e:
-        print e
+        send_exception(traceback.format_exc())
 
 def find_otcbtc_trade_record_refer(flag, crawl_date_refer):
     try:
@@ -157,7 +161,7 @@ def find_otcbtc_trade_record_refer(flag, crawl_date_refer):
         cur.close()
         conn.close()
     except Exception as e:
-        print e
+        send_exception(traceback.format_exc())
     return True
 
 def insert_otcbtc_trade_record(quantity, currency, duration, date, crawl_date, date_hour):
@@ -178,7 +182,7 @@ def insert_otcbtc_trade_record(quantity, currency, duration, date, crawl_date, d
         cur.close()
         conn.close()
     except Exception as e:
-        print e
+        send_exception(traceback.format_exc())
 
 # 查询是否有正在买的订单
 def find_btc_binance_order_buying(account, symbol):
@@ -202,7 +206,7 @@ def find_btc_binance_order_buying(account, symbol):
         cur.close()
         conn.close()
     except Exception as e:
-        print e
+        send_exception(traceback.format_exc())
     return False
 
 # 查询是否有正在卖的订单
@@ -228,7 +232,7 @@ def find_btc_binance_order_selling(account, symbol):
         cur.close()
         conn.close()
     except Exception as e:
-        print e
+        send_exception(traceback.format_exc())
     return False
 
 # 获取最近一次卖出的交易数据
@@ -252,7 +256,7 @@ def find_btc_binance_order_sell_newest_one(account, symbol):
         cur.close()
         conn.close()
     except Exception as e:
-        print e
+        send_exception(traceback.format_exc())
     return False
 
 # 查询买入时, 止盈设置纪录
@@ -277,7 +281,7 @@ def find_btc_binance_order_stop_buy_record_newest_one(symbol):
         cur.close()
         conn.close()
     except Exception as e:
-        print e
+        send_exception(traceback.format_exc())
     return False
 
 # 插入 买入时, 止盈设置纪录
@@ -319,7 +323,7 @@ def insert_btc_binance_order_stop_buy_record(data):
         cur.close()
         conn.close()
     except Exception as e:
-        print e
+        send_exception(traceback.format_exc())
     return False
 
 # 获取上一次没有全部卖出的订单
@@ -343,7 +347,7 @@ def find_btc_binance_order_buy_newest_one_not_all_sell(account, symbol):
         cur.close()
         conn.close()
     except Exception as e:
-        print e
+        send_exception(traceback.format_exc())
     return False
 
 # 获取上一次买入的订单
@@ -367,7 +371,7 @@ def find_btc_binance_order_buy_newest_one(account, symbol):
         cur.close()
         conn.close()
     except Exception as e:
-        print e
+        send_exception(traceback.format_exc())
     return False
 
 # 获取上一次 卖出 止损 设置的信息
@@ -392,7 +396,7 @@ def find_btc_binance_order_stop_sell_record_newest_one(newClientOrderId):
         cur.close()
         conn.close()
     except Exception as e:
-        print e
+        send_exception(traceback.format_exc())
     return False
 
 # 查询 最近交易 中最新的一条
@@ -416,7 +420,7 @@ def find_btc_binance_recent_trades_data_newest_one(symbol):
         cur.close()
         conn.close()
     except Exception as e:
-        print e
+        send_exception(traceback.format_exc())
     return False
 
 # 记录 最近交易的数据
@@ -439,7 +443,7 @@ def insert_binance_recent_trades_data(data_isBuyerMaker, data_price, data_qty, d
         cur.close()
         conn.close()
     except Exception as e:
-        print e
+        send_exception(traceback.format_exc())
 
 # 插入 资产 数据
 def insert_btc_binance_asset(account, asset, free, locked, date):
@@ -461,7 +465,7 @@ def insert_btc_binance_asset(account, asset, free, locked, date):
         cur.close()
         conn.close()
     except Exception as e:
-        print e
+        send_exception(traceback.format_exc())
     return False
 
 # 根据orderId查询交易订单
@@ -485,7 +489,7 @@ def find_btc_binance_order_record(orderId):
         cur.close()
         conn.close()
     except Exception as e:
-        print e
+        send_exception(traceback.format_exc())
     return False
 
 # 插入 订单 数据
@@ -525,7 +529,7 @@ def insert_btc_binance_order(data):
         cur.close()
         conn.close()
     except Exception as e:
-        print e
+        send_exception(traceback.format_exc())
     return False
 
 # 更新 订单 所有信息
@@ -559,7 +563,7 @@ def update_btc_binance_order(data):
         cur.close()
         conn.close()
     except Exception as e:
-        print e
+        send_exception(traceback.format_exc())
     return False
 
 # 查询是否有正在进行的订单
@@ -584,7 +588,7 @@ def find_btc_binance_order_is_up(account):
         cur.close()
         conn.close()
     except Exception as e:
-        print e
+        send_exception(traceback.format_exc())
     return False
 
 # 查询买入订单 对应 的卖出订单
@@ -609,7 +613,7 @@ def find_btc_binance_order_sell_record(account, sellClientOrderId):
         cur.close()
         conn.close()
     except Exception as e:
-        print e
+        send_exception(traceback.format_exc())
     return False
 
 # 更新 订单 上下架
@@ -633,7 +637,7 @@ def update_btc_binance_order_up(orderId, is_up = 9):
         cur.close()
         conn.close()
     except Exception as e:
-        print e
+        send_exception(traceback.format_exc())
     return False
 
 # 插入 自动交易的日志表
@@ -649,7 +653,7 @@ def insert_btc_binance_order_auto_log(account, side, symbol, log_content):
         )
         cur = conn.cursor()
         cur.execute('set names utf8') #charset set code. it is not nessary now
-        sql = "INSERT INTO `omni_btc_binance_order_auto_log` (`account`, `side`, `symbol`,`log_content`,`date`) VALUES ('%s', '%s', '%s',  '%s', '%s')" % (account, side, symbol, log_content,date)
+        sql = "INSERT INTO `omni_btc_binance_order_auto_log` (`account`, `scide`, `symbol`,`log_content`,`date`) VALUES ('%s', '%s', '%s',  '%s', '%s')" % (account, side, symbol, log_content,date)
         cur.execute(sql)
         conn.commit()
         result = cur.fetchall()
@@ -657,5 +661,8 @@ def insert_btc_binance_order_auto_log(account, side, symbol, log_content):
         cur.close()
         conn.close()
     except Exception as e:
-        print e
+        #e_content =  json.dumps(traceback.format_exc().splitlines()).strip().replace('"','').replace("'",'')
+        send_exception(traceback.format_exc())
     return False
+
+
