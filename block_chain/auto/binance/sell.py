@@ -21,6 +21,9 @@ from helper import *
 #开始自动卖出
 def start_auto_sell():
     try:
+        # is_allow = allow_send_time()
+        # if not is_allow:
+        #     return
         account_list = get_account_list()
         for key,a_item in enumerate(account_list):
             client = Client(a_item['api_key'], a_item['api_secret'])
@@ -60,8 +63,12 @@ def start_auto_sell():
                         sell_price, stop_sell_price = get_stop_sell_price_order(max_price, stopPrice, get_stop_sell_price_order)
                         
                         if(0.0 != sell_price and 0.0 != stop_sell_price):
-                            # 开始设置卖出止损
-                            set_stop_sell_price(client, sell_price, stop_sell_price, origQty, symbol, sellClientOrderId)
+
+                            # 止损价格必须高于买入价格。兜底做法
+                            is_secure = secure_check(stop_sell_price, prev_buy_price)
+                            if (is_secure):
+                                # 开始设置卖出止损
+                                set_stop_sell_price(client, sell_price, stop_sell_price, origQty, symbol, sellClientOrderId)
                 else:
                     oper_record_log += "\n99、没有获取到上次买入,请重视"
                 insert_btc_binance_order_auto_log(account, 'SELL', symbol, oper_record_log)        
@@ -169,6 +176,10 @@ def set_stop_sell_price(client, sell_price, stop_sell_price, sell_qty, symbol, s
     except Exception as e:
         send_exception(traceback.format_exc())
 
+def secure_check(stop_sell_price, prev_buy_price):
+    if(stop_sell_price > prev_buy_price):
+        return True
+    return False
 
 # 入口方法
 def main():

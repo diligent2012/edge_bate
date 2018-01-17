@@ -24,6 +24,9 @@ from helper import *
 def start_auto_buy():
     
     try:
+        # is_allow = allow_send_time()
+        # if not is_allow:
+        #     return
         account_list = get_account_list()
         # 循环不同的账户
         for key,a_item in enumerate(account_list):
@@ -67,8 +70,12 @@ def start_auto_buy():
                         buy_price, stop_buy_price, oper_record_log = oper_stop_buy_price( min_price, prev_sell_price, oper_record_log)
                         
                         if (0.0 != buy_price and 0.0 != stop_buy_price):
-                            # 设置买入
-                            oper_record_log = set_stop_buy_price(client, buy_price, stop_buy_price, qty, symbol, oper_record_log)
+
+                            # 止损价格必须高于买入价格。兜底做法
+                            is_secure = secure_check(stop_buy_price, prev_sell_price)
+                            if (is_secure):
+                                # 设置买入
+                                oper_record_log = set_stop_buy_price(client, buy_price, stop_buy_price, qty, symbol, oper_record_log)
                 else:
                     oper_record_log += "\n99、没有获取到上次卖出,请重视"
                        
@@ -173,6 +180,11 @@ def set_stop_buy_price(client, buy_price, stop_buy_price, buy_qty, symbol, oper_
     except Exception as e:
         send_exception(traceback.format_exc())
     return oper_record_log
+
+def secure_check(stop_buy_price, prev_sell_price):
+    if(stop_buy_price < prev_sell_price):
+        return True
+    return False
 
 # 入口方法
 def main():
