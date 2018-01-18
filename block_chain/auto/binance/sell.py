@@ -159,16 +159,19 @@ def set_stop_sell_price(client, sell_price, stop_sell_price, sell_qty, symbol, s
             origQty = set_stop_sell_record_result['origQty'] # 上一次设置的数量
             orderId = set_stop_sell_record_result['orderId'] # 上一次设置的订单ID
 
-            # 判断 触发价格、止损价格、购买数量是否相同; 如果相同,则不用设置;
-            if( order_price == price and order_stopPrice == stopPrice and order_quantity == origQty):
-                oper_record_log += "\n90-C、和上次设置止损相同 设置币种: %s 设置交易数量: %s 设置交易触发价格: %s 设置交易止损价格: %s 设置买卖类型: %s 设置交易类型: %s 设置交易时区: %s " % (order_symbol, order_quantity, order_price, order_stopPrice, order_side, order_type, order_timeInForce)
-            
-            # 如果不相同,则取消订单 并重新设置
+            if(order_stopPrice < stopPrice):
+                oper_record_log += "\n90-C、小于上一次设置价格,不设置 设置价格: %s 上一次设置价格: %s " % (stopPrice, order_stopPrice)
             else:
-                oper_record_log += "\n90-B、重新设置止损 设置币种: %s 设置交易数量: %s 设置交易触发价格: %s 设置交易止损价格: %s 设置买卖类型: %s 设置交易类型: %s 设置交易时区: %s " % (order_symbol, order_quantity, order_price, order_stopPrice, order_side, order_type, order_timeInForce)
-                cancel_order(client, order_symbol, orderId)
-                sell_order_result = create_stop_sell_order(client, order_symbol, order_side, order_type, order_timeInForce, order_quantity, order_price, order_stopPrice, newSellClientOrderId)
-                insert_btc_binance_order_stop_sell_record(sell_order_result, parentClientOrderId)
+                # 判断 触发价格、止损价格、购买数量是否相同; 如果相同,则不用设置;
+                if( order_price == price and order_stopPrice == stopPrice and order_quantity == origQty):
+                    oper_record_log += "\n90-C、和上次设置止损相同 设置币种: %s 设置交易数量: %s 设置交易触发价格: %s 设置交易止损价格: %s 设置买卖类型: %s 设置交易类型: %s 设置交易时区: %s " % (order_symbol, order_quantity, order_price, order_stopPrice, order_side, order_type, order_timeInForce)
+                
+                # 如果不相同,则取消订单 并重新设置
+                else:
+                    oper_record_log += "\n90-B、重新设置止损 设置币种: %s 设置交易数量: %s 设置交易触发价格: %s 设置交易止损价格: %s 设置买卖类型: %s 设置交易类型: %s 设置交易时区: %s " % (order_symbol, order_quantity, order_price, order_stopPrice, order_side, order_type, order_timeInForce)
+                    cancel_order(client, order_symbol, orderId)
+                    sell_order_result = create_stop_sell_order(client, order_symbol, order_side, order_type, order_timeInForce, order_quantity, order_price, order_stopPrice, newSellClientOrderId)
+                    insert_btc_binance_order_stop_sell_record(sell_order_result, parentClientOrderId)
             
         # 第一次设置止损价格,触发价格、止损价格、数量
         else:
