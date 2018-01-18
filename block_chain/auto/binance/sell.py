@@ -176,6 +176,8 @@ def set_stop_sell_price(client, sell_price, stop_sell_price, sell_qty, symbol, s
        
     except Exception as e:
         send_exception(traceback.format_exc())
+    finally:
+        return oper_record_log
     return oper_record_log
 
 def secure_check(stop_sell_price, prev_buy_price):
