@@ -138,7 +138,7 @@ def set_stop_sell_price(client, sell_price, stop_sell_price, sell_qty, symbol, s
     try:
         order_symbol = symbol
         order_side = SIDE_SELL
-        order_type = ORDER_TYPE_TAKE_PROFIT_LIMIT
+        order_type = ORDER_TYPE_STOP_LOSS_LIMIT
         order_timeInForce = TIME_IN_FORCE_GTC
         order_price = sell_price 
         order_stopPrice = stop_sell_price
