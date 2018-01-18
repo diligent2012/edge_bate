@@ -52,8 +52,8 @@ def sync_all_order(client, account, symbol, start_auto_date, oper_record_log):
                 #print "老纪录"
                 old_connt += 1
                 update_btc_binance_order(data)
-                #print btc_binance_order_record
-                common_update_order_up(btc_binance_order_record, start_auto_date)
+
+    update_order_up(account, symbol)
     
     if (0 == old_connt and 0 == new_count):
         oper_record_log += "\n40-A、同步数据 账户: %s 币种: %s 没有数据" % (account, symbol)
@@ -62,50 +62,58 @@ def sync_all_order(client, account, symbol, start_auto_date, oper_record_log):
 
     return oper_record_log
 
+def update_order_up(account, symbol):
+    order_newest =  find_btc_binance_order_newest(account, symbol)
+    if order_newest:
+        orderId = order_newest['orderId']
+        update_btc_binance_order_up(orderId, 1)
 
+        
 # 更新订单的上下架状态
-def common_update_order_up(data, start_auto_date):
-    orderId = data['orderId'] # 订单ID
-    account = data['account'] # 当前账户
-    side = data['side'] # 买OR卖
-    status = data['status'] # 状态
-    sellClientOrderId = data['sellClientOrderId'] #买入对应卖出的客户端ID
-    origQty = float(data['origQty']) # 订单数量
-    executedQty = float(data['executedQty']) # 订单已经卖出数量
+# def common_update_order_up(data, start_auto_date):
+#     orderId = data['orderId'] # 订单ID
+#     account = data['account'] # 当前账户
+#     side = data['side'] # 买OR卖
+#     status = data['status'] # 状态
+#     sellClientOrderId = data['sellClientOrderId'] #买入对应卖出的客户端ID
+#     origQty = float(data['origQty']) # 订单数量
+#     executedQty = float(data['executedQty']) # 订单已经卖出数量
    
-    if (9 == int(data['is_auto'])): # 是否加入自动程序
-        return
+#     if (9 == int(data['is_auto'])): # 是否加入自动程序
+#         return
 
-    # 查询是否有正在进行的订单
-    is_up_exist = find_btc_binance_order_is_up(account, start_auto_date)
-    if (not is_up_exist):
-        # 置为9,下架的交易条件
-            # 买入订单状态为FILLED,有对应的卖出订单,状态也为FILLED.该笔买入订单下架
-        # 置为1,上架的交易条件
-            # 买入订单状态为FILLED,没有对应的卖出订单,该笔买入订单上架
-        if ('BUY' == side and 'FILLED' == status):
-            is_result = find_btc_binance_order_sell_record(account, sellClientOrderId)
-            if is_result:
-                #print "第01种场景: 订单号 %s 置为 9" % orderId 
-                update_btc_binance_order_up(orderId, 9)
-            else:
-                #print "第02种场景: 订单号 %s 置为 1" % orderId 
-                update_btc_binance_order_up(orderId, 1)
+#     # 查询是否有正在进行的订单
+#     is_up_exist = find_btc_binance_order_is_up(account, start_auto_date)
+#     if (not is_up_exist):
+        
+        
+#         if ('BUY' == side and 'FILLED' == status):
+#             is_result = find_btc_binance_order_sell_record(account, sellClientOrderId)
+#             # 置为9,下架的交易条件
+#             # 买入订单状态为FILLED,有对应的卖出订单,状态也为FILLED.该笔买入订单下架
+#             if is_result:
+#                 #print "第01种场景: 订单号 %s 置为 9" % orderId 
+#                 update_btc_binance_order_up(orderId, 9)
+#             else:
+#                 # 置为1,上架的交易条件
+#                 # 买入订单状态为FILLED,没有对应的卖出订单,该笔买入订单上架
+#                 #print "第02种场景: 订单号 %s 置为 1" % orderId 
+#                 update_btc_binance_order_up(orderId, 1)
 
-    # 查询是否有正在进行的订单
-    is_up_exist = find_btc_binance_order_is_up(account, start_auto_date)
-    if (not is_up_exist):
-        # 置为9,下架的交易条件
-            # 卖出订单状态为FILLED,该笔卖出订单下架
-        if ('SELL' == side and 'FILLED' == status):
-            #print "第03种场景: 订单号 %s 置为 9" % orderId 
-            update_btc_binance_order_up(orderId, 9)
+#     # 查询是否有正在进行的订单
+#     is_up_exist = find_btc_binance_order_is_up(account, start_auto_date)
+#     if (not is_up_exist):
+#         # 置为9,下架的交易条件
+#             # 卖出订单状态为FILLED,该笔卖出订单下架
+#         if ('SELL' == side and 'FILLED' == status):
+#             #print "第03种场景: 订单号 %s 置为 9" % orderId 
+#             update_btc_binance_order_up(orderId, 9)
 
-        # 置为1,上架的交易条件
-            # 卖出订单状态为CANCELED, 并且卖出数量和已经卖出数量不一致的,卖出数量不为0.0, 该笔卖出订单上架
-        if ('SELL' == side and 'CANCELED' == status and origQty > executedQty and 0.0 != executedQty):
-            #print "第04种场景: 订单号 %s 置为 1" % orderId 
-            update_btc_binance_order_up(orderId, 1)
+#         # 置为1,上架的交易条件
+#             # 卖出订单状态为CANCELED, 并且卖出数量和已经卖出数量不一致的,卖出数量不为0.0, 该笔卖出订单上架
+#         if ('SELL' == side and 'CANCELED' == status and origQty > executedQty and 0.0 != executedQty):
+#             #print "第04种场景: 订单号 %s 置为 1" % orderId 
+#             update_btc_binance_order_up(orderId, 1)
 
 # 根据上一次交易时间,获取之后的最近交易记录中最高和最低价格
 def get_recent_trade_max_min_price_by_trade_time(client, symbol, trade_time = 0):

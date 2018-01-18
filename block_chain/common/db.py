@@ -760,3 +760,28 @@ def find_btc_binance_order_buy_or_sell(account, symbol):
         send_exception(traceback.format_exc())
     return False
 
+
+# 查询最新的完成订单
+def find_btc_binance_order_newest(account, symbol):
+    try:
+        conn= MySQLdb.connect(
+            host='127.0.0.1',
+            port = 3306,
+            user='omni_manage_pro',
+            passwd='!omni123456manageMysql.pro',
+            db ='z_omni_manage_pro',
+        )
+        cur = conn.cursor(MySQLdb.cursors.DictCursor)
+        cur.execute('set names utf8') #charset set code. it is not nessary now
+        sql = "SELECT * FROM `omni_btc_binance_order`  WHERE side = 'SELL' or side = 'BUY' and is_auto = 1 and status = 'FILLED' and account = '%s' and symbol =  '%s' order by time desc " % (account, symbol)
+        #print sUY
+        cur.execute(sql)
+        conn.commit()
+        result = cur.fetchone()
+        if result:
+            return result
+        cur.close()
+        conn.close()
+    except Exception as e:
+        send_exception(traceback.format_exc())
+    return False
