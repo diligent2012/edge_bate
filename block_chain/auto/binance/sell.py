@@ -56,6 +56,8 @@ def start_auto_sell():
                 # 获取当前最近的的交易中最高和最低价格
                 min_price, max_price = get_recent_trade_max_min_price_by_trade_time(client, symbol, order_time)
 
+                oper_record_log += "\n70、当前交易中价格: 最高价: %s 最低价: %s " % (str(max_price), str(min_price))
+
                 if(prev_buy_price):
                     is_sell, oper_record_log = oper_is_sell(min_price, prev_buy_price, oper_record_log)
                     if (is_sell):
