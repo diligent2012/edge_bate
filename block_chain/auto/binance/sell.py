@@ -28,6 +28,7 @@ def start_auto_sell():
         for key,a_item in enumerate(account_list):
             client = Client(a_item['api_key'], a_item['api_secret'])
             account = a_item['account']
+            qty = a_item['qty']
             start_auto_date = format_time_for_date(a_item['start_auto_date'])
             binance_symbols = a_item['allow_symbol']
             
@@ -50,7 +51,7 @@ def start_auto_sell():
                     break;
 
                 # 获取上一次买入价格
-                prev_buy_price, order_time, oper_record_log = get_prev_buy_price(account, symbol, oper_record_log)
+                prev_buy_price, order_time, sellClientOrderId, oper_record_log = get_prev_buy_price(account, symbol, oper_record_log)
 
                 # 获取当前最近的的交易中最高和最低价格
                 min_price, max_price = get_recent_trade_max_min_price_by_trade_time(client, symbol, order_time)
@@ -68,7 +69,7 @@ def start_auto_sell():
                             is_secure = secure_check(stop_sell_price, prev_buy_price)
                             if (is_secure):
                                 # 开始设置卖出止损
-                                set_stop_sell_price(client, sell_price, stop_sell_price, origQty, symbol, sellClientOrderId)
+                                set_stop_sell_price(client, sell_price, stop_sell_price, qty, symbol, sellClientOrderId)
                 else:
                     oper_record_log += "\n99、没有获取到上次买入,请重视"
                 insert_btc_binance_order_auto_log(account, 'SELL', symbol, oper_record_log)        
@@ -104,8 +105,8 @@ def get_prev_buy_price(account, symbol, oper_record_log):
         executedQty = order_buy_newest_one['executedQty'] #上一次买入的实际数量
         sellClientOrderId = order_buy_newest_one['sellClientOrderId'] #上一次买入的客户端ID
         oper_record_log += "\n买入的数据: 订单ID: %s 币种: %s  触发价格: %s 止损价格: %s 需要卖出数量: %s 实际卖出数量: %s 卖出时间: %s" % (str(orderId), str(symbol), str(price), str(stopPrice), str(origQty), str(executedQty), format_time(order_time))
-        return stopPrice, order_time, oper_record_log
-    return False, False, oper_record_log
+        return stopPrice, order_time, sellClientOrderId, oper_record_log
+    return False, False, False, oper_record_log
 
 # 最高价格是否大于买入价格的2.5%
 def oper_is_sell(max_price, buy_price, oper_record_log):
