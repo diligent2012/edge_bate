@@ -90,6 +90,8 @@ def is_start_buy(account, symbol, oper_record_log):
     if (SIDE_BUY == buy_or_sell_rst['side']):
         oper_record_log += "\n50-B、当前是要进行买入"
         return True, oper_record_log
+    else:
+        oper_record_log += "\n50-C、当前是买入、当前是不能卖出"
     return False, oper_record_log
 
 # 是否有买入在进行
@@ -103,8 +105,10 @@ def is_buying(account, symbol, oper_record_log):
             stopPrice = buy_item['stopPrice']
             origQty = buy_item['origQty']
             executedQty = buy_item['executedQty']
-            oper_record_log += "\n有买入订单进行中: 订单ID: %s 币种: %s  触发价格: %s 止损价格: %s 需要卖出数量: %s 实际卖出数量: %s" % (str(orderId), str(symbol), str(price), str(stopPrice), str(origQty), str(executedQty))
+            oper_record_log += "\n50、有买入订单进行中: 订单ID: %s 币种: %s  触发价格: %s 止损价格: %s 需要卖出数量: %s 实际卖出数量: %s" % (str(orderId), str(symbol), str(price), str(stopPrice), str(origQty), str(executedQty))
         return True, oper_record_log
+    else:
+        oper_record_log += "\n50-D、没有买入订单进行中"
     return False, oper_record_log
 
 def get_prev_buy_price(account, symbol, oper_record_log):

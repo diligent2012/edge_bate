@@ -50,40 +50,36 @@ def start_auto_buy():
 
                 # 查看是否有卖出单子在进行
                 is_selling_rst, oper_record_log = is_selling(account, symbol, oper_record_log)
-                if(is_selling_rst):
-                    break
 
                 # 查看当前是应该卖还是买
                 is_start_buy_rst, oper_record_log = is_start_buy(account, symbol, oper_record_log)
-                if (not is_start_buy_rst):
-                    break    
-            
+                if(not is_selling_rst and is_start_buy_rst):
 
-                # 获取上一次卖出价格
-                prev_sell_price, order_time, oper_record_log = get_prev_sell_price(account, symbol, oper_record_log)
+                    # 获取上一次卖出价格
+                    prev_sell_price, order_time, oper_record_log = get_prev_sell_price(account, symbol, oper_record_log)
 
-                # 获取当前最近的的交易中最高和最低价格
-                min_price, max_price = get_recent_trade_max_min_price_by_trade_time(client, symbol, order_time)
+                    # 获取当前最近的的交易中最高和最低价格
+                    min_price, max_price = get_recent_trade_max_min_price_by_trade_time(client, symbol, order_time)
 
-                oper_record_log += "\n70、当前交易中价格: 最高价: %s 最低价: %s " % (str(max_price), str(min_price))
+                    oper_record_log += "\n70、当前交易中价格: 最高价: %s 最低价: %s " % (str(max_price), str(min_price))
 
-                if(prev_sell_price):
+                    if(prev_sell_price):
 
-                    is_buy, oper_record_log = oper_is_buy(min_price, prev_sell_price, oper_record_log)
-                    if (is_buy):
+                        is_buy, oper_record_log = oper_is_buy(min_price, prev_sell_price, oper_record_log)
+                        if (is_buy):
 
-                        #计算触发、止盈价格
-                        buy_price, stop_buy_price, oper_record_log = oper_stop_buy_price( min_price, prev_sell_price, oper_record_log)
-                        
-                        if (0.0 != buy_price and 0.0 != stop_buy_price):
+                            #计算触发、止盈价格
+                            buy_price, stop_buy_price, oper_record_log = oper_stop_buy_price( min_price, prev_sell_price, oper_record_log)
+                            
+                            if (0.0 != buy_price and 0.0 != stop_buy_price):
 
-                            # 止损价格必须高于买入价格。兜底做法
-                            is_secure = secure_check(stop_buy_price, prev_sell_price)
-                            if (is_secure):
-                                # 设置买入
-                                oper_record_log = set_stop_buy_price(client, buy_price, stop_buy_price, qty, symbol, oper_record_log)
-                else:
-                    oper_record_log += "\n99、没有获取到上次卖出,请重视"
+                                # 止损价格必须高于买入价格。兜底做法
+                                is_secure = secure_check(stop_buy_price, prev_sell_price)
+                                if (is_secure):
+                                    # 设置买入
+                                    oper_record_log = set_stop_buy_price(client, buy_price, stop_buy_price, qty, symbol, oper_record_log)
+                    else:
+                        oper_record_log += "\n99、没有获取到上次卖出,请重视"
                        
                 #记录所有日志
                 insert_btc_binance_order_auto_log(account, 'BUY', symbol, oper_record_log)
@@ -96,6 +92,8 @@ def is_start_buy(account, symbol, oper_record_log):
     if (SIDE_SELL == buy_or_sell_rst['side']):
         oper_record_log += "\n50-B、当前是要进行卖出"
         return True, oper_record_log
+    else:
+        oper_record_log += "\n50-C、当前是卖出、当前是不能买入"
     return False, oper_record_log
 
 # 是否有卖出在进行
@@ -111,6 +109,8 @@ def is_selling(account, symbol, oper_record_log):
             executedQty = sell_item['executedQty']
             oper_record_log += "\n50、有卖出订单进行中: 订单ID: %s 币种: %s  触发价格: %s 止损价格: %s 需要卖出数量: %s 实际卖出数量: %s" % (str(orderId), str(symbol), str(price), str(stopPrice), str(origQty), str(executedQty))
         return True, oper_record_log
+    else:
+        oper_record_log += "\n50-D、没有卖出订单进行中"
     return False, oper_record_log
 
 # 最低价格是否小于上次卖出价格的2.5%
