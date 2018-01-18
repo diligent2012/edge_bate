@@ -86,7 +86,7 @@ def start_auto_sell():
 
 
 def is_start_buy(account, symbol, oper_record_log):
-    buy_or_sell_rst = find_btc_binance_order_buy_or_sell(account, symbol): 
+    buy_or_sell_rst = find_btc_binance_order_buy_or_sell(account, symbol)
     if (SIDE_BUY == buy_or_sell_rst['side']):
         oper_record_log += "\n50-B、当前是要进行买入"
         return True, oper_record_log

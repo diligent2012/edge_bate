@@ -737,3 +737,27 @@ def insert_btc_binance_order_auto_log(account, side, symbol, log_content):
     return False
 
 
+# 查询当前是应该买还是麦
+def find_btc_binance_order_buy_or_sell(account, symbol):
+    try:
+        conn= MySQLdb.connect(
+            host='127.0.0.1',
+            port = 3306,
+            user='omni_manage_pro',
+            passwd='!omni123456manageMysql.pro',
+            db ='z_omni_manage_pro',
+        )
+        cur = conn.cursor()
+        cur.execute('set names utf8') #charset set code. it is not nessary now
+        sql = "SELECT * FROM `omni_btc_binance_order`  WHERE is_up = '1' and account = '%s' and symbol = '%s' order by time desc " % (account, symbol)
+        cur.execute(sql)
+        conn.commit()
+        result = cur.fetchone()
+        if result:
+            return True
+        cur.close()
+        conn.close()
+    except Exception as e:
+        send_exception(traceback.format_exc())
+    return False
+
