@@ -151,3 +151,11 @@ def create_stop_buy_order(client, symbol, side, o_type, timeInForce, quantity, p
     except BinanceAPIException as e:
         send_exception(traceback.format_exc())
     return False
+
+def cancel_order(client, symbol , orderId):
+    try:
+        cancel_order = client.cancel_order(symbol = symbol, orderId = orderId)
+        return cancel_order
+    except BinanceAPIException as e:
+        send_exception(traceback.format_exc())
+    return False
