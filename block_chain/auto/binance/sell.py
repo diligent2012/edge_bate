@@ -47,38 +47,36 @@ def start_auto_sell():
 
                 # 查看是否有买入单子在进行
                 is_buying_rst, oper_record_log = is_buying(account, symbol, oper_record_log)
-                if(is_buying_rst):
-                    break;
 
                 # 查看当前是应该卖还是买
                 is_start_sell_rst, oper_record_log = is_start_buy(account, symbol, oper_record_log)
-                if (not is_start_sell_rst):
-                    break
 
-                # 获取上一次买入价格
-                prev_buy_price, order_time, sellClientOrderId, oper_record_log = get_prev_buy_price(account, symbol, oper_record_log)
+                if(not is_buying_rst and is_start_sell_rst):
+                    # 获取上一次买入价格
+                    prev_buy_price, order_time, sellClientOrderId, oper_record_log = get_prev_buy_price(account, symbol, oper_record_log)
 
-                # 获取当前最近的的交易中最高和最低价格
-                min_price, max_price = get_recent_trade_max_min_price_by_trade_time(client, symbol, order_time)
+                    # 获取当前最近的的交易中最高和最低价格
+                    min_price, max_price = get_recent_trade_max_min_price_by_trade_time(client, symbol, order_time)
 
-                oper_record_log += "\n70、当前交易中价格: 最高价: %s 最低价: %s " % (str(max_price), str(min_price))
+                    oper_record_log += "\n70、当前交易中价格: 最高价: %s 最低价: %s " % (str(max_price), str(min_price))
 
-                if(prev_buy_price):
-                    is_sell, oper_record_log = oper_is_sell(min_price, prev_buy_price, oper_record_log)
-                    if (is_sell):
+                    if(prev_buy_price):
+                        is_sell, oper_record_log = oper_is_sell(min_price, prev_buy_price, oper_record_log)
+                        if (is_sell):
 
-                        # 计算并获取 触发价格、止损价格 
-                        sell_price, stop_sell_price, oper_record_log = oper_stop_sell_price(max_price, prev_buy_price, oper_record_log)
+                            # 计算并获取 触发价格、止损价格 
+                            sell_price, stop_sell_price, oper_record_log = oper_stop_sell_price(max_price, prev_buy_price, oper_record_log)
+                            
+                            if(0.0 != sell_price and 0.0 != stop_sell_price):
+
+                                # 止损价格必须高于买入价格。兜底做法
+                                is_secure = secure_check(stop_sell_price, prev_buy_price)
+                                if (is_secure):
+                                    # 开始设置卖出止损
+                                    oper_record_log = set_stop_sell_price(client, sell_price, stop_sell_price, qty, symbol, sellClientOrderId, oper_record_log)
+                    else:
+                        oper_record_log += "\n99、没有获取到上次买入,请重视"
                         
-                        if(0.0 != sell_price and 0.0 != stop_sell_price):
-
-                            # 止损价格必须高于买入价格。兜底做法
-                            is_secure = secure_check(stop_sell_price, prev_buy_price)
-                            if (is_secure):
-                                # 开始设置卖出止损
-                                oper_record_log = set_stop_sell_price(client, sell_price, stop_sell_price, qty, symbol, sellClientOrderId, oper_record_log)
-                else:
-                    oper_record_log += "\n99、没有获取到上次买入,请重视"
                 insert_btc_binance_order_auto_log(account, 'SELL', symbol, oper_record_log)        
 
     except Exception as e:
