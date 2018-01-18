@@ -132,7 +132,7 @@ def oper_stop_sell_price(max_price, buy_price, oper_record_log):
     return 0.0, 0.0, oper_record_log
 
 # 开始设置止损价格
-def set_stop_sell_price(client, sell_price, stop_sell_price, sell_qty, symbol, sellClientOrderId):
+def set_stop_sell_price(client, sell_price, stop_sell_price, sell_qty, symbol, sellClientOrderId, oper_record_log):
     try:
         order_symbol = symbol
         order_side = SIDE_SELL
@@ -176,7 +176,8 @@ def set_stop_sell_price(client, sell_price, stop_sell_price, sell_qty, symbol, s
        
     except Exception as e:
         send_exception(traceback.format_exc())
-
+    return oper_record_log
+    
 def secure_check(stop_sell_price, prev_buy_price):
     if(stop_sell_price > prev_buy_price):
         return True
