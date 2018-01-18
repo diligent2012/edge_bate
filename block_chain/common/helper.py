@@ -61,7 +61,7 @@ def sync_all_order(client, account, symbol, start_auto_date, oper_record_log):
         else:
             oper_record_log += "\n40-B、同步数据 账户: %s 币种: %s 新纪录数量: %s 老纪录数量: %s" % (account, symbol, new_count,old_connt)
         
-        update_order_up(account, symbol,oper_record_log)
+        oper_record_log = update_order_up(account, symbol,oper_record_log)
     except Exception as e:
         send_exception(traceback.format_exc())
     return oper_record_log
