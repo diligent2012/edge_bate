@@ -15,60 +15,70 @@ from util import *
 
 # 同步所有订单
 def sync_all_order(client, account, symbol, start_auto_date, oper_record_log):
-    new_count = 0
-    old_connt = 0
-    #获取所有订单
-    all_orders = client.get_all_orders(symbol = symbol);
-    # 如果不为空
-    if all_orders:
-        for key,item in enumerate(all_orders):
-            
-            sellClientOrderId = id_generator()
-            data = {}
-            data['sellClientOrderId'] = sellClientOrderId
-            data['account'] = account #a_item['account']
-            data['orderId'] = item['orderId']
-            data['clientOrderId'] = item['clientOrderId']
-            data['origQty'] = item['origQty']
-            data['icebergQty'] = item['icebergQty']
-            data['symbol'] = item['symbol']
-            data['side'] = item['side']
-            data['timeInForce'] = item['timeInForce']
-            data['status'] = item['status']
-            data['stopPrice'] = item['stopPrice']
-            data['time'] = item['time']
-            data['isWorking'] = item['isWorking']
-            data['o_type'] = item['type']
-            data['price'] = item['price']
-            data['executedQty'] = item['executedQty']
+    try:
+        new_count = 0
+        old_connt = 0
+        #获取所有订单
+        all_orders = client.get_all_orders(symbol = symbol);
+        # 如果不为空
+        if all_orders:
+            for key,item in enumerate(all_orders):
+                
+                sellClientOrderId = id_generator()
+                data = {}
+                data['sellClientOrderId'] = sellClientOrderId
+                data['account'] = account #a_item['account']
+                data['orderId'] = item['orderId']
+                data['clientOrderId'] = item['clientOrderId']
+                data['origQty'] = item['origQty']
+                data['icebergQty'] = item['icebergQty']
+                data['symbol'] = item['symbol']
+                data['side'] = item['side']
+                data['timeInForce'] = item['timeInForce']
+                data['status'] = item['status']
+                data['stopPrice'] = item['stopPrice']
+                data['time'] = item['time']
+                data['isWorking'] = item['isWorking']
+                data['o_type'] = item['type']
+                data['price'] = item['price']
+                data['executedQty'] = item['executedQty']
 
-            
-            btc_binance_order_record = find_btc_binance_order_record(item['orderId'])
-            if not btc_binance_order_record:
-                #print "新纪录"
-                new_count += 1
-                insert_btc_binance_order(data)
-            else:
-                #print "老纪录"
-                old_connt += 1
-                update_btc_binance_order(data)
-
-    update_order_up(account, symbol)
-    
-    if (0 == old_connt and 0 == new_count):
-        oper_record_log += "\n40-A、同步数据 账户: %s 币种: %s 没有数据" % (account, symbol)
-    else:
-        oper_record_log += "\n40-B、同步数据 账户: %s 币种: %s 新纪录数量: %s 老纪录数量: %s" % (account, symbol, new_count,old_connt)
-
-    return oper_record_log
-
-def update_order_up(account, symbol):
-    order_newest =  find_btc_binance_order_newest(account, symbol)
-    if order_newest:
-        orderId = order_newest['orderId']
-        update_btc_binance_order_up(orderId, 1)
+                
+                btc_binance_order_record = find_btc_binance_order_record(item['orderId'])
+                if not btc_binance_order_record:
+                    #print "新纪录"
+                    new_count += 1
+                    insert_btc_binance_order(data)
+                else:
+                    #print "老纪录"
+                    old_connt += 1
+                    update_btc_binance_order(data)
 
         
+        
+        if (0 == old_connt and 0 == new_count):
+            oper_record_log += "\n40-A、同步数据 账户: %s 币种: %s 没有数据" % (account, symbol)
+        else:
+            oper_record_log += "\n40-B、同步数据 账户: %s 币种: %s 新纪录数量: %s 老纪录数量: %s" % (account, symbol, new_count,old_connt)
+        
+        update_order_up(account, symbol,oper_record_log)
+    except Exception as e:
+        send_exception(traceback.format_exc())
+    return oper_record_log
+
+def update_order_up(account, symbol, oper_record_log):
+    try:
+        order_newest =  find_btc_binance_order_newest(account, symbol)
+        if order_newest:
+            orderId = order_newest['orderId']
+            update_btc_binance_order_up(orderId, 1)
+            oper_record_log += "\n40-C、更新状态 账户: %s 币种: %s 订单ID: %s" % (account, symbol, orderId)
+        else:
+            oper_record_log += "\n40-D、没有数据需要更新状态 账户: %s 币种: %s " % (account, symbol)
+    except Exception as e:
+        send_exception(traceback.format_exc())
+    return oper_record_log
+
 # 更新订单的上下架状态
 # def common_update_order_up(data, start_auto_date):
 #     orderId = data['orderId'] # 订单ID
