@@ -60,7 +60,7 @@ def start_auto_sell():
                     if (is_sell):
 
                         # 计算并获取 触发价格、止损价格 
-                        sell_price, stop_sell_price = get_stop_sell_price_order(max_price, stopPrice, get_stop_sell_price_order)
+                        sell_price, stop_sell_price = oper_stop_sell_price(max_price, stopPrice, oper_record_log)
                         
                         if(0.0 != sell_price and 0.0 != stop_sell_price):
 
@@ -118,7 +118,7 @@ def oper_is_sell(max_price, buy_price, oper_record_log):
     return False, oper_record_log
 
 # 开始设置止损价格
-def oper_stop_sell_price(max_price, buy_price):
+def oper_stop_sell_price(max_price, buy_price, oper_record_log):
     try:
         stop_rate = float(Decimal(1) - (Decimal(max_price) - Decimal(buy_price))/Decimal(buy_price) * Decimal(0.2))
         stop_sell_price = round(float(max_price) * stop_rate,8)
