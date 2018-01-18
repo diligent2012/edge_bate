@@ -100,14 +100,14 @@ def is_selling(account, symbol, oper_record_log):
         return True, oper_record_log
     return False, oper_record_log
 
-# 最低价格是否小于上次卖出价格的1.5%
+# 最低价格是否小于上次卖出价格的2.5%
 def oper_is_buy(min_price, sell_price, oper_record_log):
     buy_rate = (Decimal(sell_price) - Decimal(min_price))/Decimal(min_price)
     buy_rate = round(buy_rate,8)
-    if(buy_rate >= 0.015):
-        oper_record_log += "\n80-A、跌幅大于0.015: 最低价格: %s 卖出价格: %s " % (str(min_price), str(sell_price))
+    if(buy_rate >= 0.025):
+        oper_record_log += "\n80-A、跌幅大于0.025: 最低价格: %s 卖出价格: %s " % (str(min_price), str(sell_price))
         return True, oper_record_log
-    oper_record_log += "\n80-B、跌幅小于0.015: 最低价格: %s 卖出价格: %s " % (str(min_price), str(sell_price))
+    oper_record_log += "\n80-B、跌幅小于0.025: 最低价格: %s 卖出价格: %s " % (str(min_price), str(sell_price))
     return False, oper_record_log
 
 # 计算止损价格
@@ -122,6 +122,7 @@ def oper_stop_buy_price(min_price, sell_price, oper_record_log):
         send_exception(traceback.format_exc())
     oper_record_log += "\n80-D、无法得出设置价格: 最低价格: %s 卖出价格: %s " % (str(min_price), str(sell_price))
     return 0.0, 0.0, oper_record_log
+
 
 # 获取上一次卖出的价格
 def get_prev_sell_price(account, symbol, oper_record_log):
