@@ -89,39 +89,48 @@ def start_auto_buy():
 
 # 查看是否可以开始买入, 当没有卖出在进行的时候,可以买入
 def is_start_buy(account, symbol, oper_record_log):
-    buy_or_sell_rst = find_btc_binance_order_buy_or_sell(account, symbol) 
-    if (SIDE_SELL == buy_or_sell_rst['side']):
-        oper_record_log += "\n50-B、当前是要进行买入"
-        return True, oper_record_log
-    else:
-        oper_record_log += "\n50-C、当前要进行卖出、当前不能买入"
-    return False, oper_record_log
+    try:
+        buy_or_sell_rst = find_btc_binance_order_buy_or_sell(account, symbol) 
+        if (SIDE_SELL == buy_or_sell_rst['side']):
+            oper_record_log += "\n50-B、当前是要进行买入"
+            return True, oper_record_log
+        else:
+            oper_record_log += "\n50-C、当前要进行卖出、当前不能买入"
+    except Exception as e:
+        send_exception(traceback.format_exc())
 
+    return False, oper_record_log
 # 是否有卖出在进行
 def is_selling(account, symbol, oper_record_log):
-    is_selling_result = find_btc_binance_order_selling(account, symbol)
-    if(is_selling_result):
-        for key,sell_item in enumerate(is_selling_result): 
-            orderId = sell_item['orderId']
-            symbol = sell_item['symbol']
-            price = sell_item['price']
-            stopPrice = sell_item['stopPrice']
-            origQty = sell_item['origQty']
-            executedQty = sell_item['executedQty']
-            oper_record_log += "\n50、有卖出订单进行中: 订单ID: %s 币种: %s  触发价格: %s 止损价格: %s 需要卖出数量: %s 实际卖出数量: %s" % (str(orderId), str(symbol), str(price), str(stopPrice), str(origQty), str(executedQty))
-        return True, oper_record_log
-    else:
-        oper_record_log += "\n50-D、没有卖出订单进行中"
+    try:
+        is_selling_result = find_btc_binance_order_selling(account, symbol)
+        if(is_selling_result):
+            for key,sell_item in enumerate(is_selling_result): 
+                orderId = sell_item['orderId']
+                symbol = sell_item['symbol']
+                price = sell_item['price']
+                stopPrice = sell_item['stopPrice']
+                origQty = sell_item['origQty']
+                executedQty = sell_item['executedQty']
+                oper_record_log += "\n50、有卖出订单进行中: 订单ID: %s 币种: %s  触发价格: %s 止损价格: %s 需要卖出数量: %s 实际卖出数量: %s" % (str(orderId), str(symbol), str(price), str(stopPrice), str(origQty), str(executedQty))
+            return True, oper_record_log
+        else:
+            oper_record_log += "\n50-D、没有卖出订单进行中"
+    except Exception as e:
+        send_exception(traceback.format_exc())
     return False, oper_record_log
 
 # 最低价格是否小于上次卖出价格的2.5%
 def oper_is_buy(min_price, sell_price, oper_record_log):
-    buy_rate = (Decimal(sell_price) - Decimal(min_price))/Decimal(min_price)
-    buy_rate = round(buy_rate,8)
-    if(buy_rate >= 0.015):
-        oper_record_log += "\n80-A、跌幅大于0.025: 最低价格: %s 卖出价格: %s 跌幅率: %s" % (str(min_price), str(sell_price), str(buy_rate))
-        return True, oper_record_log
-    oper_record_log += "\n80-B、跌幅小于0.025: 最低价格: %s 卖出价格: %s 跌幅率: %s" % (str(min_price), str(sell_price),  str(buy_rate))
+    try:
+        buy_rate = (Decimal(sell_price) - Decimal(min_price))/Decimal(min_price)
+        buy_rate = round(buy_rate,8)
+        if(buy_rate >= 0.015):
+            oper_record_log += "\n80-A、跌幅大于0.025: 最低价格: %s 卖出价格: %s 跌幅率: %s" % (str(min_price), str(sell_price), str(buy_rate))
+            return True, oper_record_log
+        oper_record_log += "\n80-B、跌幅小于0.025: 最低价格: %s 卖出价格: %s 跌幅率: %s" % (str(min_price), str(sell_price),  str(buy_rate))
+    except Exception as e:
+        send_exception(traceback.format_exc())
     return False, oper_record_log
 
 # 计算止损价格
@@ -140,18 +149,21 @@ def oper_stop_buy_price(min_price, sell_price, oper_record_log):
 
 # 获取上一次卖出的价格
 def get_prev_sell_price(account, symbol, oper_record_log):
-    order_sell_newest_one = find_btc_binance_order_sell_newest_one(account, symbol)
-    if(order_sell_newest_one):
-        order_time = int(order_sell_newest_one['time']) #上一次卖出的时间
-        orderId = order_sell_newest_one['orderId'] #上一次卖出的订单ID
-        symbol = order_sell_newest_one['symbol'] #上一次卖出的币种
-        price = order_sell_newest_one['price'] #上一次卖出的触发价格
-        stopPrice = order_sell_newest_one['stopPrice'] #上一次卖出的止损价格
-        origQty = order_sell_newest_one['origQty'] #上一次卖出的数量
-        executedQty = order_sell_newest_one['executedQty'] #上一次卖出的实际数量
-        oper_record_log += "\n60、上一次卖出数据: 订单ID: %s 币种: %s  触发价格: %s 止损价格: %s 需要卖出数量: %s 实际卖出数量: %s 卖出时间: %s" % (str(orderId), str(symbol), str(price), str(stopPrice), str(origQty), str(executedQty), format_time(order_time))
-        
-        return price, order_time, oper_record_log
+    try:
+        order_sell_newest_one = find_btc_binance_order_sell_newest_one(account, symbol)
+        if(order_sell_newest_one):
+            order_time = int(order_sell_newest_one['time']) #上一次卖出的时间
+            orderId = order_sell_newest_one['orderId'] #上一次卖出的订单ID
+            symbol = order_sell_newest_one['symbol'] #上一次卖出的币种
+            price = order_sell_newest_one['price'] #上一次卖出的触发价格
+            stopPrice = order_sell_newest_one['stopPrice'] #上一次卖出的止损价格
+            origQty = order_sell_newest_one['origQty'] #上一次卖出的数量
+            executedQty = order_sell_newest_one['executedQty'] #上一次卖出的实际数量
+            oper_record_log += "\n60、上一次卖出数据: 订单ID: %s 币种: %s  触发价格: %s 止损价格: %s 需要卖出数量: %s 实际卖出数量: %s 卖出时间: %s" % (str(orderId), str(symbol), str(price), str(stopPrice), str(origQty), str(executedQty), format_time(order_time))
+            
+            return price, order_time, oper_record_log
+    except Exception as e:
+        send_exception(traceback.format_exc())
     return False, False, oper_record_log
 
 # 开始设置止盈价格
