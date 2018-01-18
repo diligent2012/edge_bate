@@ -50,6 +50,11 @@ def start_auto_sell():
                 if(is_buying_rst):
                     break;
 
+                # 查看当前是应该卖还是买
+                is_start_sell_rst, oper_record_log = is_start_buy(account, symbol, oper_record_log)
+                if (not is_start_sell_rst):
+                    break
+
                 # 获取上一次买入价格
                 prev_buy_price, order_time, sellClientOrderId, oper_record_log = get_prev_buy_price(account, symbol, oper_record_log)
 
@@ -78,6 +83,14 @@ def start_auto_sell():
 
     except Exception as e:
         send_exception(traceback.format_exc())
+
+
+def is_start_buy(account, symbol, oper_record_log):
+    buy_or_sell_rst = find_btc_binance_order_buy_or_sell(account, symbol): 
+    if (SIDE_BUY == buy_or_sell_rst['side']):
+        oper_record_log += "\n50-B、当前是要进行买入"
+        return True, oper_record_log
+    return False, oper_record_log
 
 # 是否有买入在进行
 def is_buying(account, symbol, oper_record_log):
