@@ -125,7 +125,7 @@ def oper_stop_sell_price(max_price, buy_price, oper_record_log):
         stop_sell_price = round(float(max_price) * stop_rate,8)
         sell_price = round(float(Decimal(stop_sell_price) * Decimal(1.0005)),8)
         oper_record_log += "\n80-C、得出的设置价格: 触发价格: %s 止损价格: %s " % (str(sell_price), str(stop_sell_price))
-        return sell_price, stop_sell_price
+        return sell_price, stop_sell_price, oper_record_log
     except Exception as e:
         send_exception(traceback.format_exc())
     oper_record_log += "\n80-D、无法得出设置价格: 最高价格: %s 买入价格: %s " % (str(max_price), str(buy_price))
