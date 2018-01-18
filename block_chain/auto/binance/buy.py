@@ -77,7 +77,7 @@ def start_auto_buy():
                                 is_secure = secure_check(stop_buy_price, prev_sell_price)
                                 if (is_secure):
                                     # 设置买入
-                                    oper_record_log = set_stop_buy_price(client, buy_price, stop_buy_price, qty, symbol, oper_record_log)
+                                    oper_record_log = set_stop_buy_price(client, stop_buy_price, buy_price, qty, symbol, oper_record_log)
                     else:
                         oper_record_log += "\n99、没有获取到上次卖出,请重视"
                        
@@ -87,13 +87,14 @@ def start_auto_buy():
     except Exception as e:
         send_exception(traceback.format_exc())
 
+# 查看是否可以开始买入, 当没有卖出在进行的时候,可以买入
 def is_start_buy(account, symbol, oper_record_log):
     buy_or_sell_rst = find_btc_binance_order_buy_or_sell(account, symbol) 
     if (SIDE_SELL == buy_or_sell_rst['side']):
-        oper_record_log += "\n50-B、当前是要进行卖出"
+        oper_record_log += "\n50-B、当前是要进行买入"
         return True, oper_record_log
     else:
-        oper_record_log += "\n50-C、当前是卖出、当前是不能买入"
+        oper_record_log += "\n50-C、当前要进行卖出、当前不能买入"
     return False, oper_record_log
 
 # 是否有卖出在进行
