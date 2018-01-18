@@ -753,8 +753,7 @@ def find_btc_binance_order_buy_or_sell(account, symbol):
         cur.execute(sql)
         conn.commit()
         result = cur.fetchone()
-        if result:
-            return True
+        return result
         cur.close()
         conn.close()
     except Exception as e:
