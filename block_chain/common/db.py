@@ -773,13 +773,37 @@ def find_btc_binance_order_newest(account, symbol):
         )
         cur = conn.cursor(MySQLdb.cursors.DictCursor)
         cur.execute('set names utf8') #charset set code. it is not nessary now
-        sql = "SELECT * FROM `omni_btc_binance_order`  WHERE (side = 'SELL' or side = 'BUY') and o_type in ('STOP_LOSS_LIMIT', 'TAKE_PROFIT_LIMIT') and is_auto = 1 and status = 'FILLED' and account = '%s' and symbol =  '%s' order by time desc " % (account, symbol)
+        sql = "SELECT * FROM `omni_btc_binance_order`  WHERE (side = 'SELL' or side = 'BUY') and o_type in ('STOP_LOSS_LIMIT') and is_auto = 1 and status = 'FILLED' and account = '%s' and symbol =  '%s' order by time desc " % (account, symbol)
         #print sql
         cur.execute(sql)
         conn.commit()
         result = cur.fetchone()
         if result:
             return result
+        cur.close()
+        conn.close()
+    except Exception as e:
+        send_exception(traceback.format_exc())
+    return False
+
+# 更新 订单 上下架
+def update_btc_binance_reset_order_up(account, symbol, is_up):
+    try:
+        conn= MySQLdb.connect(
+            host='127.0.0.1',
+            port = 3306,
+            user='omni_manage_pro',
+            passwd='!omni123456manageMysql.pro',
+            db ='z_omni_manage_pro',
+        )
+        cur = conn.cursor()
+        cur.execute('set names utf8') #charset set code. it is not nessary now
+        sql = "UPDATE `omni_btc_binance_order` SET `is_up` = '%s' WHERE account = '%s' and symbol = '%s' " % (is_up, account, symbol)
+        #print sql
+        cur.execute(sql)
+        conn.commit()
+        result = cur.fetchall()
+        return result
         cur.close()
         conn.close()
     except Exception as e:

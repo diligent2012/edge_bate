@@ -68,6 +68,7 @@ def sync_all_order(client, account, symbol, start_auto_date, oper_record_log):
 
 def update_order_up(account, symbol, oper_record_log):
     try:
+        update_btc_binance_reset_order_up(account, symbol, 9)
         order_newest =  find_btc_binance_order_newest(account, symbol)
         if order_newest:
             orderId = order_newest['orderId']
