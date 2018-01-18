@@ -61,7 +61,7 @@ def start_auto_sell():
                     if (is_sell):
 
                         # 计算并获取 触发价格、止损价格 
-                        sell_price, stop_sell_price = oper_stop_sell_price(max_price, prev_buy_price, oper_record_log)
+                        sell_price, stop_sell_price, oper_record_log = oper_stop_sell_price(max_price, prev_buy_price, oper_record_log)
                         
                         if(0.0 != sell_price and 0.0 != stop_sell_price):
 
@@ -69,7 +69,7 @@ def start_auto_sell():
                             is_secure = secure_check(stop_sell_price, prev_buy_price)
                             if (is_secure):
                                 # 开始设置卖出止损
-                                set_stop_sell_price(client, sell_price, stop_sell_price, qty, symbol, sellClientOrderId, oper_record_log)
+                                oper_record_log = set_stop_sell_price(client, sell_price, stop_sell_price, qty, symbol, sellClientOrderId, oper_record_log)
                 else:
                     oper_record_log += "\n99、没有获取到上次买入,请重视"
                 insert_btc_binance_order_auto_log(account, 'SELL', symbol, oper_record_log)        
