@@ -68,16 +68,16 @@ def start_auto_buy():
                         is_buy, oper_record_log = oper_is_buy(min_price, prev_sell_price, oper_record_log)
                         if (is_buy):
 
-                            #计算触发、止盈价格
-                            buy_price, stop_buy_price, oper_record_log = oper_stop_buy_price( min_price, prev_sell_price, oper_record_log)
+                            #计算 触发、止盈价格
+                            stop_buy_price, buy_price, oper_record_log = oper_stop_buy_price( min_price, prev_sell_price, oper_record_log)
                             
-                            if (0.0 != buy_price and 0.0 != stop_buy_price):
+                            if (0.0 != stop_buy_price and 0.0 != buy_price):
 
                                 # 止损价格必须高于买入价格。兜底做法
-                                is_secure = secure_check(stop_buy_price, prev_sell_price)
+                                is_secure = secure_check(buy_price, prev_sell_price)
                                 if (is_secure):
                                     # 设置买入
-                                    oper_record_log = set_stop_buy_price(client, stop_buy_price, buy_price, qty, symbol, oper_record_log)
+                                    oper_record_log = set_stop_buy_price(client, buy_price, stop_buy_price, qty, symbol, oper_record_log)
                     else:
                         oper_record_log += "\n99、没有获取到上次卖出,请重视"
                        
@@ -133,14 +133,14 @@ def oper_is_buy(min_price, sell_price, oper_record_log):
         send_exception(traceback.format_exc())
     return False, oper_record_log
 
-# 计算止损价格
+# 计算止盈价格
 def oper_stop_buy_price(min_price, sell_price, oper_record_log):
     try:
         stop_rate = float(Decimal(1) + (Decimal(sell_price) - Decimal(min_price))/Decimal(min_price) * Decimal(0.2))
-        stop_buy_price = round(float(min_price) * stop_rate,6)
-        buy_price = round(float(Decimal(stop_buy_price) * Decimal(1.0005)),6)
-        oper_record_log += "\n80-C、得出的设置价格: 触发价格: %s 止盈价格: %s " % (str(buy_price), str(stop_buy_price))
-        return buy_price, stop_buy_price, oper_record_log
+        buy_price = round(float(min_price) * stop_rate,6) #止盈价格
+        stop_buy_price = round(float(Decimal(stop_buy_price) * Decimal(1 - 0.0005)),6) #触发价格
+        oper_record_log += "\n80-C、得出的设置价格: 触发价格: %s 止盈价格: %s " % (str(stop_buy_price), str(buy_price))
+        return stop_buy_price, buy_price, oper_record_log
     except Exception as e:
         send_exception(traceback.format_exc())
     oper_record_log += "\n80-D、无法得出设置价格: 最低价格: %s 卖出价格: %s " % (str(min_price), str(sell_price))
@@ -173,8 +173,8 @@ def set_stop_buy_price(client, buy_price, stop_buy_price, buy_qty, symbol, oper_
         order_side = SIDE_BUY
         order_type = ORDER_TYPE_TAKE_PROFIT_LIMIT
         order_timeInForce = TIME_IN_FORCE_GTC
-        order_price = buy_price 
-        order_stopPrice = stop_buy_price
+        order_price = buy_price  # 止盈价格
+        order_stopPrice = stop_buy_price  # 触发价格
         order_quantity = buy_qty
 
         # 获取上一次设置的信息
@@ -183,28 +183,28 @@ def set_stop_buy_price(client, buy_price, stop_buy_price, buy_qty, symbol, oper_
         # 如果有设置,判断设置信息是否相同
         if(set_stop_buy_record_result):
 
-            stopPrice = set_stop_buy_record_result['stopPrice'] # 上一次设置的止盈价格
-            price = set_stop_buy_record_result['price'] # 上一次设置的触发价格
+            stopPrice = set_stop_buy_record_result['stopPrice'] # 上一次设置的触发价格
+            price = set_stop_buy_record_result['price'] # 上一次设置的止盈价格
             origQty = set_stop_buy_record_result['origQty'] # 上一次设置的数量
             orderId = set_stop_buy_record_result['orderId'] # 上一次设置的订单ID
 
-            if(order_stopPrice > stopPrice):
-                oper_record_log += "\n90-D、大于上一次设置价格,不设置 设置价格: %s 上一次设置价格: %s " % (order_stopPrice, stopPrice)
+            if(order_price > price):
+                oper_record_log += "\n90-D、大于上一次设置价格,不设置 设置价格: %s 上一次设置价格: %s " % (order_price, price)
             else:
                 # 判断 触发价格、止盈价格、购买数量是否相同; 如果相同,则不用设置;
-                if( order_price == price and order_stopPrice == stopPrice and order_quantity == origQty):
-                    oper_record_log += "\n90-C、和上次设置止损相同 设置币种: %s 设置交易数量: %s 设置交易触发价格: %s 设置交易止损价格: %s 设置买卖类型: %s 设置交易类型: %s 设置交易时区: %s " % (order_symbol, order_quantity, order_price, order_stopPrice, order_side, order_type, order_timeInForce)
+                if( order_stopPrice == stopPrice and order_price == price and order_quantity == origQty):
+                    oper_record_log += "\n90-C、和上次设置止损相同 设置币种: %s 设置交易数量: %s 设置交易触发价格: %s 设置交易止损价格: %s 设置买卖类型: %s 设置交易类型: %s 设置交易时区: %s " % (order_symbol, order_quantity, order_stopPrice, order_price, order_side, order_type, order_timeInForce)
 
                 # 如果不相同,则取消订单 并重新设置
                 else:
-                    oper_record_log += "\n90-B、重新设置止损 设置币种: %s 设置交易数量: %s 设置交易触发价格: %s 设置交易止损价格: %s 设置买卖类型: %s 设置交易类型: %s 设置交易时区: %s " % (order_symbol, order_quantity, order_price, order_stopPrice, order_side, order_type, order_timeInForce)
+                    oper_record_log += "\n90-B、重新设置止损 设置币种: %s 设置交易数量: %s 设置交易触发价格: %s 设置交易止损价格: %s 设置买卖类型: %s 设置交易类型: %s 设置交易时区: %s " % (order_symbol, order_quantity, order_stopPrice, order_price, order_side, order_type, order_timeInForce)
                     cancel_order(client, order_symbol, orderId)
                     buy_order_result = create_stop_buy_order(client, order_symbol, order_side, order_type, order_timeInForce, order_quantity, order_price, order_stopPrice)
                     insert_btc_binance_order_stop_buy_record(buy_order_result)
         
         # 第一次设置止盈价格,触发价格、止盈价格、数量
         else:
-            oper_record_log += "\n90-A、第一次设置止损 设置币种: %s 设置交易数量: %s 设置交易触发价格: %s 设置交易止损价格: %s 设置买卖类型: %s 设置交易类型: %s 设置交易时区: %s " % (order_symbol, order_quantity, order_price, order_stopPrice, order_side, order_type, order_timeInForce)
+            oper_record_log += "\n90-A、第一次设置止损 设置币种: %s 设置交易数量: %s 设置交易触发价格: %s 设置交易止损价格: %s 设置买卖类型: %s 设置交易类型: %s 设置交易时区: %s " % (order_symbol, order_quantity, order_stopPrice, order_price, order_side, order_type, order_timeInForce)
             buy_order_result = create_stop_buy_order(client, order_symbol, order_side, order_type, order_timeInForce, order_quantity, order_price, order_stopPrice)
             insert_btc_binance_order_stop_buy_record(buy_order_result)
     except Exception as e:
