@@ -76,7 +76,7 @@ def start_auto_sell():
                                     oper_record_log = set_stop_sell_price(client, sell_price, stop_sell_price, qty, symbol, sellClientOrderId, oper_record_log)
                     else:
                         oper_record_log += "\n99、没有获取到上次买入,请重视"
-                        
+
                 insert_btc_binance_order_auto_log(account, 'SELL', symbol, oper_record_log)        
 
     except Exception as e:
@@ -130,9 +130,9 @@ def oper_is_sell(max_price, buy_price, oper_record_log):
     sell_rate = (Decimal(max_price) - Decimal(buy_price))/Decimal(buy_price)
     sell_rate = round(sell_rate, 8)
     if(sell_rate >= 0.025):
-        oper_record_log += "\n80-A、涨幅大于0.025: 最高价格: %s 买入价格: %s " % (str(max_price), str(buy_price))
+        oper_record_log += "\n80-A、涨幅大于0.025: 最高价格: %s 买入价格: %s 涨幅率: %s" % (str(max_price), str(buy_price), str(sell_rate))
         return True, oper_record_log
-    oper_record_log += "\n80-B、涨幅小于0.025: 最高价格: %s 买入价格: %s " % (str(max_price), str(buy_price))
+    oper_record_log += "\n80-B、涨幅小于0.025: 最高价格: %s 买入价格: %s 涨幅率: %s" % (str(max_price), str(buy_price), str(sell_rate))
     return False, oper_record_log
 
 # 开始设置止损价格
