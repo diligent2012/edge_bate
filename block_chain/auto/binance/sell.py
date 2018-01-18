@@ -160,7 +160,7 @@ def set_stop_sell_price(client, sell_price, stop_sell_price, sell_qty, symbol, s
             orderId = set_stop_sell_record_result['orderId'] # 上一次设置的订单ID
 
             if(order_stopPrice < stopPrice):
-                oper_record_log += "\n90-C、小于上一次设置价格,不设置 设置价格: %s 上一次设置价格: %s " % (stopPrice, order_stopPrice)
+                oper_record_log += "\n90-C、小于上一次设置价格,不设置 设置价格: %s 上一次设置价格: %s " % (order_stopPrice, stopPrice)
             else:
                 # 判断 触发价格、止损价格、购买数量是否相同; 如果相同,则不用设置;
                 if( order_price == price and order_stopPrice == stopPrice and order_quantity == origQty):
