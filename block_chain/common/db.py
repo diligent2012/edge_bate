@@ -326,6 +326,49 @@ def insert_btc_binance_order_stop_buy_record(data):
         send_exception(traceback.format_exc())
     return False
 
+# 插入 订单 数据
+def insert_btc_binance_order_stop_sell_record(data, parentClientOrderId):
+    try:
+        
+        orderId = data['orderId']
+        clientOrderId = data['clientOrderId']
+
+
+        origQty = data['origQty']
+        symbol = data['symbol']
+
+        side = data['side']
+        timeInForce = data['timeInForce']
+
+        status = data['status']
+        stopPrice = data['stopPrice']
+
+        transactTime = data['transactTime']
+        o_type = data['type']
+
+        price = data['price']
+        executedQty = data['executedQty']
+
+        conn= MySQLdb.connect(
+            host='127.0.0.1',
+            port = 3306,
+            user='omni_manage_pro',
+            passwd='!omni123456manageMysql.pro',
+            db ='z_omni_manage_pro',
+        )
+        cur = conn.cursor()
+        cur.execute('set names utf8') #charset set code. it is not nessary now
+        sql = "INSERT INTO `omni_btc_binance_order_stop_sell_record` (`orderId`,`clientOrderId`,`origQty`,`executedQty`,`symbol`,`side`,`timeInForce`,`status`,`stopPrice`,`transactTime`,`o_type`,`price`,`parentClientOrderId`) VALUES ('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s')" % (orderId,clientOrderId,origQty,executedQty,symbol,side,timeInForce,status,stopPrice,transactTime,o_type,price, parentClientOrderId)
+        cur.execute(sql)
+        conn.commit()
+        result = cur.fetchall()
+        return result
+        cur.close()
+        conn.close()
+    except Exception as e:
+        send_exception(traceback.format_exc())
+    return False
+
 # 获取上一次没有全部卖出的订单
 def find_btc_binance_order_buy_newest_one_not_all_sell(account, symbol):
     try:
