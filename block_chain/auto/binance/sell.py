@@ -142,7 +142,7 @@ def oper_is_sell(max_price, buy_price, oper_record_log):
     try:
         sell_rate = (Decimal(max_price) - Decimal(buy_price))/Decimal(buy_price)
         sell_rate = round(sell_rate, 8)
-        if(sell_rate >= 0.01):
+        if(sell_rate >= 0.015):
             oper_record_log += "\n80-A、涨幅大于0.025: 最高价格: %s 买入价格: %s 涨幅率: %s" % (str(max_price), str(buy_price), str(sell_rate))
             return True, oper_record_log
         oper_record_log += "\n80-B、涨幅小于0.025: 最高价格: %s 买入价格: %s 涨幅率: %s" % (str(max_price), str(buy_price), str(sell_rate))

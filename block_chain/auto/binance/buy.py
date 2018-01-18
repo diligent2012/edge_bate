@@ -128,7 +128,7 @@ def oper_is_buy(min_price, sell_price, oper_record_log):
     try:
         buy_rate = (Decimal(sell_price) - Decimal(min_price))/Decimal(min_price)
         buy_rate = round(buy_rate,8)
-        if(buy_rate >= 0.01):
+        if(buy_rate >= 0.015):
             oper_record_log += "\n80-A、跌幅大于0.025: 最低价格: %s 卖出价格: %s 跌幅率: %s" % (str(min_price), str(sell_price), str(buy_rate))
             return True, oper_record_log
         oper_record_log += "\n80-B、跌幅小于0.025: 最低价格: %s 卖出价格: %s 跌幅率: %s" % (str(min_price), str(sell_price),  str(buy_rate))
