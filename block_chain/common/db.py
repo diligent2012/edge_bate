@@ -728,7 +728,6 @@ def insert_btc_binance_order_auto_log(account, side, symbol, log_content):
         cur.execute(sql)
         conn.commit()
         result = cur.fetchall()
-        send_wechat(log_content)
         return result
         cur.close()
         conn.close()
