@@ -69,7 +69,7 @@ def start_auto_sell():
                             is_secure = secure_check(stop_sell_price, prev_buy_price)
                             if (is_secure):
                                 # 开始设置卖出止损
-                                set_stop_sell_price(client, sell_price, stop_sell_price, qty, symbol, sellClientOrderId)
+                                set_stop_sell_price(client, sell_price, stop_sell_price, qty, symbol, sellClientOrderId, oper_record_log)
                 else:
                     oper_record_log += "\n99、没有获取到上次买入,请重视"
                 insert_btc_binance_order_auto_log(account, 'SELL', symbol, oper_record_log)        
@@ -177,7 +177,7 @@ def set_stop_sell_price(client, sell_price, stop_sell_price, sell_qty, symbol, s
     except Exception as e:
         send_exception(traceback.format_exc())
     return oper_record_log
-    
+
 def secure_check(stop_sell_price, prev_buy_price):
     if(stop_sell_price > prev_buy_price):
         return True
