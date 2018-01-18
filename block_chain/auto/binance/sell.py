@@ -139,8 +139,8 @@ def oper_is_sell(max_price, buy_price, oper_record_log):
 def oper_stop_sell_price(max_price, buy_price, oper_record_log):
     try:
         stop_rate = float(Decimal(1) - (Decimal(max_price) - Decimal(buy_price))/Decimal(buy_price) * Decimal(0.2))
-        stop_sell_price = round(float(max_price) * stop_rate, 8)
-        sell_price = round(float(Decimal(stop_sell_price) * Decimal(1.0005)), 8)
+        stop_sell_price = round(float(max_price) * stop_rate, 6)
+        sell_price = round(float(Decimal(stop_sell_price) * Decimal(1.0005)), 6)
         oper_record_log += "\n80-C、得出的设置价格: 触发价格: %s 止损价格: %s " % (str(sell_price), str(stop_sell_price))
         return sell_price, stop_sell_price, oper_record_log
     except Exception as e:
