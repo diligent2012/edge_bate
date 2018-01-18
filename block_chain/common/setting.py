@@ -58,26 +58,19 @@ def get_account_list():
                 }
             ]
         }
-        ,
-        {
-            "account":"zhangchen",
-            "start_auto_date":"2018-01-17 00:00:00",
-            "api_key":"HYjjZgAEP7b68Egex3IoWGe9C9K3hUvpW0lhRKKJ3prnzAyOdaoaMvGudJgeX7oC",
-            "api_secret":"I4SqDlfkVk6Y01UgXdwdG9720Pdc859xa4ShRKdo35GvVOVrvB1ceURx5zW8XiHH",
-            'qty': 3,
-            "allow_symbol": [
-                # {
-                #     "symbol":"EOSBTC" # EOS
-                # }
-                # ,
-                {
-                    "symbol":"EOSETH" # 以太坊
-                }
-                # ,
-                # {
-                #     "symbol":"ETHBTC" # 比特币
-                # }
-            ]
-        }
+        # ,
+        # {
+        #     "account":"zhangchen",
+        #     "start_auto_date":"2018-01-17 00:00:00",
+        #     "api_key":"HYjjZgAEP7b68Egex3IoWGe9C9K3hUvpW0lhRKKJ3prnzAyOdaoaMvGudJgeX7oC",
+        #     "api_secret":"I4SqDlfkVk6Y01UgXdwdG9720Pdc859xa4ShRKdo35GvVOVrvB1ceURx5zW8XiHH",
+        #     'qty': 3,
+        #     "allow_symbol": [
+        #         {
+        #             "symbol":"EOSETH" # 以太坊
+        #         }
+               
+        #     ]
+        # }
     ]
     return ACCOUNT_LIST
