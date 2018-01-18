@@ -61,7 +61,7 @@ def start_auto_sell():
                     oper_record_log += "\n70、当前交易中价格: 最高价: %s 最低价: %s " % (str(max_price), str(min_price))
 
                     if(prev_buy_price):
-                        is_sell, oper_record_log = oper_is_sell(min_price, prev_buy_price, oper_record_log)
+                        is_sell, oper_record_log = oper_is_sell(max_price, prev_buy_price, oper_record_log)
                         if (is_sell):
 
                             # 计算并获取 触发价格、止损价格 
