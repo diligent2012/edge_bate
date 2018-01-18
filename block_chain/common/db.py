@@ -247,7 +247,7 @@ def find_btc_binance_order_sell_newest_one(account, symbol):
         )
         cur = conn.cursor(MySQLdb.cursors.DictCursor)
         cur.execute('set names utf8') #charset set code. it is not nessary now
-        sql = "SELECT * FROM `omni_btc_binance_order`  WHERE is_up = 1 and side = 'SELL'  and status = 'FILLED' and account = '%s' and symbol = '%s' order by time desc " % (account, symbol)
+        sql = "SELECT * FROM `omni_btc_binance_order`  WHERE side = 'SELL'  and status = 'FILLED' and account = '%s' and symbol = '%s' order by time desc " % (account, symbol)
         #print sql
         cur.execute(sql)
         conn.commit()
