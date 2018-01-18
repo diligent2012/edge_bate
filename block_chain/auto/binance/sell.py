@@ -60,7 +60,7 @@ def start_auto_sell():
                     if (is_sell):
 
                         # 计算并获取 触发价格、止损价格 
-                        sell_price, stop_sell_price = oper_stop_sell_price(max_price, stopPrice, oper_record_log)
+                        sell_price, stop_sell_price = oper_stop_sell_price(max_price, prev_buy_price, oper_record_log)
                         
                         if(0.0 != sell_price and 0.0 != stop_sell_price):
 
