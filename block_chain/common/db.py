@@ -747,7 +747,7 @@ def find_btc_binance_order_buy_or_sell(account, symbol):
             passwd='!omni123456manageMysql.pro',
             db ='z_omni_manage_pro',
         )
-        cur = conn.cursor()
+        cur = conn.cursor(MySQLdb.cursors.DictCursor)
         cur.execute('set names utf8') #charset set code. it is not nessary now
         sql = "SELECT * FROM `omni_btc_binance_order`  WHERE is_up = '1' and account = '%s' and symbol = '%s' order by time desc " % (account, symbol)
         cur.execute(sql)
