@@ -127,28 +127,33 @@ def update_order_up(account, symbol, oper_record_log):
 
 # 根据上一次交易时间,获取之后的最近交易记录中最高和最低价格
 def get_recent_trade_max_min_price_by_trade_time(client, symbol, trade_time = 0):
-    recent_trades = client.get_recent_trades(symbol = symbol)
-    if (0 != trade_time) :
-        filter_recent_trades = []
-        for key,item in enumerate(recent_trades):
-            if(item['time'] >= trade_time):
-                filter_recent_trades.append(item)
-        recent_trades = filter_recent_trades 
-
-
     max_price = 0.0
     min_price = 0.0
-    for key,item in enumerate(recent_trades):
-        if (0 == key):
-            max_price = item['price']
-            min_price = item['price']
-        else:
-            if(item['price'] > max_price):
-                max_price = item['price']
 
-            if(item['price'] <= min_price):
+    try:
+        recent_trades = client.get_recent_trades(symbol = symbol)
+        if (0 != trade_time) :
+            filter_recent_trades = []
+            for key,item in enumerate(recent_trades):
+                if(item['time'] >= trade_time):
+                    filter_recent_trades.append(item)
+            recent_trades = filter_recent_trades 
+
+
+        
+        for key,item in enumerate(recent_trades):
+            if (0 == key):
+                max_price = item['price']
                 min_price = item['price']
-    
+            else:
+                if(item['price'] > max_price):
+                    max_price = item['price']
+
+                if(item['price'] <= min_price):
+                    min_price = item['price']
+    except BinanceAPIException as e:
+        send_exception(traceback.format_exc())
+        
     return min_price, max_price
 
 # 止损
