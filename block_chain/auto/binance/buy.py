@@ -141,7 +141,7 @@ def oper_stop_buy_price(min_price, sell_price, oper_record_log):
     try:
         stop_rate = float(Decimal(1) + (Decimal(sell_price) - Decimal(min_price))/Decimal(min_price) * Decimal(0.2))
         buy_price = round(float(min_price) * stop_rate,6) #止盈价格
-        stop_buy_price = round(float(Decimal(stop_buy_price) * Decimal(1 - 0.0005)),6) #触发价格
+        stop_buy_price = round(float(Decimal(buy_price) * Decimal(1 - 0.0005)),6) #触发价格
         oper_record_log += "\n80-C、得出的设置价格: 触发价格: %s 止盈价格: %s " % (str(stop_buy_price), str(buy_price))
         return stop_buy_price, buy_price, oper_record_log
     except Exception as e:

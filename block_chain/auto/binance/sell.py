@@ -157,7 +157,7 @@ def oper_stop_sell_price(max_price, buy_price, oper_record_log):
 
         sell_price = round(float(max_price) * stop_rate, 6) # 止损价格
 
-        stop_sell_price = round(float(Decimal(stop_sell_price) * Decimal(1.0005)), 6) # 触发价格
+        stop_sell_price = round(float(Decimal(sell_price) * Decimal(1.0005)), 6) # 触发价格
 
         oper_record_log += "\n80-C、得出的设置价格: 触发价格: %s 止损价格: %s " % (str(stop_sell_price), str(sell_price))
 
