@@ -174,7 +174,7 @@ def set_stop_buy_price(client, buy_price, stop_buy_price, buy_qty, symbol, oper_
     try:
         order_symbol = symbol
         order_side = SIDE_BUY
-        order_type = ORDER_TYPE_TAKE_PROFIT_LIMIT
+        order_type = ORDER_TYPE_STOP_LOSS_LIMIT
         order_timeInForce = TIME_IN_FORCE_GTC
         order_price = buy_price  # 止盈价格
         order_stopPrice = stop_buy_price  # 触发价格
