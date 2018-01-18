@@ -91,11 +91,14 @@ def start_auto_buy():
 def is_start_buy(account, symbol, oper_record_log):
     try:
         buy_or_sell_rst = find_btc_binance_order_buy_or_sell(account, symbol) 
-        if (SIDE_SELL == buy_or_sell_rst['side']):
-            oper_record_log += "\n50-B、当前是要进行买入"
-            return True, oper_record_log
+        if(buy_or_sell_rst):
+            if (SIDE_SELL == buy_or_sell_rst['side']):
+                oper_record_log += "\n50-B、当前是要进行买入"
+                return True, oper_record_log
+            else:
+                oper_record_log += "\n50-C、当前要进行卖出、当前不能买入"
         else:
-            oper_record_log += "\n50-C、当前要进行卖出、当前不能买入"
+            oper_record_log += "\n50-D、当前没有获取到参考信息"
     except Exception as e:
         send_exception(traceback.format_exc())
 

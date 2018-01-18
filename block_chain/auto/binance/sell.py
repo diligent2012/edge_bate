@@ -91,7 +91,9 @@ def is_start_buy(account, symbol, oper_record_log):
                 oper_record_log += "\n50-B、当前是要进行卖出"
                 return True, oper_record_log
             else:
-            oper_record_log += "\n50-C、当前要进行买入、当前不能卖出"
+                oper_record_log += "\n50-C、当前要进行买入、当前不能卖出"
+        else:
+            oper_record_log += "\n50-D、当前没有获取到参考信息"
     except Exception as e:
         send_exception(traceback.format_exc())
     return False, oper_record_log
