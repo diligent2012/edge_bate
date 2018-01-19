@@ -19,38 +19,48 @@ from helper import *
 
 
 def get_new_one(symbol):
-    newest_one = find_btc_binance_recent_trades_data_newest_one(symbol)
-    if(newest_one):
-        return newest_one['data_price']
+    try:
+        newest_one = find_btc_binance_recent_trades_data_newest_one(symbol)
+        if(newest_one):
+            return newest_one['data_price']
+    except Exception as e:
+        send_exception(traceback.format_exc())
     return 0.0
 
   
 
 def start_sync():
-    account_list = get_account_list()
-    account = account_list[0]
-    client = Client(account['api_key'], account['api_secret'])
-    
-    binance_symbols = account['allow_symbol']
-    # 循环不同的币种
-    for key,s_item in enumerate(binance_symbols): 
-        symbol = s_item['symbol']
+    try:
+        symbols = []
+        account_list = get_account_list()
+        # 循环不同的账户
+        for key,a_item in enumerate(account_list):
+            client = Client(a_item['api_key'], a_item['api_secret'])
+            binance_symbols = a_item['allow_symbol']
+            # 循环不同的币种
+            for key,s_item in enumerate(binance_symbols): 
+                symbol = s_item['symbol']
+                if(symbol not in symbols):
+                    symbols.append(symbol)
 
-        recent_trades = client.get_recent_trades(symbol = symbol)
-        sync_time = time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time()))
-        prev_price = get_new_one(symbol)
+        for key,symbol in enumerate(symbols): 
+            recent_trades = client.get_recent_trades(symbol = symbol)
+            sync_time = time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time()))
+            prev_price = get_new_one(symbol)
 
-        for key,item in enumerate(recent_trades):
-            if(0.0 == prev_price):
-                change_rate = prev_price
-            else:
-                change_rate = round( (float(item['price']) - prev_price) / prev_price, 4)
-            prev_price = float(item['price'])
+            for key,item in enumerate(recent_trades):
+                if(0.0 == prev_price):
+                    change_rate = prev_price
+                else:
+                    change_rate = round( (float(item['price']) - prev_price) / prev_price, 4)
+                prev_price = float(item['price'])
 
-            data_id = item['id']
-            is_exit = find_binance_recent_trades_data(data_id)
-            if(not is_exit):
-                insert_binance_recent_trades_data(item['isBuyerMaker'], item['price'], item['qty'], item['time'], item['id'], item['isBestMatch'], sync_time, change_rate, symbol)
+                data_id = item['id']
+                is_exit = find_binance_recent_trades_data(data_id)
+                if(not is_exit):
+                    insert_binance_recent_trades_data(item['isBuyerMaker'], item['price'], item['qty'], item['time'], item['id'], item['isBestMatch'], sync_time, change_rate, symbol)
+    except Exception as e:
+        send_exception(traceback.format_exc())
 # 入口方法
 def main():
     print "start : " + time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time()))

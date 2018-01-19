@@ -19,20 +19,23 @@ from helper import *
 
 
 def start_sync():
-    join_stat = ['EOS','BTC']
-    account_list = get_account_list()
-    account_item = account_list[0]
-    client = Client(account_item['api_key'], account_item['api_secret'])
-    account = account_item['account']
+    try:
+        join_stat = ['EOS','BTC','ETH']
+        account_list = get_account_list()
+        account_item = account_list[0]
+        client = Client(account_item['api_key'], account_item['api_secret'])
+        account = account_item['account']
 
-    date = time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time()))
-    account_assets = client.get_account()
-    for key,item in enumerate(account_assets['balances']):
-        if item['asset'] in join_stat:
-            asset = item['asset']
-            free = item['free']
-            locked = item['locked']
-            insert_btc_binance_asset(account, asset, free, locked, date)
+        date = time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time()))
+        account_assets = client.get_account()
+        for key,item in enumerate(account_assets['balances']):
+            if item['asset'] in join_stat:
+                asset = item['asset']
+                free = item['free']
+                locked = item['locked']
+                insert_btc_binance_asset(account, asset, free, locked, date)
+    except Exception as e:
+        send_exception(traceback.format_exc())
 # 入口方法
 def main():
     print "start : " + time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time()))

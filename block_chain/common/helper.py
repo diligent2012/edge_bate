@@ -160,7 +160,7 @@ def get_recent_trade_max_min_price_by_trade_time(client, symbol, trade_time = 0)
 # 止损
 def create_stop_sell_order(client, symbol, side, o_type, timeInForce, quantity, price, stopPrice, newClientOrderId ):
     try:
-        create_order_result = client.create_order(symbol = symbol, side = side, type = o_type, timeInForce = timeInForce, quantity = quantity, price = price, stopPrice = stopPrice, newClientOrderId = newClientOrderId)
+        create_order_result = client.create_order(symbol = symbol, side = side, type = o_type, timeInForce = timeInForce, quantity = quantity, price = price, stopPrice = stopPrice, newClientOrderId = newClientOrderId, recvWindow = 2000)
         return create_order_result
     except BinanceAPIException as e:
         send_exception(traceback.format_exc())
@@ -170,7 +170,7 @@ def create_stop_sell_order(client, symbol, side, o_type, timeInForce, quantity, 
 # 止盈
 def create_stop_buy_order(client, symbol, side, o_type, timeInForce, quantity, price, stopPrice):
     try:
-        create_order_result = client.create_order(symbol = symbol, side = side, type = o_type, timeInForce = timeInForce, quantity = quantity, price = price, stopPrice = stopPrice)
+        create_order_result = client.create_order(symbol = symbol, side = side, type = o_type, timeInForce = timeInForce, quantity = quantity, price = price, stopPrice = stopPrice, recvWindow = 2000)
         return create_order_result
     except BinanceAPIException as e:
         send_exception(traceback.format_exc())
