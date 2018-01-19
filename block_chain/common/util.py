@@ -56,7 +56,8 @@ def id_generator(size=17, chars=string.ascii_uppercase + string.digits):
 def send_exception(exception_content):
     exception_content_format = json.dumps(exception_content.splitlines()).strip().replace('"','').replace("'",'')
     insert_id = insert_btc_binance_exception_log(exception_content_format)
-    send_wechat("\nID:" + str(insert_id) + "\n" + str(exception_content_format))
+    if(allow_send_time()):
+        send_wechat("\nID:" + str(insert_id) + "\n" + str(exception_content_format))
 
 # 发送微信通知
 def send_wechat(content):
