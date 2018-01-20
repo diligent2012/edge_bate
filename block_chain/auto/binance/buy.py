@@ -46,20 +46,29 @@ def start_auto_buy():
                 oper_record_log += "\n30、币种: %s" % (symbol)
 
                 # 同步账户下的订单
+                oper_record_log += "\nAA、开始时间 %s " % ( time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time())) )
                 oper_record_log = sync_all_order(client, account, symbol, start_auto_date, oper_record_log)
+                oper_record_log += "\nAA、结束时间 %s " % ( time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time())) )
+
 
                 # 查看是否有卖出单子在进行
+                oper_record_log += "\nBB、开始时间 %s " % ( time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time())) )
                 is_selling_rst, oper_record_log = is_selling(account, symbol, oper_record_log)
+                oper_record_log += "\nBB、结束时间 %s " % ( time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time())) )
 
                 # 查看当前是应该卖还是买
+                oper_record_log += "\nCC、开始时间 %s " % ( time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time())) )
                 is_start_buy_rst, oper_record_log = is_start_buy(account, symbol, oper_record_log)
+                oper_record_log += "\nCC、结束时间 %s " % ( time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time())) )
                 if(not is_selling_rst and is_start_buy_rst):
 
                     # 获取上一次卖出价格
                     prev_sell_price, order_time, oper_record_log = get_prev_sell_price(account, symbol, oper_record_log)
 
                     # 获取当前最近的的交易中最高和最低价格
+                    oper_record_log += "\nDD、开始时间 %s " % ( time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time())) )
                     min_price, max_price = get_recent_trade_max_min_price_by_trade_time(client, symbol, order_time)
+                    oper_record_log += "\nDD、结束时间 %s " % ( time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time())) )
 
                     oper_record_log += "\n70、当前交易中价格: 最高价: %s 最低价: %s " % (str(max_price), str(min_price))
 
@@ -82,6 +91,7 @@ def start_auto_buy():
                         oper_record_log += "\n99、没有获取到上次卖出,请重视"
                        
                 #记录所有日志
+                oper_record_log += "\n999、执行结束 %s " % ( time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time())) )
                 insert_btc_binance_order_auto_log(account, 'BUY', symbol, oper_record_log)
 
     except Exception as e:
