@@ -58,20 +58,20 @@ def get_account_list():
                 }
             ]
         }
-        ,
-        {
-            "account":"zhangchen",
-            "start_auto_date":"2018-01-17 00:00:00",
-            "api_key":"HYjjZgAEP7b68Egex3IoWGe9C9K3hUvpW0lhRKKJ3prnzAyOdaoaMvGudJgeX7oC",
-            "api_secret":"I4SqDlfkVk6Y01UgXdwdG9720Pdc859xa4ShRKdo35GvVOVrvB1ceURx5zW8XiHH",
-            'qty': 200,
-            "allow_symbol": [
-                {
-                    "symbol":"EOSETH" # 以太坊
-                }
+        # ,
+        # {
+        #     "account":"zhangchen",
+        #     "start_auto_date":"2018-01-17 00:00:00",
+        #     "api_key":"HYjjZgAEP7b68Egex3IoWGe9C9K3hUvpW0lhRKKJ3prnzAyOdaoaMvGudJgeX7oC",
+        #     "api_secret":"I4SqDlfkVk6Y01UgXdwdG9720Pdc859xa4ShRKdo35GvVOVrvB1ceURx5zW8XiHH",
+        #     'qty': 200,
+        #     "allow_symbol": [
+        #         {
+        #             "symbol":"EOSETH" # 以太坊
+        #         }
                
-            ]
-        }
+        #     ]
+        # }
     ]
     return ACCOUNT_LIST
 
@@ -80,10 +80,10 @@ def get_windfall_account_list():
 
     ACCOUNT_LIST = [
         {
-            "account":"changaiqing",
+            "account":"18721631808",
             "start_auto_date":"2018-01-17 00:00:00",
-            "api_key":"ugXds1RBgjoc6n5WPtRyH2n9ahXw56bfLfFJJEW7cHqK2KzMZ3D1ZjhwhGBp455U",
-            "api_secret":"zQM8ci1whr3gych0WSQYA591zf5plZQlYBHHeDOJdpIQ1w2i9ug4v8pdqX57BvzU",
+            "api_key":"p62jyg4zFVvp6uboW0TmmAt0pSyIylVTpAgaZDBY19QlHasfUAqebS695OasreVp",
+            "api_secret":"IXub9vH9BRbKgsaMVCqe27250xEGXDLTXbvG4osGU0IAt8XEj1FWgzWUneeCrXCC",
             'qty': 3,
             "allow_symbol": [
                 {
