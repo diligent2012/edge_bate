@@ -101,7 +101,14 @@ def oper_stop_sell_price(max_price, buy_price):
     try:
         # 100 - 80 /80 =  0.25
         # 1 - 0.05 = 0.95 = 95
-        stop_rate = float(Decimal(1) - (Decimal(max_price) - Decimal(buy_price))/Decimal(buy_price) * Decimal(0.2))
+        
+
+        rate_space = (Decimal(max_price) - Decimal(buy_price))/Decimal(buy_price) * Decimal(0.2) 
+        if (rate_space < 1):
+            stop_rate = float(Decimal(1) - rate_space)
+        else:
+            stop_rate = float(rate_space)
+            
         sell_price = round(float(max_price) * stop_rate, 6) # 止损价格
 
         stop_sell_price = round(float(Decimal(sell_price) * Decimal(1.0005)), 6) # 触发价格
