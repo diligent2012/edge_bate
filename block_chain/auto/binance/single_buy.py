@@ -43,7 +43,7 @@ def start_single_auto_buy():
                                 
                 oper_record_log += "\nCommon-50、自动买入 开始时间 %s " % ( time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time())) )
 
-                sell_price = 0.00122694
+                sell_price = 0.00122311
                 sell_order_time = 0
 
                 oper_record_log = auto_buy(client, account, symbol, qty, sell_price, sell_order_time, oper_record_log)
