@@ -168,9 +168,9 @@ def create_stop_sell_order(client, symbol, side, o_type, timeInForce, quantity, 
 
 
 # 止盈
-def create_stop_buy_order(client, symbol, side, o_type, timeInForce, quantity, price, stopPrice):
+def create_stop_buy_order(client, symbol, side, o_type, timeInForce, quantity, price, stopPrice, clientOrderId):
     try:
-        create_order_result = client.create_order(symbol = symbol, side = side, type = o_type, timeInForce = timeInForce, quantity = quantity, price = price, stopPrice = stopPrice, recvWindow = 2000)
+        create_order_result = client.create_order(symbol = symbol, side = side, type = o_type, timeInForce = timeInForce, quantity = quantity, price = price, stopPrice = stopPrice, newClientOrderId = clientOrderId, recvWindow = 2000)
         return create_order_result
     except BinanceAPIException as e:
         send_exception(traceback.format_exc())

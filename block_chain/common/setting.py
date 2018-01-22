@@ -51,7 +51,7 @@ def get_account_list():
             "start_auto_date":"2018-01-17 00:00:00",
             "api_key":"ugXds1RBgjoc6n5WPtRyH2n9ahXw56bfLfFJJEW7cHqK2KzMZ3D1ZjhwhGBp455U",
             "api_secret":"zQM8ci1whr3gych0WSQYA591zf5plZQlYBHHeDOJdpIQ1w2i9ug4v8pdqX57BvzU",
-            'qty': 10,
+            'qty': 2,
             "allow_symbol": [
                 {
                     "symbol":"EOSBTC" # EOS
@@ -90,6 +90,7 @@ def get_windfall_account_list():
                     "symbol":"EOSBTC" # EOS
                 }
             ]
-        }
+        },
+        
     ]
     return ACCOUNT_LIST
