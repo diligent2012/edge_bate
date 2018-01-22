@@ -285,7 +285,7 @@ def find_btc_binance_order_stop_buy_record_newest_one(account, symbol):
     return False
 
 # 插入 买入时, 止盈设置纪录
-def insert_btc_binance_order_stop_buy_record(data):
+def insert_btc_binance_order_stop_buy_record(data, account):
     try:
         
         orderId = data['orderId']
@@ -315,7 +315,7 @@ def insert_btc_binance_order_stop_buy_record(data):
         )
         cur = conn.cursor()
         cur.execute('set names utf8') #charset set code. it is not nessary now
-        sql = "INSERT INTO `omni_btc_binance_order_stop_buy_record` (`orderId`,`clientOrderId`,`origQty`,`executedQty`,`symbol`,`side`,`timeInForce`,`status`,`stopPrice`,`transactTime`,`o_type`,`price`) VALUES ('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s')" % (orderId,clientOrderId,origQty,executedQty,symbol,side,timeInForce,status,stopPrice,transactTime,o_type,price)
+        sql = "INSERT INTO `omni_btc_binance_order_stop_buy_record` (`orderId`,`clientOrderId`,`origQty`,`executedQty`,`symbol`,`side`,`timeInForce`,`status`,`stopPrice`,`transactTime`,`o_type`,`price`,`account`) VALUES ('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s')" % (orderId,clientOrderId,origQty,executedQty,symbol,side,timeInForce,status,stopPrice,transactTime,o_type,price, account)
         cur.execute(sql)
         conn.commit()
         result = cur.fetchall()

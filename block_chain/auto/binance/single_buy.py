@@ -43,7 +43,7 @@ def start_single_auto_buy():
                                 
                 oper_record_log += "\nCommon-50、自动买入 开始时间 %s " % ( time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time())) )
 
-                sell_price = 0.00119515
+                sell_price = 0.00122694
                 sell_order_time = 0
 
                 oper_record_log = auto_buy(client, account, symbol, qty, sell_price, sell_order_time, oper_record_log)
@@ -144,15 +144,15 @@ def set_stop_buy_price(client, account, buy_price, stop_buy_price, buy_qty, symb
                 # 如果不相同,则取消订单 并重新设置
                 else:
                     oper_record_log += "\nBuy-Set-30、重新设置止损 设置币种: %s 设置交易数量: %s 设置交易触发价格: %s 设置交易止损价格: %s 设置买卖类型: %s 设置交易类型: %s 设置交易时区: %s " % (order_symbol, order_quantity, order_stopPrice, order_price, order_side, order_type, order_timeInForce)
-                    # cancel_order(client, order_symbol, orderId)
-                    # buy_order_result = create_stop_buy_order(client, order_symbol, order_side, order_type, order_timeInForce, order_quantity, order_price, order_stopPrice)
-                    # insert_btc_binance_order_stop_buy_record(buy_order_result)
+                    cancel_order(client, order_symbol, orderId)
+                    buy_order_result = create_stop_buy_order(client, order_symbol, order_side, order_type, order_timeInForce, order_quantity, order_price, order_stopPrice)
+                    insert_btc_binance_order_stop_buy_record(buy_order_result, account)
         
         # 第一次设置止盈价格,触发价格、止盈价格、数量
         else:
             oper_record_log += "\nBuy-Set-40、第一次设置止损 设置币种: %s 设置交易数量: %s 设置交易触发价格: %s 设置交易止损价格: %s 设置买卖类型: %s 设置交易类型: %s 设置交易时区: %s " % (order_symbol, order_quantity, order_stopPrice, order_price, order_side, order_type, order_timeInForce)
-            # buy_order_result = create_stop_buy_order(client, order_symbol, order_side, order_type, order_timeInForce, order_quantity, order_price, order_stopPrice)
-            # insert_btc_binance_order_stop_buy_record(buy_order_result)
+            buy_order_result = create_stop_buy_order(client, order_symbol, order_side, order_type, order_timeInForce, order_quantity, order_price, order_stopPrice)
+            insert_btc_binance_order_stop_buy_record(buy_order_result, account)
     except Exception as e:
         send_exception(traceback.format_exc())
     finally:
