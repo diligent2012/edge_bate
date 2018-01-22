@@ -48,19 +48,19 @@ def start_auto_buy_sell():
 
                 side = SIDE_BUY
 
-
+                # 如果正在进行订单,则继续进行
                 if new_order:
 
-                    if (SIDE_SELL == new_order['side'])
+                    if (SIDE_SELL == new_order['side']): # 如果当前获取到的是卖出,那么现在就要继续卖出
                         side = SIDE_SELL
                         oper_record_log += "\nCommon-60、自动继续卖出 开始时间 %s " % ( time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time())) )
-                        oper_record_log = auto_sell(client, account, symbol, qty, filled_order, oper_record_log)
+                        oper_record_log = auto_sell(client, account, symbol, qty, new_order, oper_record_log)
                         oper_record_log += "\nCommon-60、自动继续卖出 结束时间 %s " % ( time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time())) )
 
-                    if (SIDE_BUY == new_order['side'])
+                    if (SIDE_BUY == new_order['side']): # 如果当前获取到的是买入,那么现在就要继续买入
                         side = SIDE_BUY
                         oper_record_log += "\nCommon-50、自动继续买入 开始时间 %s " % ( time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time())) )
-                        oper_record_log = auto_buy(client, account, symbol, qty, filled_order, oper_record_log)
+                        oper_record_log = auto_buy(client, account, symbol, qty, new_order, oper_record_log)
                         oper_record_log += "\nCommon-50、自动继续买入 结束时间 %s " % ( time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time())) )
 
                 elif filled_order:
@@ -79,7 +79,7 @@ def start_auto_buy_sell():
                         oper_record_log += "\nCommon-60、自动卖出 结束时间 %s " % ( time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time())) )
 
                 oper_record_log += "\nCommon-99、执行结束 %s " % ( time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time())) )
-                insert_btc_binance_order_auto_log(account, SIDE_BUY, symbol, oper_record_log)
+                insert_btc_binance_order_auto_log(account, side, symbol, oper_record_log)
     except Exception as e:
         send_exception(traceback.format_exc())
 
