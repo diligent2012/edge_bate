@@ -3,6 +3,7 @@
 import sys  
 sys.path.append("..")
 reload(sys)
+sys.setdefaultencoding('utf-8')
 import sqlite3
 import requests
 import json
@@ -724,7 +725,7 @@ def insert_btc_binance_order_auto_log(account, side, symbol, log_content):
         )
         cur = conn.cursor()
         cur.execute('set names utf8') #charset set code. it is not nessary now
-        sql = "INSERT INTO `omni_btc_binance_order_auto_log` (`account`, `side`, `symbol`,`log_content`,`date`) VALUES ('%s', '%s', '%s',  '%s', '%s')" % (account, side, symbol, log_content,date)
+        sql = "INSERT INTO `omni_btc_binance_order_auto_log` (`account`, `side`, `symbol`,`log_content`,`date`) VALUES ('%s', '%s', '%s',  '%s', '%s')" % (account, side, symbol, log_content.encode('utf-8'), date)
         cur.execute(sql)
         conn.commit()
         result = cur.fetchall()
