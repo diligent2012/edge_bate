@@ -319,7 +319,7 @@ def set_stop_sell_price(client, sell_price, stop_sell_price, sell_qty, symbol, s
 # 获取最新订单 code: Filled-*
 def get_newest_valid_order(client, account, symbol,oper_record_log):
     try:
-        all_orders = client.get_all_orders(symbol = symbol, recvWindow = 1000);
+        all_orders = client.get_all_orders(symbol = symbol);
 
         filled_order = []
         new_order = []
