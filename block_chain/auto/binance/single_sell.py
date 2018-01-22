@@ -51,7 +51,6 @@ def start_single_auto_sell():
                 oper_record_log += "\nCommon-60、自动卖出 结束时间 %s " % ( time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time())) )
 
                 oper_record_log += "\nCommon-99、执行结束 %s " % ( time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time())) )
-                print oper_record_log
                 insert_btc_binance_order_auto_log(account, SIDE_SELL, symbol, oper_record_log)
     except Exception as e:
         send_exception(traceback.format_exc())
