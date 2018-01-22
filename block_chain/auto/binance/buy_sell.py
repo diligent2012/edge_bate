@@ -197,7 +197,7 @@ def set_stop_buy_price(client, account, buy_price, stop_buy_price, buy_qty, symb
 def auto_sell(client, account, symbol, qty, filled_order, oper_record_log):
     # 获取上一次买入价格
     buy_order_time = int(filled_order['time']) #上一次买入的时间
-    buy_price = filled_order['price'] #上一次买入的止盈价格
+    buy_price = float(filled_order['price']) #上一次买入的止盈价格
     sellClientOrderId = filled_order['clientOrderId'] #上一次买入的客户端ID
 
     # 获取当前最近的的交易中最高和最低价格
@@ -276,8 +276,7 @@ def set_stop_sell_price(client, sell_price, stop_sell_price, sell_qty, symbol, s
         # 对应买入的客户端ID
         parentClientOrderId = sellClientOrderId
         # 卖出的客户端ID
-        newSellClientOrderId = '%s%s%s' % (sellClientOrderId,'66-66',str(int(time.time())))
-        
+        newSellClientOrderId = '%s%s%s' % (sellClientOrderId,'666',str(int(time.time())))
         # 获取上一次设置的信息
         set_stop_sell_record_result = find_btc_binance_order_stop_sell_record_newest_one(parentClientOrderId)
         
