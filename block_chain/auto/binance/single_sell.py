@@ -89,7 +89,7 @@ def oper_sell_profit(max_price, buy_price):
     sell_rate = 0.0
     try:
         sell_rate = (Decimal(max_price) - Decimal(buy_price))/Decimal(buy_price)
-        sell_rate = round(sell_rate, 8)
+        sell_rate = round(float(sell_rate), 4)
         if(sell_rate >= 0.025):
             return True, sell_rate
     except Exception as e:

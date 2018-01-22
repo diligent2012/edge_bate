@@ -88,8 +88,8 @@ def oper_buy_profit(min_price, sell_price):
     buy_rate = 0.0
     try:
         buy_rate = ( Decimal(sell_price) - Decimal(min_price) ) / Decimal(min_price)
-        buy_rate = round(buy_rate,8)
-        if(buy_rate >= 0.015):
+        buy_rate = round(float(buy_rate),4)
+        if(buy_rate >= 0.005):
             return True, buy_rate
     except Exception as e:
         send_exception(traceback.format_exc())
