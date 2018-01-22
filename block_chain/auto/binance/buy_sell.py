@@ -198,7 +198,7 @@ def auto_sell(client, account, symbol, qty, filled_order, oper_record_log):
     # 获取上一次买入价格
     buy_order_time = int(filled_order['time']) #上一次买入的时间
     buy_price = filled_order['price'] #上一次买入的止盈价格
-    sellClientOrderId = filled_order['sellClientOrderId'] #上一次买入的客户端ID
+    sellClientOrderId = filled_order['clientOrderId'] #上一次买入的客户端ID
 
     # 获取当前最近的的交易中最高和最低价格
     oper_record_log += "\nSell-10、获取最高最低价格 开始时间 %s " % ( time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time())) )
