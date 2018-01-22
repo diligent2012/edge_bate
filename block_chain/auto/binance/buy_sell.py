@@ -43,23 +43,42 @@ def start_auto_buy_sell():
                                 
                 # 获取最新的订单
                 oper_record_log += "\nCommon-40、获取最新的订单 开始时间 %s " % ( time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time())) )
-                filled_order, oper_record_log = get_newest_valid_order(client, account, symbol, oper_record_log)
+                filled_order, new_order, oper_record_log = get_newest_valid_order(client, account, symbol, oper_record_log)
                 oper_record_log += "\nCommon-40、获取最新的订单 结束时间 %s " % ( time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time())) )
 
-                # 判断当前是应该买入还是卖出
-                if(SIDE_SELL == filled_order['side']): # 如果当前获取到的是卖出,那么现在就要买入
+                side = SIDE_BUY
 
-                    oper_record_log += "\nCommon-50、自动买入 开始时间 %s " % ( time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time())) )
-                    oper_record_log = auto_buy(client, account, symbol, qty, filled_order, oper_record_log)
-                    oper_record_log += "\nCommon-50、自动买入 结束时间 %s " % ( time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time())) )
 
-                if(SIDE_BUY == filled_order['side']): # 如果当前获取到的是买入,那么现在就要卖出
+                if new_order:
 
-                    oper_record_log += "\nCommon-60、自动卖出 开始时间 %s " % ( time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time())) )
-                    oper_record_log = auto_sell(client, account, symbol, qty, filled_order, oper_record_log)
-                    oper_record_log += "\nCommon-60、自动卖出 结束时间 %s " % ( time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time())) )
+                    if (SIDE_SELL == new_order['side'])
+                        side = SIDE_SELL
+                        oper_record_log += "\nCommon-60、自动继续卖出 开始时间 %s " % ( time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time())) )
+                        oper_record_log = auto_sell(client, account, symbol, qty, filled_order, oper_record_log)
+                        oper_record_log += "\nCommon-60、自动继续卖出 结束时间 %s " % ( time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time())) )
 
-                oper_record_log += "\nnCommon-99、执行结束 %s " % ( time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time())) )
+                    if (SIDE_BUY == new_order['side'])
+                        side = SIDE_BUY
+                        oper_record_log += "\nCommon-50、自动继续买入 开始时间 %s " % ( time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time())) )
+                        oper_record_log = auto_buy(client, account, symbol, qty, filled_order, oper_record_log)
+                        oper_record_log += "\nCommon-50、自动继续买入 结束时间 %s " % ( time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time())) )
+
+                elif filled_order:
+                    
+                    # 判断当前是应该买入还是卖出
+                    if(SIDE_SELL == filled_order['side']): # 如果当前获取到的是卖出,那么现在就要买入
+                        side = SIDE_BUY
+                        oper_record_log += "\nCommon-50、自动买入 开始时间 %s " % ( time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time())) )
+                        oper_record_log = auto_buy(client, account, symbol, qty, filled_order, oper_record_log)
+                        oper_record_log += "\nCommon-50、自动买入 结束时间 %s " % ( time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time())) )
+                        
+                    if(SIDE_BUY == filled_order['side']): # 如果当前获取到的是买入,那么现在就要卖出
+                        side = SIDE_SELL
+                        oper_record_log += "\nCommon-60、自动卖出 开始时间 %s " % ( time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time())) )
+                        oper_record_log = auto_sell(client, account, symbol, qty, filled_order, oper_record_log)
+                        oper_record_log += "\nCommon-60、自动卖出 结束时间 %s " % ( time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time())) )
+
+                oper_record_log += "\nCommon-99、执行结束 %s " % ( time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time())) )
                 insert_btc_binance_order_auto_log(account, SIDE_BUY, symbol, oper_record_log)
     except Exception as e:
         send_exception(traceback.format_exc())
@@ -300,33 +319,34 @@ def get_newest_valid_order(client, account, symbol,oper_record_log):
         new_order = []
 
         filled_order_item = {}
-        #new_order_item = {}
+        new_order_item = {}
         for key,item in enumerate(all_orders):
             if item['status'] == 'FILLED' and (item['type'] == 'STOP_LOSS_LIMIT' or item['type'] == 'TAKE_PROFIT_LIMIT' ):
                 filled_order.append(item)
 
-            # if item['status'] == 'NEW' and (item['type'] == 'STOP_LOSS_LIMIT' or item['type'] == 'TAKE_PROFIT_LIMIT' ):
-            #     new_order.append(item)
+            if item['status'] == 'NEW' and (item['type'] == 'STOP_LOSS_LIMIT' or item['type'] == 'TAKE_PROFIT_LIMIT' ):
+                new_order.append(item)
 
         if filled_order:
             for key,item in enumerate(filled_order):
                 if(len(filled_order) - 1 == key):
                     filled_order_item = item
+                    oper_record_log += "\nFilled-10、最新的订单: %s 当前买卖状态: %s" % (str(json.dumps(filled_order_item)), str(filled_order_item['side']))
 
-        # if new_order:
-        #     for key,item in enumerate(new_order):
-        #         if(len(filled_order) - 1 == key):
-        #             new_order_item = item
-
-        #return filled_order_item, new_order_item
-        oper_record_log += "\nFilled-10、最新的订单: %s 当前买卖状态: %s" % (str(filled_order_item), str(filled_order_item['side']))
-        return filled_order_item, oper_record_log
+        if new_order:
+            for key,item in enumerate(new_order):
+                if(len(filled_order) - 1 == key):
+                    new_order_item = item
+                    oper_record_log += "\nFilled-20、正在进行的订单: %s 当前买卖状态: %s" % (str(json.dumps(new_order_item)), str(new_order_item['side']))
+        
+        
+        
+        return filled_order_item, new_order_item, oper_record_log
     except Exception as e:
         send_exception(traceback.format_exc())
 
     oper_record_log += "\nFilled-90、最新的订单获取异常 账户: %s 币种: %s" % (str(account), str(symbol))
-    #return False, False
-    return False, oper_record_log
+    return False, False, oper_record_log
 
 # 入口方法
 def main():
