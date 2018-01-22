@@ -260,7 +260,7 @@ def find_btc_binance_order_sell_newest_one(account, symbol):
     return False
 
 # 查询买入时, 止盈设置纪录
-def find_btc_binance_order_stop_buy_record_newest_one(symbol):
+def find_btc_binance_order_stop_buy_record_newest_one(account, symbol):
     try:
         conn= MySQLdb.connect(
             host='127.0.0.1',
@@ -272,7 +272,7 @@ def find_btc_binance_order_stop_buy_record_newest_one(symbol):
         cur = conn.cursor(MySQLdb.cursors.DictCursor)
         cur.execute('set names utf8') #charset set code. it is not nessary now
         #sql = "SELECT * FROM `omni_btc_binance_order_stop_record`  WHERE price = '%s' and stopPrice = '%s' and origQty = '%s' and clientOrderId = '%s' " % (sell_price, stop_sell_price, buy_qty, newClientOrderId)
-        sql = "SELECT * FROM `omni_btc_binance_order_stop_buy_record` WHERE symbol = '%s' order by transactTime desc " % (symbol)
+        sql = "SELECT * FROM `omni_btc_binance_order_stop_buy_record` WHERE account = '%s' and symbol = '%s' order by transactTime desc " % (account, symbol)
         #print sql
         cur.execute(sql)
         conn.commit()

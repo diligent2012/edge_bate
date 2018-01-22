@@ -111,7 +111,7 @@ def auto_buy(client, account, symbol, qty, filled_order, oper_record_log):
         oper_record_log += "\nBuy-50、是否安全: %s 止盈价格: %s 卖出价格: %s" % (str(is_secure), str(buy_price), str(sell_price))
         if is_secure:
             # 设置买入
-            oper_record_log = set_stop_buy_price(client, buy_price, stop_buy_price, qty, symbol, oper_record_log)
+            oper_record_log = set_stop_buy_price(client, account, buy_price, stop_buy_price, qty, symbol, oper_record_log)
 
     return oper_record_log
 
@@ -146,7 +146,7 @@ def buy_secure_check(buy_price, sell_price):
     return False
 
 # 开始设置止盈价格
-def set_stop_buy_price(client, buy_price, stop_buy_price, buy_qty, symbol, oper_record_log):
+def set_stop_buy_price(client, account, buy_price, stop_buy_price, buy_qty, symbol, oper_record_log):
     try:
         order_symbol = symbol
         order_side = SIDE_BUY
@@ -158,7 +158,7 @@ def set_stop_buy_price(client, buy_price, stop_buy_price, buy_qty, symbol, oper_
         clientOrderId = id_generator()
 
         # 获取上一次设置的信息
-        set_stop_buy_record_result = find_btc_binance_order_stop_buy_record_newest_one(symbol)
+        set_stop_buy_record_result = find_btc_binance_order_stop_buy_record_newest_one(account, symbol)
 
         # 如果有设置,判断设置信息是否相同
         if(set_stop_buy_record_result):
@@ -240,7 +240,13 @@ def oper_stop_sell_price(max_price, buy_price):
     try:
         # 100 - 80 /80 =  0.25
         # 1 - 0.05 = 0.95 = 95
-        stop_rate = float(Decimal(1) - (Decimal(max_price) - Decimal(buy_price))/Decimal(buy_price) * Decimal(0.2))
+        rate_space = (Decimal(max_price) - Decimal(buy_price))/Decimal(buy_price) * Decimal(0.2) 
+        if (rate_space < 1):
+            stop_rate = float(Decimal(1) - rate_space)
+        else:
+            stop_rate = float(rate_space)
+
+        #stop_rate = float(Decimal(1) - (Decimal(max_price) - Decimal(buy_price))/Decimal(buy_price) * Decimal(0.2))
         sell_price = round(float(max_price) * stop_rate, 6) # 止损价格
 
         stop_sell_price = round(float(Decimal(sell_price) * Decimal(1.0005)), 6) # 触发价格
