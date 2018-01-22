@@ -41,13 +41,6 @@ def start_single_auto_buy():
                 oper_record_log += "\nCommon-20、账户: %s" % (account)
                 oper_record_log += "\nCommon-30、币种: %s" % (symbol)
                                 
-
-                # 获取最新的订单
-                oper_record_log += "\nCommon-40、获取最新的订单 开始时间 %s " % ( time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time())) )
-                filled_order, new_order_item,  oper_record_log = get_newest_valid_order(client, account, symbol, oper_record_log)
-                oper_record_log += "\nCommon-40、获取最新的订单 结束时间 %s " % ( time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time())) )
-
-                
                 oper_record_log += "\nCommon-50、自动买入 开始时间 %s " % ( time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time())) )
 
                 sell_price = 0.00119515
@@ -165,47 +158,6 @@ def set_stop_buy_price(client, buy_price, stop_buy_price, buy_qty, symbol, oper_
     finally:
         return oper_record_log
     return oper_record_log
-
-
-#----------------------------------------------------下面是公共部分-------------------------------------------------------
-
-# 获取最新订单 code: Filled-*
-def get_newest_valid_order(client, account, symbol,oper_record_log):
-    try:
-        all_orders = client.get_all_orders(symbol = symbol, recvWindow = 1000);
-
-        filled_order = []
-        new_order = []
-
-        filled_order_item = {}
-        new_order_item = {}
-        for key,item in enumerate(all_orders):
-            if item['status'] == 'FILLED' and (item['type'] == 'STOP_LOSS_LIMIT' or item['type'] == 'TAKE_PROFIT_LIMIT' ):
-                filled_order.append(item)
-
-            if item['status'] == 'NEW' and (item['type'] == 'STOP_LOSS_LIMIT' or item['type'] == 'TAKE_PROFIT_LIMIT' ):
-                new_order.append(item)
-
-        if filled_order:
-            for key,item in enumerate(filled_order):
-                if(len(filled_order) - 1 == key):
-                    filled_order_item = item
-
-        if new_order:
-            for key,item in enumerate(new_order):
-                if(len(filled_order) - 1 == key):
-                    new_order_item = item
-
-        #return filled_order_item, new_order_item
-        oper_record_log += "\nFilled-10、最新的订单: %s 当前买卖状态: %s" % (str(filled_order_item), str(filled_order_item['side']))
-        return filled_order_item, new_order_item, oper_record_log
-        #return filled_order_item, oper_record_log
-    except Exception as e:
-        send_exception(traceback.format_exc())
-
-    oper_record_log += "\nFilled-90、最新的订单获取异常 账户: %s 币种: %s" % (str(account), str(symbol))
-    return False, False, oper_record_log
-    #return False, oper_record_log
 
 
 # 入口方法
