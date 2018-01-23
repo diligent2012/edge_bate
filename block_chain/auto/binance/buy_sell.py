@@ -27,6 +27,7 @@ def start_auto_buy_sell():
         account_list = get_account_list()
         # 循环不同的账户
         for key,a_item in enumerate(account_list):
+            time.sleep(1)
             client = Client(a_item['api_key'], a_item['api_secret'])
             account = a_item['account']
             qty = a_item['qty']
