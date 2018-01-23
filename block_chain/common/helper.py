@@ -155,7 +155,7 @@ def get_recent_trade_max_min_price_by_trade_time(client, symbol, trade_time = 0)
     except BinanceAPIException as e:
         send_exception(traceback.format_exc())
         
-    return min_price, max_price
+    return round(float(min_price),6), round(float(max_price),6)
 
 # 止损
 def create_stop_sell_order(client, symbol, side, o_type, timeInForce, quantity, price, stopPrice, newClientOrderId ):
