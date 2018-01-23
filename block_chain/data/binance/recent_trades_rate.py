@@ -52,7 +52,7 @@ def get_recent_trade_max_min_price_by_trade_time_six(client, symbol, limit = 100
                         min_id = item['id']
 
     except BinanceAPIException as e:
-        print traceback.format_exc()
+        send_exception(traceback.format_exc())
         
     return round(float(min_price),8), min_trade_time, min_id, round(float(max_price),8), max_trade_time, max_id
 
@@ -74,8 +74,7 @@ def start_sync():
                 insert_binance_recent_trades_data_rate(max_price, min_price, max_trade_time, min_trade_time, rate, symbol, pk_id)
             
     except Exception as e:
-        print traceback.format_exc()
-        #send_exception(traceback.format_exc())
+        send_exception(traceback.format_exc())
 # 入口方法
 def main():
     print "start : " + time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time()))
