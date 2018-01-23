@@ -90,12 +90,12 @@ def fast_auto_buy(client, account, symbol, qty, filled_order, oper_record_log):
     oper_record_log += "\nBuy-20、获取最高最低价格  结束时间 %s " % ( time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time())) )
     
     # 判断是否有利润存在 
-    is_allow_buy, buy_rate = oper_buy_profit(min_price, sell_price)
-    oper_record_log += "\nBuy-30、是否有利润: %s 利润率: %s 卖出价格: %s 准备买入价格: %s" % (str(is_allow_buy), str(buy_rate), str(sell_price), str(min_price))
+    is_allow_buy, sug_buy_price,  buy_rate = oper_buy_profit(min_price, sell_price)
+    oper_record_log += "\nBuy-30、是否有利润: %s 利润率: %s 卖出价格: %s 准备买入价格: %s" % (str(is_allow_buy), str(buy_rate), str(sell_price), str(sug_buy_price))
 
     if is_allow_buy:
 
-        buy_price = min_price
+        buy_price =  sug_buy_price
 
         # 止盈价格 必须 低于 卖出价格。兜底做法(以防意外)
         is_secure = buy_secure_check(buy_price, sell_price)
@@ -110,13 +110,15 @@ def fast_auto_buy(client, account, symbol, qty, filled_order, oper_record_log):
 def oper_buy_profit(min_price, sell_price):
     buy_rate = 0.0
     try:
-        buy_rate = ( Decimal(sell_price) - Decimal(min_price) ) / Decimal(min_price)
+        sug_buy_price = round(float(Decimal(min_price) * Decimal(1 + 0.0005)),6) 
+
+        buy_rate = ( Decimal(sell_price) - Decimal(sug_buy_price) ) / Decimal(sug_buy_price)
         buy_rate = round(float(buy_rate),4)
         if(buy_rate >= 0.0022):
-            return True, buy_rate
+            return True, sug_buy_price, buy_rate
     except Exception as e:
         send_exception(traceback.format_exc())
-    return False, buy_rate
+    return False, False, buy_rate
 
 # 买入安全检查
 def buy_secure_check(buy_price, sell_price):
@@ -171,12 +173,12 @@ def fast_auto_sell(client, account, symbol, qty, filled_order, oper_record_log):
 
 
     # 判断是否有利润存在 
-    is_allow_sell, sell_rate = oper_sell_profit(max_price, buy_price)
-    oper_record_log += "\nSell-30、是否有利润: %s 利润率: %s 买入价格: %s 准备卖出价格: %s" % (str(is_allow_sell), str(sell_rate), str(buy_price), str(max_price))
+    is_allow_sell, sug_sell_price,  sell_rate = oper_sell_profit(max_price, buy_price)
+    oper_record_log += "\nSell-30、是否有利润: %s 利润率: %s 买入价格: %s 准备卖出价格: %s" % (str(is_allow_sell), str(sell_rate), str(buy_price), str(sug_sell_price))
     
     if is_allow_sell:
             
-        sell_price = max_price
+        sell_price =  sug_sell_price
 
         # 止损价格 必须 高于 买入价格。兜底做法(以防意外)
         is_secure = sell_secure_check(sell_price, buy_price)
@@ -190,13 +192,15 @@ def fast_auto_sell(client, account, symbol, qty, filled_order, oper_record_log):
 def oper_sell_profit(max_price, buy_price):
     sell_rate = 0.0
     try:
-        sell_rate = (Decimal(max_price) - Decimal(buy_price))/Decimal(buy_price)
+        sug_sell_price = round(float(Decimal(max_price) * Decimal(1 - 0.0005)),6) 
+
+        sell_rate = (Decimal(sug_sell_price) - Decimal(buy_price))/Decimal(buy_price)
         sell_rate = round(float(sell_rate), 4)
         if(sell_rate >= 0.0022):
-            return True, sell_rate
+            return True, sug_sell_price, sell_rate
     except Exception as e:
         send_exception(traceback.format_exc())
-    return False, sell_rate
+    return False, False, sell_rate,
 
 
 # 卖出安全检查
