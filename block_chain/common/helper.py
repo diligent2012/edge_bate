@@ -157,6 +157,38 @@ def get_recent_trade_max_min_price_by_trade_time(client, symbol, trade_time = 0)
         
     return round(float(min_price),6), round(float(max_price),6)
 
+
+
+def get_recent_trade_max_min_price_by_trade_time_six(client, symbol, trade_time = 0):
+    max_price = 0.0
+    min_price = 0.0
+
+    try:
+        recent_trades = client.get_recent_trades(symbol = symbol)
+        if (0 != trade_time) :
+            filter_recent_trades = []
+            for key,item in enumerate(recent_trades):
+                if(item['time'] >= trade_time):
+                    filter_recent_trades.append(item)
+            recent_trades = filter_recent_trades 
+
+
+        
+        for key,item in enumerate(recent_trades):
+            if (0 == key):
+                max_price = item['price']
+                min_price = item['price']
+            else:
+                if(item['price'] > max_price):
+                    max_price = item['price']
+
+                if(item['price'] <= min_price):
+                    min_price = item['price']
+    except BinanceAPIException as e:
+        send_exception(traceback.format_exc())
+        
+    return round(float(min_price),8), round(float(max_price),8)
+
 # 止损
 def create_stop_sell_order(client, symbol, side, o_type, timeInForce, quantity, price, stopPrice, newClientOrderId ):
     try:

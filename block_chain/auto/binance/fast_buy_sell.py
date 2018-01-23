@@ -85,7 +85,7 @@ def fast_auto_buy(client, account, symbol, qty, filled_order, oper_record_log):
 
     # 获取当前最近的的交易中最高和最低价格
     oper_record_log += "\nBuy-10、获取最高最低价格 开始时间 %s " % ( time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time())) )
-    min_price, max_price = get_recent_trade_max_min_price_by_trade_time(client, symbol, sell_order_time)
+    min_price, max_price = get_recent_trade_max_min_price_by_trade_time_six(client, symbol, sell_order_time)
     oper_record_log += "\nBuy-10-1、当前最高价格: %s 当前最低价格: %s " % (str(max_price), str(min_price))
     oper_record_log += "\nBuy-20、获取最高最低价格  结束时间 %s " % ( time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time())) )
     
@@ -111,7 +111,7 @@ def oper_buy_profit(min_price, sell_price):
     buy_rate = 0.0
     sug_buy_price = 0.0
     try:
-        sug_buy_price = round(float(Decimal(min_price) * Decimal(1 + 0.0005)),6) 
+        sug_buy_price = round(float(Decimal(min_price) * Decimal(1 + 0.0005)),8) 
 
         buy_rate = ( Decimal(sell_price) - Decimal(sug_buy_price) ) / Decimal(sug_buy_price)
         buy_rate = round(float(buy_rate),4)
@@ -167,7 +167,7 @@ def fast_auto_sell(client, account, symbol, qty, filled_order, oper_record_log):
 
     # 获取当前最近的的交易中最高和最低价格
     oper_record_log += "\nSell-10、获取最高最低价格 开始时间 %s " % ( time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time())) )
-    min_price, max_price = get_recent_trade_max_min_price_by_trade_time(client, symbol, buy_order_time)
+    min_price, max_price = get_recent_trade_max_min_price_by_trade_time_six(client, symbol, buy_order_time)
     oper_record_log += "\nSell-10-1、当前最高价格: %s 当前最低价格: %s " % (str(max_price), str(min_price))
     oper_record_log += "\nSell-20、获取最高最低价格 结束时间 %s " % ( time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time())) )
 
@@ -195,7 +195,7 @@ def oper_sell_profit(max_price, buy_price):
     sell_rate = 0.0
     sug_sell_price = 0.0
     try:
-        sug_sell_price = round(float(Decimal(max_price) * Decimal(1 - 0.0005)),6) 
+        sug_sell_price = round(float(Decimal(max_price) * Decimal(1 - 0.0005)),8) 
 
         sell_rate = (Decimal(sug_sell_price) - Decimal(buy_price))/Decimal(buy_price)
         sell_rate = round(float(sell_rate), 4)
