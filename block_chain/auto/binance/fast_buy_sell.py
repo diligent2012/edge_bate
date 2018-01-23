@@ -109,6 +109,7 @@ def fast_auto_buy(client, account, symbol, qty, filled_order, oper_record_log):
 # 计算买入利润
 def oper_buy_profit(min_price, sell_price):
     buy_rate = 0.0
+    sug_buy_price = 0.0
     try:
         sug_buy_price = round(float(Decimal(min_price) * Decimal(1 + 0.0005)),6) 
 
@@ -118,7 +119,7 @@ def oper_buy_profit(min_price, sell_price):
             return True, sug_buy_price, buy_rate
     except Exception as e:
         send_exception(traceback.format_exc())
-    return False, False, buy_rate
+    return False, sug_buy_price, buy_rate
 
 # 买入安全检查
 def buy_secure_check(buy_price, sell_price):
@@ -173,7 +174,8 @@ def fast_auto_sell(client, account, symbol, qty, filled_order, oper_record_log):
 
 
     # 判断是否有利润存在 
-    is_allow_sell, sug_sell_price,  sell_rate = oper_sell_profit(max_price, buy_price)
+    is_allow_sell, sug_sell_price, sell_rate = oper_sell_profit(max_price, buy_price)
+    
     oper_record_log += "\nSell-30、是否有利润: %s 利润率: %s 买入价格: %s 准备卖出价格: %s" % (str(is_allow_sell), str(sell_rate), str(buy_price), str(sug_sell_price))
     
     if is_allow_sell:
@@ -191,6 +193,7 @@ def fast_auto_sell(client, account, symbol, qty, filled_order, oper_record_log):
 # 计算卖出利润
 def oper_sell_profit(max_price, buy_price):
     sell_rate = 0.0
+    sug_sell_price = 0.0
     try:
         sug_sell_price = round(float(Decimal(max_price) * Decimal(1 - 0.0005)),6) 
 
@@ -199,8 +202,9 @@ def oper_sell_profit(max_price, buy_price):
         if(sell_rate >= 0.0022):
             return True, sug_sell_price, sell_rate
     except Exception as e:
+        print traceback.format_exc()
         send_exception(traceback.format_exc())
-    return False, False, sell_rate,
+    return False, sug_sell_price, sell_rate
 
 
 # 卖出安全检查
