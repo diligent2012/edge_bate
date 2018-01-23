@@ -133,7 +133,7 @@ def oper_stop_buy_price(min_price, sell_price):
         stop_rate = float(Decimal(1) + ((( Decimal(sell_price) - Decimal(min_price) ) / Decimal(min_price)) * Decimal(0.2)))
         buy_price = round(float(min_price) * stop_rate,6) #止盈价格
 
-        stop_buy_price = round(float(Decimal(buy_price) * Decimal(1 - 0.0005)),6) #触发价格
+        stop_buy_price = buy_price #round(float(Decimal(buy_price) * Decimal(1 - 0.0005)),6) #触发价格
         return stop_buy_price, buy_price
     except Exception as e:
         send_exception(traceback.format_exc())
@@ -251,7 +251,7 @@ def oper_stop_sell_price(max_price, buy_price):
         #stop_rate = float(Decimal(1) - (Decimal(max_price) - Decimal(buy_price))/Decimal(buy_price) * Decimal(0.2))
         sell_price = round(float(max_price) * stop_rate, 6) # 止损价格
 
-        stop_sell_price = round(float(Decimal(sell_price) * Decimal(1.0005)), 6) # 触发价格
+        stop_sell_price = sell_price #round(float(Decimal(sell_price) * Decimal(1.0005)), 6) # 触发价格
 
         return stop_sell_price, sell_price
     except Exception as e:
