@@ -590,7 +590,7 @@ def find_binance_recent_trades_data_rate(pk_id):
 
 
 # 记录 最近交易的数据
-def insert_binance_recent_trades_data_rate(max_price, min_price, max_trade_time, min_trade_time, rate, symbol, pk_id):
+def insert_binance_recent_trades_data_rate(max_price, min_price, max_trade_time, min_trade_time, rate, symbol, pk_id, sync_time):
     try:
         conn= MySQLdb.connect(
             host='127.0.0.1',
@@ -601,7 +601,7 @@ def insert_binance_recent_trades_data_rate(max_price, min_price, max_trade_time,
         )
         cur = conn.cursor()
         cur.execute('set names utf8') #charset set code. it is not nessary now
-        sql = "INSERT INTO `omni_btc_binance_recent_trades_rate` (`max_price`, `min_price`, `max_trade_time`, `min_trade_time`, `rate`, `symbol`, `pk_id`) VALUES ('%s', '%s', '%s', '%s', '%s', '%s', '%s')" % (max_price, min_price, max_trade_time, min_trade_time, rate, symbol, pk_id)
+        sql = "INSERT INTO `omni_btc_binance_recent_trades_rate` (`max_price`, `min_price`, `max_trade_time`, `min_trade_time`, `rate`, `symbol`, `pk_id`, `sync_time`) VALUES ('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s')" % (max_price, min_price, max_trade_time, min_trade_time, rate, symbol, pk_id, sync_time)
         #print sql
         #sql = "INSERT INTO `ecs_t_marathon` (`name`, `start_run_time`) VALUES ('%s', '%s')" % (name, start_run_time)
         cur.execute(sql)

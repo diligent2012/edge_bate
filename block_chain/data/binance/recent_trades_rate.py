@@ -69,9 +69,10 @@ def start_sync():
             min_price, min_trade_time, min_id, max_price, max_trade_time, max_id = get_recent_trade_max_min_price_by_trade_time_six(client, symbol, 100)
             rate = round((max_price - min_price)/min_price,4)
             pk_id = '%s-%s' % (min_id,max_id)
+            sync_time = time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time()))
             is_exit = find_binance_recent_trades_data_rate(pk_id)
             if(not is_exit):
-                insert_binance_recent_trades_data_rate(max_price, min_price, max_trade_time, min_trade_time, rate, symbol, pk_id)
+                insert_binance_recent_trades_data_rate(max_price, min_price, max_trade_time, min_trade_time, rate, symbol, pk_id, sync_time)
             
     except Exception as e:
         send_exception(traceback.format_exc())
