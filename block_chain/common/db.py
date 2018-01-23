@@ -560,6 +560,58 @@ def insert_binance_recent_trades_data(data_isBuyerMaker, data_price, data_qty, d
     except Exception as e:
         send_exception(traceback.format_exc())
 
+
+
+
+# 查询 交易
+def find_binance_recent_trades_data_rate(pk_id):
+    try:
+        conn= MySQLdb.connect(
+            host='127.0.0.1',
+            port = 3306,
+            user='omni_manage_pro',
+            passwd='!omni123456manageMysql.pro',
+            db ='z_omni_manage_pro',
+        )
+        cur = conn.cursor(MySQLdb.cursors.DictCursor)
+        cur.execute('set names utf8') #charset set code. it is not nessary now
+        sql = "SELECT * FROM `omni_btc_binance_recent_trades_rate` WHERE pk_id = '%s' " % (pk_id)
+        #print sql
+        cur.execute(sql)
+        conn.commit()
+        result = cur.fetchone()
+        if result:
+            return True
+        cur.close()
+        conn.close()
+    except Exception as e:
+        send_exception(traceback.format_exc())
+    return False
+
+
+# 记录 最近交易的数据
+def insert_binance_recent_trades_data_rate(max_price, min_price, max_trade_time, min_trade_time, rate, symbol, pk_id):
+    try:
+        conn= MySQLdb.connect(
+            host='127.0.0.1',
+            port = 3306,
+            user='omni_manage_pro',
+            passwd='!omni123456manageMysql.pro',
+            db ='z_omni_manage_pro',
+        )
+        cur = conn.cursor()
+        cur.execute('set names utf8') #charset set code. it is not nessary now
+        sql = "INSERT INTO `omni_btc_binance_recent_trades_rate` (`max_price`, `min_price`, `max_trade_time`, `min_trade_time`, `rate`, `symbol`, `pk_id`) VALUES ('%s', '%s', '%s', '%s', '%s', '%s', '%s')" % (max_price, min_price, max_trade_time, min_trade_time, rate, symbol, pk_id)
+        #print sql
+        #sql = "INSERT INTO `ecs_t_marathon` (`name`, `start_run_time`) VALUES ('%s', '%s')" % (name, start_run_time)
+        cur.execute(sql)
+        conn.commit()
+        cur.close()
+        conn.close()
+    except Exception as e:
+        send_exception(traceback.format_exc())
+
+
 # 插入 资产 数据
 def insert_btc_binance_asset(account, asset, free, locked, date):
     try:
