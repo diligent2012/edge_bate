@@ -145,7 +145,7 @@ def set_limit_buy_price(client, account, buy_price,  buy_qty, symbol, oper_recor
         # print buy_order_result
         oper_record_log += "\nBuy-Set-80、设置限价单返回: %s " % (str(json.dumps(buy_order_result)))
         if buy_order_result:
-            insert_btc_binance_order_stop_buy_record(buy_order_result, account)
+            insert_btc_binance_order_limit_buy_sell_record(buy_order_result, account)
 
     except Exception as e:
         send_exception(traceback.format_exc())
@@ -229,7 +229,7 @@ def set_limit_sell_price(client, sell_price, sell_qty, symbol, sellClientOrderId
 
         oper_record_log += "\nSell-Set-80、设置限价单返回: %s " % (str(json.dumps(sell_order_result)))
         if sell_order_result:
-            insert_btc_binance_order_stop_sell_record(sell_order_result, parentClientOrderId)
+            insert_btc_binance_order_limit_buy_sell_record(sell_order_result, parentClientOrderId)
        
     except Exception as e:
         send_exception(traceback.format_exc())
