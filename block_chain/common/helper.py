@@ -176,6 +176,27 @@ def create_stop_buy_order(client, symbol, side, o_type, timeInForce, quantity, p
         send_exception(traceback.format_exc())
     return False
 
+
+# 限价卖出
+def create_limit_sell_order(client, symbol, quantity, price, newClientOrderId):
+    try:
+        create_order_result = client.order_limit_sell(symbol = symbol, quantity = quantity, price = price, newClientOrderId = newClientOrderId)
+        return create_order_result
+    except BinanceAPIException as e:
+        send_exception(traceback.format_exc())
+    return False
+
+
+# 限价买入
+def create_limit_buy_order(client, symbol, quantity, price, clientOrderId):
+    try:
+        create_order_result = client.order_limit_buy(symbol = symbol, quantity = quantity, price = price, newClientOrderId = clientOrderId)
+        return create_order_result
+    except BinanceAPIException as e:
+        send_exception(traceback.format_exc())
+    return False
+
+
 def cancel_order(client, symbol , orderId):
     try:
         cancel_order = client.cancel_order(symbol = symbol, orderId = orderId)

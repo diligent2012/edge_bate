@@ -76,7 +76,7 @@ def get_account_list():
     return ACCOUNT_LIST
 
 # 所有账户
-def get_windfall_account_list():
+def get_fast_account_list():
 
     ACCOUNT_LIST = [
         {
