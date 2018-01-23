@@ -250,10 +250,10 @@ def get_newest_valid_order(client, account, symbol,oper_record_log):
         filled_order_item = {}
         new_order_item = {}
         for key,item in enumerate(all_orders):
-            if item['status'] == 'FILLED' and item['type'] == 'LIMIT':
+            if item['status'] == ORDER_STATUS_FILLED and item['type'] == 'LIMIT':
                 filled_order.append(item)
 
-            if item['status'] == 'NEW' and item['type'] == 'LIMIT':
+            if item['status'] == ORDER_STATUS_NEW and item['type'] == 'LIMIT':
                 new_order.append(item)
 
         if filled_order:
@@ -264,7 +264,7 @@ def get_newest_valid_order(client, account, symbol,oper_record_log):
 
         if new_order:
             for key,item in enumerate(new_order):
-                if(len(filled_order) - 1 == key):
+                if(len(new_order) - 1 == key):
                     new_order_item = item
                     oper_record_log += "\nFilled-20、正在进行的订单: %s 当前买卖状态: %s" % (str(json.dumps(new_order_item)), str(new_order_item['side']))
         
