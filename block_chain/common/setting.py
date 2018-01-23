@@ -84,7 +84,7 @@ def get_fast_account_list():
             "start_auto_date":"2018-01-17 00:00:00",
             "api_key":"p62jyg4zFVvp6uboW0TmmAt0pSyIylVTpAgaZDBY19QlHasfUAqebS695OasreVp",
             "api_secret":"IXub9vH9BRbKgsaMVCqe27250xEGXDLTXbvG4osGU0IAt8XEj1FWgzWUneeCrXCC",
-            'qty': 3,
+            'qty': 15,
             "allow_symbol": [
                 {
                     "symbol":"EOSBTC" # EOS
