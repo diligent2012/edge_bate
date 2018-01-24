@@ -88,8 +88,8 @@ def same_auto_buy_sell(client, account, symbol, qty, oper_record_log):
     oper_record_log += "\nBuy-20、获取最高最低价格  结束时间 %s " % ( time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time())) )
 
     # 判断是否有利润,并且获取买入价格、卖出价格
-    is_allow_buy_sell, buy_price, sell_price, confirm_rate, rate = oper_same_buy_sell_price(min_price, max_price)
-    oper_record_log += "\nBuy-30、是否有利润: %s 确认利润率: %s 最初利润率: %s 卖出价格: %s 买入价格: %s" % (str(is_allow_buy_sell), str(confirm_rate), str(rate), str(sell_price), str(buy_price))
+    is_allow_buy_sell, buy_price, sell_price, confirm_rate, rate, ref_rate = oper_same_buy_sell_price(min_price, max_price)
+    oper_record_log += "\nBuy-30、是否有利润: %s 确认利润率: %s 最初利润率: %s 参考利润率: %s 卖出价格: %s 买入价格: %s" % (str(is_allow_buy_sell), str(confirm_rate), str(rate), str(ref_rate), str(sell_price), str(buy_price))
 
     if is_allow_buy_sell:
 
@@ -126,11 +126,14 @@ def oper_same_buy_sell_price(min_price, max_price):
 
     # 最高价格 和 最低价格的偏差幅度
     rate = 0.0
+
+    # 参考利润比
+    ref_rate = 0.003
     try:
 
         rate = round((max_price - min_price)/min_price,4)
 
-        if(rate >= 0.003):
+        if(rate >= ref_rate):
             free_rate = rate - profit_rate
 
             buy_price = free_rate * buy_price_offset * min_price + min_price
@@ -139,10 +142,10 @@ def oper_same_buy_sell_price(min_price, max_price):
             
             confirm_rate = round( (sell_price - buy_price) / buy_price, 4)
             if(confirm_rate >= profit_rate):
-                return True, buy_price, sell_price, confirm_rate, rate
+                return True, buy_price, sell_price, confirm_rate, rate, ref_rate
     except Exception as e:
         send_exception(traceback.format_exc())
-    return False, 0.0, 0.0, 0.0, rate
+    return False, 0.0, 0.0, 0.0, rate, ref_rate
 
 # 开始设置买入和卖出限价单
 def set_same_limit_buy_sell_price(client, account, buy_price,  sell_price, qty, symbol, oper_record_log):
