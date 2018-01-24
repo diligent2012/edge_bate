@@ -43,40 +43,44 @@ def start_same_auto_buy_sell():
                                 
                 # 获取最新的订单
                 oper_record_log += "\nCommon-40、获取最新的订单 开始时间 %s " % ( time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time())) )
-                new_order, oper_record_log = get_newest_valid_order(client, account, symbol, oper_record_log)
+                is_ok, new_order, map_new_order, oper_record_log = get_newest_valid_order(client, account, symbol, oper_record_log)
+                oper_record_log += "\nCommon-40-A、获取最新订单: 订单: %s 对应订单: %s " % (str(json.dumps(new_order)), str(json.dumps(map_new_order)))
                 oper_record_log += "\nCommon-40、获取最新的订单 结束时间 %s " % ( time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time())) )
+
+
 
                 side = 'same'
 
                 # 如果正在进行订单,则继续进行
-                if new_order:
-                    
-                    # 如果是卖出的话.降低 50%
-                    if (SIDE_SELL == new_order['side']):
+                if is_ok:
 
-                        oper_record_log += "\nCommon-60、重新设置卖出 开始时间 %s " % ( time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time())) )
+                    if new_order:
+                        # 如果是卖出的话.降低 50%
+                        if (SIDE_SELL == new_order['side']):
 
-                        oper_record_log += "\Reset-Sell-10、没有及时卖出的订单: %s 当前买卖状态: %s" % (str(json.dumps(new_order)), str(new_order['side']))
-                        orderId = new_order['orderId']
-                        sell_price = new_order['price']
-                        clientOrderId = new_order['clientOrderId']
-                        oper_record_log = reset_auto_sell(client, account, orderId, sell_price, symbol, qty, clientOrderId, oper_record_log)
-                        oper_record_log += "\nCommon-60、重新设置卖出 结束时间 %s " % ( time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time())) )
+                            oper_record_log += "\nCommon-60、重新设置卖出 开始时间 %s " % ( time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time())) )
 
-                    # 如果是买入的话.增加 50%
-                    if (SIDE_BUY == new_order['side']):
-                        oper_record_log += "\nCommon-70、重新设置买入 开始时间 %s " % ( time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time())) )
-                        oper_record_log += "\Reset-Buy-10、没有及时买入的订单: %s 当前买卖状态: %s" % (str(json.dumps(new_order)), str(new_order['side']))
-                        orderId = new_order['orderId']
-                        buy_price = new_order['price']
-                        reset_auto_buy(client, account, orderId, buy_price, symbol, qty, oper_record_log)
-                        oper_record_log += "\nCommon-70、重新设置买入 结束时间 %s " % ( time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time())) )
+                            oper_record_log += "\Reset-Sell-10、没有及时卖出的订单: %s 当前买卖状态: %s" % (str(json.dumps(new_order)), str(new_order['side']))
+                            orderId = new_order['orderId']
+                            sell_price = new_order['price']
+                            clientOrderId = new_order['clientOrderId']
+                            oper_record_log = reset_auto_sell(client, account, orderId, sell_price, symbol, qty, clientOrderId, oper_record_log)
+                            oper_record_log += "\nCommon-60、重新设置卖出 结束时间 %s " % ( time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time())) )
+
+                        # 如果是买入的话.增加 50%
+                        if (SIDE_BUY == new_order['side']):
+                            oper_record_log += "\nCommon-70、重新设置买入 开始时间 %s " % ( time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time())) )
+                            oper_record_log += "\Reset-Buy-10、没有及时买入的订单: %s 当前买卖状态: %s" % (str(json.dumps(new_order)), str(new_order['side']))
+                            orderId = new_order['orderId']
+                            buy_price = new_order['price']
+                            reset_auto_buy(client, account, orderId, buy_price, symbol, qty, oper_record_log)
+                            oper_record_log += "\nCommon-70、重新设置买入 结束时间 %s " % ( time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time())) )
                         
-                else:
-                    # 同时设定买入和卖出
-                    oper_record_log += "\nCommon-90 同时设定买入和卖出订单 开始: %s " % ( time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time())) )
-                    oper_record_log = same_auto_buy_sell(client, account, symbol, qty, oper_record_log)
-                    oper_record_log += "\nCommon-90 同时设定买入和卖出订单 结束: %s " % ( time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time())) )
+                    else:
+                        # 同时设定买入和卖出
+                        oper_record_log += "\nCommon-90 同时设定买入和卖出订单 开始: %s " % ( time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time())) )
+                        oper_record_log = same_auto_buy_sell(client, account, symbol, qty, oper_record_log)
+                        oper_record_log += "\nCommon-90 同时设定买入和卖出订单 结束: %s " % ( time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time())) )
 
                 oper_record_log += "\nCommon-99、执行同时买卖结束 %s " % ( time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time())) )
                 insert_btc_binance_order_auto_log(account, side, symbol, oper_record_log)
@@ -260,41 +264,68 @@ def get_recent_trade_max_min_price_by_trade_time_limit(client, symbol, limit = 1
     return round(float(min_price),8), round(float(max_price),8)
 
 # 获取最新订单 code: Filled-*
-def get_newest_valid_order(client, account, symbol,oper_record_log):
+def get_newest_valid_order(client, account, symbol, oper_record_log):
     try:
         all_orders = client.get_all_orders(symbol = symbol);
 
-        #filled_order = []
-        new_order = []
+        buy_new_order = []
+        sell_new_order = []
+                    
+        buy_clientOrderId = ''
+        sell_clientOrderId = ''
 
-        #filled_order_item = {}
         new_order_item = {}
+        map_new_order_item = {}
+
         for key,item in enumerate(all_orders):
-            # if item['status'] == ORDER_STATUS_FILLED and item['type'] == 'LIMIT':
-            #     filled_order.append(item)
 
-            if item['status'] == ORDER_STATUS_NEW and item['type'] == 'LIMIT' and item['side'] in [SIDE_BUY,SIDE_SELL]:
-                new_order.append(item)
+            if item['status'] == ORDER_STATUS_NEW and item['type'] == 'LIMIT':
+                if item['side'] == SIDE_BUY:
+                    buy_new_order.append(item)
+                    buy_clientOrderId = item['clientOrderId']
 
-        # if filled_order:
-        #     for key,item in enumerate(filled_order):
-        #         if(len(filled_order) - 1 == key):
-        #             filled_order_item = item
-        #             oper_record_log += "\nFilled-10、最新的订单: %s 当前买卖状态: %s" % (str(json.dumps(filled_order_item)), str(filled_order_item['side']))
+                if item['side'] == SIDE_SELL:
+                    sell_new_order.append(item)
+                    sell_clientOrderId = item['clientOrderId']
 
-        if new_order:
-            for key,item in enumerate(new_order):
-                if(len(new_order) - 1 == key):
-                    new_order_item = item
-                    oper_record_log += "\nFilled-20、正在进行的订单: %s 当前买卖状态: %s" % (str(json.dumps(new_order_item)), str(new_order_item['side']))
-        return  new_order_item, oper_record_log
-        #return filled_order_item, new_order_item, oper_record_log
+        if len(buy_new_order) > 1 or len(sell_new_order) > 1:
+            oper_record_log += "\nFilled-10、有多个买入或者卖出的订单都在进行中: 买入订单: %s " % (str(json.dumps(buy_new_order)), str(json.dumps(sell_new_order)))
+            return False, False, False, oper_record_log
+        else:
+            if buy_new_order and sell_new_order:
+                oper_record_log += "\nFilled-40、非对应的买卖两单子都在进行中: 买入订单: %s 卖出订单: %s" % (str(json.dumps(buy_new_order)), str(json.dumps(sell_new_order)))
+                return False, False, False, oper_record_log
+            elif buy_new_order and not sell_new_order:
+                oper_record_log += "\nFilled-50、正在进行的买入订单: %s 当前状态: %s" % (str(json.dumps(new_order_item)), str(new_order_item['side']))
+
+                new_order_item = buy_new_order[1]
+                map_new_order_item = get_map_order_item(all_orders, new_order_item, SIDE_SELL)
+                if map_new_order_item:
+                    return True, new_order_item, map_new_order_item, oper_record_log
+
+            elif not buy_new_order and sell_new_order:
+                oper_record_log += "\nFilled-60、正在进行的卖出订单: %s 当前状态: %s" % (str(json.dumps(new_order_item)), str(new_order_item['side']))
+                new_order_item = sell_new_order[1]
+                map_new_order_item = get_map_order_item(all_orders, new_order_item, SIDE_BUY)
+                if map_new_order_item:
+                    return True, new_order_item, map_new_order_item, oper_record_log
+            
+            return True, new_order_item, map_new_order_item, oper_record_log
     except Exception as e:
         send_exception(traceback.format_exc())
 
     oper_record_log += "\nFilled-90、最新的订单获取异常 账户: %s 币种: %s" % (str(account), str(symbol))
-    return False, oper_record_log
-    #return False, False, oper_record_log
+    return False, False, False, oper_record_log
+
+
+def get_map_order_item(all_orders, new_order_item, side):
+    for key,item in enumerate(all_orders):
+        if item['status'] == ORDER_STATUS_FILLED and item['type'] == 'LIMIT' and item['side'] == side:
+            if new_order_item['clientOrderId'] == item['clientOrderId'].split('666')[0]:
+                map_new_order_item = item
+                return map_new_order_item
+    return False
+
 
 # 入口方法
 def main():
