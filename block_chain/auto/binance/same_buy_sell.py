@@ -100,7 +100,7 @@ def reset_auto_sell(client, account, orderId, sell_price, symbol, qty, buy_price
     
     new_sell_price = round( Decimal(sell_price)  * (Decimal(1) - Decimal(0.002) * Decimal(0.5)), 8)
     if (buy_price > new_sell_price):
-        oper_record_log += "\Reset-Sell-10、新的卖出价格 低于 对应的买入价格 不操作: 新的卖出价格: %s 买入价格: %s 新的币种: %s 新的数量: %s 新的客户端ID %s" % (str(new_sell_price), str(buy_price), str(symbol), str(qty), str(sellClientOrderId))
+        oper_record_log += "\Reset-Sell-10、新的卖出价格 低于 对应的买入价格 不操作: 新的卖出价格: %s 买入价格: %s 新的币种: %s 新的数量: %s 客户端ID %s" % (str(new_sell_price), str(buy_price), str(symbol), str(qty), str(clientOrderId))
         return oper_record_log
 
     buyClientOrderId = clientOrderId.split('666')[0]
