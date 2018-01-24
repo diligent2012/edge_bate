@@ -95,8 +95,21 @@ def start_same_auto_buy_sell():
     except Exception as e:
         send_exception(traceback.format_exc())
 
+def reset_buy_rate_price(buy_price):
+    buy_price = round( Decimal(buy_price) * (Decimal(1) + Decimal(0.0015)), 8)
+    return buy_price
+
+def reset_sell_rate_price(sell_price):
+    sell_price = round( Decimal(sell_price) * (Decimal(1) - Decimal(0.0015)), 8)
+    return sell_price
+
 # 重新设置卖出
 def reset_auto_sell(client, account, orderId, sell_price, symbol, qty, buy_price, clientOrderId,  oper_record_log):
+
+    oper_record_log += "\nReset-Sell-01-A、手续费验证: 买入价格: " % (str(buy_price))
+    buy_price = reset_buy_rate_price(buy_price)
+    oper_record_log += "\nReset-Sell-01-B、手续费验证: 买入价格: " % (str(buy_price))
+
     new_sell_price = round( Decimal(sell_price)  * (Decimal(1) - Decimal(0.002) * Decimal(0.5)), 8)
 
     if (buy_price > new_sell_price):
@@ -123,6 +136,10 @@ def reset_auto_sell(client, account, orderId, sell_price, symbol, qty, buy_price
 # 重新设置买入
 def reset_auto_buy(client, account, orderId, buy_price, symbol, qty, sell_price, oper_record_log):
     
+    oper_record_log += "\nReset-Buy-01-A、手续费验证: 卖出价格: " % (str(sell_price))
+    sell_price = reset_sell_rate_price(sell_price)
+    oper_record_log += "\nReset-Buy-01-B、手续费验证: 卖出价格: " % (str(sell_price))
+
     new_buy_price = round( Decimal(buy_price)  * (Decimal(1) + Decimal(0.002) * Decimal(0.5)), 8)
 
     if (sell_price < new_buy_price):
@@ -183,18 +200,18 @@ def same_buy_sell_secure_check(buy_price, sell_price):
 def oper_same_buy_sell_price(min_price, max_price):
         
     # 买入价格偏移幅度(上调)
-    buy_price_offset = 0.4
+    buy_price_offset = 0.5
     # 卖出价格偏移幅度(下调)
-    sell_price_offset = 0.6
+    sell_price_offset = 0.5
 
     # 固定利润比
-    profit_rate = 0.003
+    profit_rate = 0.004
 
     # 最高价格 和 最低价格的偏差幅度
     rate = 0.0
 
     # 参考利润比
-    ref_rate = 0.004
+    ref_rate = 0.005
     try:
 
         rate = round((max_price - min_price)/min_price,4)
