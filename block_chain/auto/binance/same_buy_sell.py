@@ -198,9 +198,9 @@ def same_buy_sell_secure_check(buy_price, sell_price):
 def oper_same_buy_sell_price(min_price, max_price):
         
     # 买入价格偏移幅度(上调)
-    buy_price_offset = 0.4
+    buy_price_offset = 0.3
     # 卖出价格偏移幅度(下调)
-    sell_price_offset = 0.6
+    sell_price_offset = 0.7
 
     # 固定利润比
     profit_rate = 0.002
