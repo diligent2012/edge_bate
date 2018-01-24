@@ -307,7 +307,7 @@ def get_newest_valid_order(client, account, symbol, oper_record_log):
                 return False, False, False, oper_record_log
 
             elif buy_new_order and not sell_new_order:
-                new_order_item = buy_new_order[1]
+                new_order_item = buy_new_order[0]
                 oper_record_log += "\nFilled-50、正在进行的买入订单: %s 当前状态: %s" % (str(json.dumps(new_order_item)), str(new_order_item['side']))
                 
                 map_new_order_item = get_map_order_item(all_orders, new_order_item, SIDE_SELL)
@@ -315,7 +315,7 @@ def get_newest_valid_order(client, account, symbol, oper_record_log):
                     return True, new_order_item, map_new_order_item, oper_record_log
 
             elif not buy_new_order and sell_new_order:
-                new_order_item = sell_new_order[1]
+                new_order_item = sell_new_order[0]
                 oper_record_log += "\nFilled-60、正在进行的卖出订单: %s 当前状态: %s" % (str(json.dumps(new_order_item)), str(new_order_item['side']))
                 
                 map_new_order_item = get_map_order_item(all_orders, new_order_item, SIDE_BUY)
