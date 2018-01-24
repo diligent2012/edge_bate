@@ -92,7 +92,7 @@ def reset_auto_sell(client, account, orderId, sell_price, symbol, qty, clientOrd
     sellClientOrderId = '%s%s%s' % (buyClientOrderId,'666',str(int(time.time())))
     oper_record_log += "\Reset-Sell-20、重新设置卖出订单信息: 新的价格: %s 新的币种: %s 新的数量: %s 新的客户端ID %s" % (str(new_sell_price), str(symbol), str(qty), str(sellClientOrderId))
 
-    is_sell_cancel = cancel_order(orderId)
+    is_sell_cancel = cancel_order(client, symbol, orderId)
     if is_sell_cancel:
         sell_order_result = create_limit_sell_order(client, symbol, qty, new_sell_price, sellClientOrderId)
         oper_record_log += "\nReset-Sell-30、重新设置卖出 限价单返回: %s " % (str(json.dumps(sell_order_result)))
@@ -110,7 +110,7 @@ def reset_auto_buy(client, account, orderId, buy_price, symbol, qty, oper_record
     buyClientOrderId = id_generator()
     oper_record_log += "\Reset-Buy-20、重新设置 买入订单信息: 新的价格: %s 新的币种: %s 新的数量: %s 新的客户端ID %s" % (str(new_buy_price), str(symbol), str(qty), str(buyClientOrderId))
 
-    is_buy_cancel = cancel_order(orderId)
+    is_buy_cancel = cancel_order(client, symbol, orderId)
     if is_buy_cancel:
         buy_order_result = create_limit_buy_order(client, symbol, qty, new_buy_price, buyClientOrderId)
         oper_record_log += "\nBuy-Set-30、重新设置买入 设置限价单返回: %s " % (str(json.dumps(buy_order_result)))
