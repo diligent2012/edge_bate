@@ -104,9 +104,9 @@ def reset_sell_rate_price(sell_price):
 # 重新设置卖出
 def reset_auto_sell(client, account, orderId, sell_price, symbol, qty, buy_price, clientOrderId,  oper_record_log):
 
-    oper_record_log += "\nReset-Sell-01-A、手续费验证: 买入价格: " % (str(buy_price))
+    oper_record_log += "\nReset-Sell-01-A、手续费验证: 买入价格: %s " % (str(buy_price))
     buy_price = reset_buy_rate_price(buy_price)
-    oper_record_log += "\nReset-Sell-01-B、手续费验证: 买入价格: " % (str(buy_price))
+    oper_record_log += "\nReset-Sell-01-B、手续费验证: 买入价格: %s " % (str(buy_price))
 
     new_sell_price = round( Decimal(sell_price)  * (Decimal(1) - Decimal(0.002) * Decimal(0.5)), 8)
 
@@ -134,9 +134,9 @@ def reset_auto_sell(client, account, orderId, sell_price, symbol, qty, buy_price
 # 重新设置买入
 def reset_auto_buy(client, account, orderId, buy_price, symbol, qty, sell_price, oper_record_log):
     
-    oper_record_log += "\nReset-Buy-01-A、手续费验证: 卖出价格: " % (str(sell_price))
+    oper_record_log += "\nReset-Buy-01-A、手续费验证: 卖出价格: %s" % (str(sell_price))
     sell_price = reset_sell_rate_price(sell_price)
-    oper_record_log += "\nReset-Buy-01-B、手续费验证: 卖出价格: " % (str(sell_price))
+    oper_record_log += "\nReset-Buy-01-B、手续费验证: 卖出价格: %s" % (str(sell_price))
 
     new_buy_price = round( Decimal(buy_price)  * (Decimal(1) + Decimal(0.002) * Decimal(0.5)), 8)
 
