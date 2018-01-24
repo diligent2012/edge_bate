@@ -46,19 +46,19 @@ def get_binance_symbols():
 def get_account_list():
 
     ACCOUNT_LIST = [
-        {
-            "account":"changaiqing",
-            "start_auto_date":"2018-01-17 00:00:00",
-            "api_key":"ugXds1RBgjoc6n5WPtRyH2n9ahXw56bfLfFJJEW7cHqK2KzMZ3D1ZjhwhGBp455U",
-            "api_secret":"zQM8ci1whr3gych0WSQYA591zf5plZQlYBHHeDOJdpIQ1w2i9ug4v8pdqX57BvzU",
-            'qty': 10,
-            "allow_symbol": [
-                {
-                    "symbol":"EOSBTC" # EOS
-                }
-            ]
-        }
-        ,
+        # {
+        #     "account":"changaiqing",
+        #     "start_auto_date":"2018-01-17 00:00:00",
+        #     "api_key":"ugXds1RBgjoc6n5WPtRyH2n9ahXw56bfLfFJJEW7cHqK2KzMZ3D1ZjhwhGBp455U",
+        #     "api_secret":"zQM8ci1whr3gych0WSQYA591zf5plZQlYBHHeDOJdpIQ1w2i9ug4v8pdqX57BvzU",
+        #     'qty': 10,
+        #     "allow_symbol": [
+        #         {
+        #             "symbol":"EOSBTC" # EOS
+        #         }
+        #     ]
+        # }
+        # ,
         {
             "account":"zhangchen",
             "start_auto_date":"2018-01-17 00:00:00",
@@ -91,6 +91,26 @@ def get_fast_account_list():
                 }
             ]
         },
+        
+    ]
+    return ACCOUNT_LIST
+
+# 所有账户
+def get_same_account_list():
+
+    ACCOUNT_LIST = [
+        {
+            "account":"changaiqing_same",
+            "start_auto_date":"2018-01-17 00:00:00",
+            "api_key":"ugXds1RBgjoc6n5WPtRyH2n9ahXw56bfLfFJJEW7cHqK2KzMZ3D1ZjhwhGBp455U",
+            "api_secret":"zQM8ci1whr3gych0WSQYA591zf5plZQlYBHHeDOJdpIQ1w2i9ug4v8pdqX57BvzU",
+            'qty': 3,
+            "allow_symbol": [
+                {
+                    "symbol":"EOSBTC" # EOS
+                }
+            ]
+        }
         
     ]
     return ACCOUNT_LIST

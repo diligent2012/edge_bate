@@ -148,7 +148,7 @@ def set_limit_buy_price(client, account, buy_price,  buy_qty, symbol, oper_recor
         # print buy_order_result
         oper_record_log += "\nBuy-Set-80、设置限价单返回: %s " % (str(json.dumps(buy_order_result)))
         if buy_order_result:
-            insert_btc_binance_order_limit_buy_sell_record(buy_order_result, account)
+            insert_btc_binance_order_limit_buy_sell_record(buy_order_result, 0, account)
 
     except Exception as e:
         send_exception(traceback.format_exc())
@@ -187,7 +187,7 @@ def fast_auto_sell(client, account, symbol, qty, filled_order, oper_record_log):
         oper_record_log += "\nSell-50、是否安全: %s 卖出价格: %s 买入价格: %s" % (str(is_secure), str(sell_price), str(buy_price))
         if (is_secure):
             # 开始设置卖出止损
-            oper_record_log = set_limit_sell_price(client, sell_price, qty, symbol, sellClientOrderId, oper_record_log)
+            oper_record_log = set_limit_sell_price(client, account, sell_price, qty, symbol, sellClientOrderId, oper_record_log)
     return oper_record_log
 
 # 计算卖出利润
@@ -214,7 +214,7 @@ def sell_secure_check(sell_price, buy_price):
     return False
 
 # 开始设置限价单价格
-def set_limit_sell_price(client, sell_price, sell_qty, symbol, sellClientOrderId, oper_record_log):
+def set_limit_sell_price(client, account, sell_price, sell_qty, symbol, sellClientOrderId, oper_record_log):
     try:
         order_symbol = symbol
         #order_side = SIDE_SELL
@@ -237,7 +237,7 @@ def set_limit_sell_price(client, sell_price, sell_qty, symbol, sellClientOrderId
 
         oper_record_log += "\nSell-Set-80、设置限价单返回: %s " % (str(json.dumps(sell_order_result)))
         if sell_order_result:
-            insert_btc_binance_order_limit_buy_sell_record(sell_order_result, parentClientOrderId)
+            insert_btc_binance_order_limit_buy_sell_record(sell_order_result, parentClientOrderId, account)
        
     except Exception as e:
         send_exception(traceback.format_exc())

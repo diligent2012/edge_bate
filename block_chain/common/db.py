@@ -373,7 +373,7 @@ def insert_btc_binance_order_stop_sell_record(data, parentClientOrderId):
 
 
 # 插入 订单 数据
-def insert_btc_binance_order_limit_buy_sell_record(data, parentClientOrderId):
+def insert_btc_binance_order_limit_buy_sell_record(data, parentClientOrderId, account):
     try:
         
         orderId = data['orderId']
@@ -402,7 +402,7 @@ def insert_btc_binance_order_limit_buy_sell_record(data, parentClientOrderId):
         )
         cur = conn.cursor()
         cur.execute('set names utf8') #charset set code. it is not nessary now
-        sql = "INSERT INTO `omni_btc_binance_order_limit_buy_sell_record` (`orderId`,`clientOrderId`,`origQty`,`executedQty`,`symbol`,`side`,`timeInForce`,`status`,`transactTime`,`o_type`,`price`,`parentClientOrderId`) VALUES ('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s')" % (orderId,clientOrderId,origQty,executedQty,symbol,side,timeInForce,status,transactTime,o_type,price, parentClientOrderId)
+        sql = "INSERT INTO `omni_btc_binance_order_limit_buy_sell_record` (`orderId`,`clientOrderId`,`origQty`,`executedQty`,`symbol`,`side`,`timeInForce`,`status`,`transactTime`,`o_type`,`price`,`parentClientOrderId`,`account`) VALUES ('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s')" % (orderId,clientOrderId,origQty,executedQty,symbol,side,timeInForce,status,transactTime,o_type,price, parentClientOrderId, account)
         cur.execute(sql)
         conn.commit()
         result = cur.fetchall()
