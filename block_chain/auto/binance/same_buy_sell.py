@@ -98,7 +98,7 @@ def same_auto_buy_sell(client, account, symbol, qty, oper_record_log):
 
         # 卖出价格 必须 大于 买入价格。兜底做法(以防意外)
         is_secure = same_buy_sell_secure_check(buy_price, sell_price)
-        oper_record_log += "\nBuy-50、是否安全: %s 止盈价格: %s 卖出价格: %s" % (str(is_secure), str(buy_price), str(sell_price))
+        oper_record_log += "\nBuy-50、是否安全: %s 买入价格: %s 卖出价格: %s" % (str(is_secure), str(buy_price), str(sell_price))
         if is_secure:
             sync_time = time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time()))
             insert_binance_recent_trades_data_rate_test(account, buy_price, min_price, sell_price, max_price, qty, symbol, rate, confirm_rate, sync_time)
