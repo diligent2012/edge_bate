@@ -314,7 +314,7 @@ def get_newest_valid_order(client, account, symbol, oper_record_log):
 
         for key,item in enumerate(all_orders):
 
-            if item['status'] == ORDER_STATUS_NEW and item['type'] == 'LIMIT':
+            if (item['status'] == ORDER_STATUS_NEW or item['status'] == ORDER_STATUS_PARTIALLY_FILLED) and item['type'] == 'LIMIT':
                 if item['side'] == SIDE_BUY:
                     buy_new_order.append(item)
                     buy_clientOrderId = item['clientOrderId']
