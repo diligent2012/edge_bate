@@ -83,7 +83,7 @@ def start_same_auto_buy_sell():
 def same_auto_buy_sell(client, account, symbol, qty, oper_record_log):
     # 获取当前最近的的交易中最高和最低价格
     oper_record_log += "\nBuy-10、获取最高最低价格 开始时间 %s " % ( time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time())) )
-    min_price, max_price = get_recent_trade_max_min_price_by_trade_time_six(client, symbol, 0)
+    min_price, max_price = get_recent_trade_max_min_price_by_trade_time_limit(client, symbol, 100)
     oper_record_log += "\nBuy-10-1、当前最高价格: %s 当前最低价格: %s " % (str(max_price), str(min_price))
     oper_record_log += "\nBuy-20、获取最高最低价格  结束时间 %s " % ( time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time())) )
 
@@ -185,6 +185,32 @@ def set_same_limit_buy_sell_price(client, account, buy_price,  sell_price, qty, 
     return oper_record_log
 
 #----------------------------------------------------下面是公共部分-------------------------------------------------------
+
+
+def get_recent_trade_max_min_price_by_trade_time_limit(client, symbol, limit = 100):
+    max_price = 0.0
+    min_price = 0.0
+
+    try:
+        recent_trades = client.get_recent_trades(symbol = symbol)
+        
+        for key,item in enumerate(recent_trades):
+            if(len(recent_trades) - limit <= key):
+                #print item
+                if (len(recent_trades) - limit == key):
+                    max_price = item['price']
+                    min_price = item['price']
+                else:
+                    if(item['price'] > max_price):
+                        max_price = item['price']
+
+                    if(item['price'] <= min_price):
+                        min_price = item['price']
+
+    except BinanceAPIException as e:
+        send_exception(traceback.format_exc())
+        
+    return round(float(min_price),8), round(float(max_price),8)
 
 # 获取最新订单 code: Filled-*
 def get_newest_valid_order(client, account, symbol,oper_record_log):
