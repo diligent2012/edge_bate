@@ -55,26 +55,29 @@ def start_same_auto_buy_sell():
                 if is_ok:
 
                     if new_order:
+
+                        oper_record_log += "\nCommon-60、重新设置卖出 开始时间 %s " % ( time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time())) )
+                        
                         # 如果是卖出的话.降低 50%
-                        if (SIDE_SELL == new_order['side']):
+                        # if (SIDE_SELL == new_order['side']):
 
-                            oper_record_log += "\nCommon-60、重新设置卖出 开始时间 %s " % ( time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time())) )
+                        #     oper_record_log += "\nCommon-60、重新设置卖出 开始时间 %s " % ( time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time())) )
 
-                            oper_record_log += "\Reset-Sell-10、没有及时卖出的订单: %s 当前买卖状态: %s" % (str(json.dumps(new_order)), str(new_order['side']))
-                            orderId = new_order['orderId']
-                            sell_price = new_order['price']
-                            clientOrderId = new_order['clientOrderId']
-                            oper_record_log = reset_auto_sell(client, account, orderId, sell_price, symbol, qty, clientOrderId, oper_record_log)
-                            oper_record_log += "\nCommon-60、重新设置卖出 结束时间 %s " % ( time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time())) )
+                        #     oper_record_log += "\Reset-Sell-10、没有及时卖出的订单: %s 当前买卖状态: %s" % (str(json.dumps(new_order)), str(new_order['side']))
+                        #     orderId = new_order['orderId']
+                        #     sell_price = new_order['price']
+                        #     clientOrderId = new_order['clientOrderId']
+                        #     oper_record_log = reset_auto_sell(client, account, orderId, sell_price, symbol, qty, clientOrderId, oper_record_log)
+                        #     oper_record_log += "\nCommon-60、重新设置卖出 结束时间 %s " % ( time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time())) )
 
-                        # 如果是买入的话.增加 50%
-                        if (SIDE_BUY == new_order['side']):
-                            oper_record_log += "\nCommon-70、重新设置买入 开始时间 %s " % ( time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time())) )
-                            oper_record_log += "\Reset-Buy-10、没有及时买入的订单: %s 当前买卖状态: %s" % (str(json.dumps(new_order)), str(new_order['side']))
-                            orderId = new_order['orderId']
-                            buy_price = new_order['price']
-                            reset_auto_buy(client, account, orderId, buy_price, symbol, qty, oper_record_log)
-                            oper_record_log += "\nCommon-70、重新设置买入 结束时间 %s " % ( time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time())) )
+                        # # 如果是买入的话.增加 50%
+                        # if (SIDE_BUY == new_order['side']):
+                        #     oper_record_log += "\nCommon-70、重新设置买入 开始时间 %s " % ( time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time())) )
+                        #     oper_record_log += "\Reset-Buy-10、没有及时买入的订单: %s 当前买卖状态: %s" % (str(json.dumps(new_order)), str(new_order['side']))
+                        #     orderId = new_order['orderId']
+                        #     buy_price = new_order['price']
+                        #     reset_auto_buy(client, account, orderId, buy_price, symbol, qty, oper_record_log)
+                        #     oper_record_log += "\nCommon-70、重新设置买入 结束时间 %s " % ( time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time())) )
                         
                     else:
                         # 同时设定买入和卖出
@@ -130,14 +133,14 @@ def reset_auto_buy(client, account, orderId, buy_price, symbol, qty, oper_record
 
 def same_auto_buy_sell(client, account, symbol, qty, oper_record_log):
     # 获取当前最近的的交易中最高和最低价格
-    oper_record_log += "\nBuy-10、获取最高最低价格 开始时间 %s " % ( time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time())) )
+    oper_record_log += "\nBuySell-10、获取最高最低价格 开始时间 %s " % ( time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time())) )
     min_price, max_price = get_recent_trade_max_min_price_by_trade_time_limit(client, symbol, 100)
-    oper_record_log += "\nBuy-10-1、当前最高价格: %s 当前最低价格: %s " % (str(max_price), str(min_price))
-    oper_record_log += "\nBuy-20、获取最高最低价格  结束时间 %s " % ( time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time())) )
+    oper_record_log += "\nBuySell-10-1、当前最高价格: %s 当前最低价格: %s " % (str(max_price), str(min_price))
+    oper_record_log += "\nBuySell-20、获取最高最低价格  结束时间 %s " % ( time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time())) )
 
     # 判断是否有利润,并且获取买入价格、卖出价格
     is_allow_buy_sell, buy_price, sell_price, confirm_rate, rate, ref_rate = oper_same_buy_sell_price(min_price, max_price)
-    oper_record_log += "\nBuy-30、是否有利润: %s 确认利润率: %s 最初利润率: %s 参考利润率: %s 卖出价格: %s 买入价格: %s" % (str(is_allow_buy_sell), str(confirm_rate), str(rate), str(ref_rate), str(sell_price), str(buy_price))
+    oper_record_log += "\nBuySell-30、是否有利润: %s 确认利润率: %s 最初利润率: %s 参考利润率: %s 卖出价格: %s 买入价格: %s" % (str(is_allow_buy_sell), str(confirm_rate), str(rate), str(ref_rate), str(sell_price), str(buy_price))
 
     if is_allow_buy_sell:
 
@@ -146,7 +149,7 @@ def same_auto_buy_sell(client, account, symbol, qty, oper_record_log):
 
         # 卖出价格 必须 大于 买入价格。兜底做法(以防意外)
         is_secure = same_buy_sell_secure_check(buy_price, sell_price)
-        oper_record_log += "\nBuy-50、是否安全: %s 买入价格: %s 卖出价格: %s" % (str(is_secure), str(buy_price), str(sell_price))
+        oper_record_log += "\nBuySell-50、是否安全: %s 买入价格: %s 卖出价格: %s" % (str(is_secure), str(buy_price), str(sell_price))
         if is_secure:
             #sync_time = time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time()))
             #insert_binance_recent_trades_data_rate_test(account, buy_price, min_price, sell_price, max_price, qty, symbol, rate, confirm_rate, sync_time)
