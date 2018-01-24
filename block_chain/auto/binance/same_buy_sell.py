@@ -268,17 +268,18 @@ def get_recent_trade_max_min_price_by_trade_time_limit(client, symbol, limit = 1
 
 # 获取最新订单 code: Filled-*
 def get_newest_valid_order(client, account, symbol, oper_record_log):
+
+    buy_new_order = []
+    sell_new_order = []
+
+    buy_clientOrderId = ''
+    sell_clientOrderId = ''
+
+    new_order_item = {}
+    map_new_order_item = {}
+
     try:
         all_orders = client.get_all_orders(symbol = symbol);
-
-        buy_new_order = []
-        sell_new_order = []
-                    
-        buy_clientOrderId = ''
-        sell_clientOrderId = ''
-
-        new_order_item = {}
-        map_new_order_item = {}
 
         for key,item in enumerate(all_orders):
 
@@ -291,18 +292,20 @@ def get_newest_valid_order(client, account, symbol, oper_record_log):
                     sell_new_order.append(item)
                     sell_clientOrderId = item['clientOrderId']
 
+        
+
         if not buy_new_order and not sell_new_order:
-            oper_record_log += "\nFilled-00、没有订单进行总 账户: %s 币种: %s" % (str(account), str(symbol))
+            oper_record_log += "\nFilled-20、没有订单进行总 账户: %s 币种: %s" % (str(account), str(symbol))
             return True, False, False, oper_record_log
 
         elif len(buy_new_order) > 1 or len(sell_new_order) > 1:
-            oper_record_log += "\nFilled-10、有多个买入或者卖出的订单都在进行中: 买入订单: %s " % (str(json.dumps(buy_new_order)), str(json.dumps(sell_new_order)))
+            oper_record_log += "\nFilled-30、有多个买入或者卖出的订单都在进行中: 买入订单: %s " % (str(json.dumps(buy_new_order)), str(json.dumps(sell_new_order)))
             return False, False, False, oper_record_log
         else:
             if buy_new_order and sell_new_order:
                 oper_record_log += "\nFilled-40、非对应的买卖两单子都在进行中: 买入订单: %s 卖出订单: %s" % (str(json.dumps(buy_new_order)), str(json.dumps(sell_new_order)))
                 return False, False, False, oper_record_log
-                
+
             elif buy_new_order and not sell_new_order:
                 new_order_item = buy_new_order[1]
                 oper_record_log += "\nFilled-50、正在进行的买入订单: %s 当前状态: %s" % (str(json.dumps(new_order_item)), str(new_order_item['side']))
@@ -323,7 +326,8 @@ def get_newest_valid_order(client, account, symbol, oper_record_log):
     except Exception as e:
         send_exception(traceback.format_exc())
 
-    oper_record_log += "\nFilled-90、最新的订单获取异常 账户: %s 币种: %s" % (str(account), str(symbol))
+    oper_record_log += "\nFilled-90、订单详情都在进行中: 买入订单: %s 卖出订单: %s" % (str(json.dumps(buy_new_order)), str(json.dumps(sell_new_order)))
+    oper_record_log += "\nFilled-99、最新的订单获取异常 账户: %s 币种: %s" % (str(account), str(symbol))
     return False, False, False, oper_record_log
 
 
