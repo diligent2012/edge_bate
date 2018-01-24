@@ -182,10 +182,10 @@ def same_auto_buy_sell(client, account, symbol, qty, oper_record_log):
         is_secure = same_buy_sell_secure_check(buy_price, sell_price)
         oper_record_log += "\nBuySell-50、是否安全: %s 买入价格: %s 卖出价格: %s" % (str(is_secure), str(buy_price), str(sell_price))
         if is_secure:
-            #sync_time = time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time()))
-            #insert_binance_recent_trades_data_rate_test(account, buy_price, min_price, sell_price, max_price, qty, symbol, rate, confirm_rate, sync_time)
             # 设置买入
             oper_record_log = set_same_limit_buy_sell_price(client, account, buy_price, sell_price, qty, symbol, oper_record_log)
+            sync_time = time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time()))
+            insert_binance_recent_trades_data_rate_test(account, buy_price, min_price, sell_price, max_price, qty, symbol, rate, confirm_rate, sync_time)
 
     return oper_record_log
 
@@ -204,13 +204,13 @@ def oper_same_buy_sell_price(min_price, max_price):
     sell_price_offset = 0.5
 
     # 固定利润比
-    profit_rate = 0.002
+    profit_rate = 0.003
 
     # 最高价格 和 最低价格的偏差幅度
     rate = 0.0
 
     # 参考利润比
-    ref_rate = 0.003
+    ref_rate = 0.0042
     try:
 
         rate = round((max_price - min_price)/min_price,4)
