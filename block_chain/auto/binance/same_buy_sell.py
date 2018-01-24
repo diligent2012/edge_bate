@@ -57,7 +57,7 @@ def start_same_auto_buy_sell():
                     if new_order:
 
                         oper_record_log += "\nCommon-60、重新设置卖出 开始时间 %s " % ( time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time())) )
-                        
+
                         # 如果是卖出的话.降低 50%
                         # if (SIDE_SELL == new_order['side']):
 
@@ -291,24 +291,30 @@ def get_newest_valid_order(client, account, symbol, oper_record_log):
                     sell_new_order.append(item)
                     sell_clientOrderId = item['clientOrderId']
 
-        if len(buy_new_order) > 1 or len(sell_new_order) > 1:
+        if not buy_new_order and not sell_new_order:
+            oper_record_log += "\nFilled-00、没有订单进行总 账户: %s 币种: %s" % (str(account), str(symbol))
+            return True, False, False, oper_record_log
+
+        elif len(buy_new_order) > 1 or len(sell_new_order) > 1:
             oper_record_log += "\nFilled-10、有多个买入或者卖出的订单都在进行中: 买入订单: %s " % (str(json.dumps(buy_new_order)), str(json.dumps(sell_new_order)))
             return False, False, False, oper_record_log
         else:
             if buy_new_order and sell_new_order:
                 oper_record_log += "\nFilled-40、非对应的买卖两单子都在进行中: 买入订单: %s 卖出订单: %s" % (str(json.dumps(buy_new_order)), str(json.dumps(sell_new_order)))
                 return False, False, False, oper_record_log
+                
             elif buy_new_order and not sell_new_order:
-                oper_record_log += "\nFilled-50、正在进行的买入订单: %s 当前状态: %s" % (str(json.dumps(new_order_item)), str(new_order_item['side']))
-
                 new_order_item = buy_new_order[1]
+                oper_record_log += "\nFilled-50、正在进行的买入订单: %s 当前状态: %s" % (str(json.dumps(new_order_item)), str(new_order_item['side']))
+                
                 map_new_order_item = get_map_order_item(all_orders, new_order_item, SIDE_SELL)
                 if map_new_order_item:
                     return True, new_order_item, map_new_order_item, oper_record_log
 
             elif not buy_new_order and sell_new_order:
-                oper_record_log += "\nFilled-60、正在进行的卖出订单: %s 当前状态: %s" % (str(json.dumps(new_order_item)), str(new_order_item['side']))
                 new_order_item = sell_new_order[1]
+                oper_record_log += "\nFilled-60、正在进行的卖出订单: %s 当前状态: %s" % (str(json.dumps(new_order_item)), str(new_order_item['side']))
+                
                 map_new_order_item = get_map_order_item(all_orders, new_order_item, SIDE_BUY)
                 if map_new_order_item:
                     return True, new_order_item, map_new_order_item, oper_record_log
