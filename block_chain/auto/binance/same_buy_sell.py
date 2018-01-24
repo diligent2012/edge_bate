@@ -94,11 +94,11 @@ def start_same_auto_buy_sell():
         send_exception(traceback.format_exc())
 
 def reset_buy_rate_price(buy_price):
-    buy_price = round( Decimal(buy_price) * (Decimal(1) + Decimal(0.001)), 8)
+    buy_price = round( Decimal(buy_price) * (Decimal(1) + Decimal(0.0005)), 8)
     return buy_price
 
 def reset_sell_rate_price(sell_price):
-    sell_price = round( Decimal(sell_price) * (Decimal(1) - Decimal(0.001)), 8)
+    sell_price = round( Decimal(sell_price) * (Decimal(1) - Decimal(0.0005)), 8)
     return sell_price
 
 # 重新设置卖出
@@ -108,7 +108,7 @@ def reset_auto_sell(client, account, orderId, sell_price, symbol, qty, buy_price
     buy_price = reset_buy_rate_price(buy_price)
     oper_record_log += "\nReset-Sell-01-B、手续费验证: 买入价格: %s " % (str(buy_price))
 
-    new_sell_price = round( Decimal(sell_price)  * (Decimal(1) - Decimal(0.002) * Decimal(0.5)), 8)
+    new_sell_price = round( Decimal(sell_price)  * (Decimal(1) - Decimal(0.001) * Decimal(0.5)), 8)
 
     if (buy_price > new_sell_price):
         oper_record_log += "\nReset-Sell-10、新的卖出价格 低于 对应的买入价格 不操作: 新的卖出价格: %s 买入价格: %s 新的币种: %s 新的数量: %s 客户端ID %s" % (str(new_sell_price), str(buy_price), str(symbol), str(qty), str(clientOrderId))
@@ -138,14 +138,14 @@ def reset_auto_buy(client, account, orderId, buy_price, symbol, qty, sell_price,
     sell_price = reset_sell_rate_price(sell_price)
     oper_record_log += "\nReset-Buy-01-B、手续费验证: 卖出价格: %s" % (str(sell_price))
 
-    new_buy_price = round( Decimal(buy_price)  * (Decimal(1) + Decimal(0.002) * Decimal(0.5)), 8)
+    new_buy_price = round( Decimal(buy_price)  * (Decimal(1) + Decimal(0.001) * Decimal(0.5)), 8)
 
     if (sell_price < new_buy_price):
         oper_record_log += "\nReset-Buy-10、新的买入价格 高于 对应的卖出价格, 不操作: 新的买入价格: %s 卖出价格: %s 新的币种: %s 新的数量: %s " % (str(new_buy_price), str(sell_price), str(symbol), str(qty))
         return oper_record_log
     
     buyClientOrderId = id_generator()
-    
+
     oper_record_log += "\nReset-Buy-20、重新设置 买入订单信息: 新的买入价格: %s 卖出价格: %s 新的币种: %s 新的数量: %s 新的客户端ID %s" % (str(new_buy_price), str(sell_price), str(symbol), str(qty), str(buyClientOrderId))
 
     is_buy_cancel = cancel_order(client, symbol, orderId)
