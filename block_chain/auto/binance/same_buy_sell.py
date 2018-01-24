@@ -100,7 +100,8 @@ def same_auto_buy_sell(client, account, symbol, qty, oper_record_log):
         is_secure = same_buy_sell_secure_check(buy_price, sell_price)
         oper_record_log += "\nBuy-50、是否安全: %s 止盈价格: %s 卖出价格: %s" % (str(is_secure), str(buy_price), str(sell_price))
         if is_secure:
-            pass
+            sync_time = time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time()))
+            insert_binance_recent_trades_data_rate_test(account, buy_price, sell_price, qty, symbol, rate, confirm_rate, sync_time)
             # 设置买入
             #oper_record_log = set_same_limit_buy_sell_price(client, account, buy_price, sell_price, qty, symbol, oper_record_log)
 
