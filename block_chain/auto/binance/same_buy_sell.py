@@ -309,12 +309,17 @@ def get_newest_valid_order(client, account, symbol, oper_record_log):
     new_order_item = {}
     map_new_order_item = {}
 
+    is_partially_filled = False
+
     try:
         all_orders = client.get_all_orders(symbol = symbol);
 
         for key,item in enumerate(all_orders):
 
-            if (item['status'] == ORDER_STATUS_NEW or item['status'] == ORDER_STATUS_PARTIALLY_FILLED) and item['type'] == 'LIMIT':
+            if item['status'] == ORDER_STATUS_PARTIALLY_FILLED:
+                is_partially_filled = True
+
+            if item['status'] == ORDER_STATUS_NEW and item['type'] == 'LIMIT':
                 if item['side'] == SIDE_BUY:
                     buy_new_order.append(item)
                     buy_clientOrderId = item['clientOrderId']
@@ -323,10 +328,13 @@ def get_newest_valid_order(client, account, symbol, oper_record_log):
                     sell_new_order.append(item)
                     sell_clientOrderId = item['clientOrderId']
 
-        
+
+        if is_partially_filled:
+            oper_record_log += "\nFilled-10、有订单部分买入或卖出,不能重设 账户: %s 币种: %s" % (str(account), str(symbol))
+            return False, False, False, oper_record_log
 
         if not buy_new_order and not sell_new_order:
-            oper_record_log += "\nFilled-20、没有订单进行总 账户: %s 币种: %s" % (str(account), str(symbol))
+            oper_record_log += "\nFilled-20、没有订单进行中 账户: %s 币种: %s" % (str(account), str(symbol))
             return True, False, False, oper_record_log
 
         elif len(buy_new_order) > 1 or len(sell_new_order) > 1:
