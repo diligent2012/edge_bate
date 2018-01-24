@@ -56,28 +56,33 @@ def start_same_auto_buy_sell():
 
                     if new_order:
 
-                        oper_record_log += "\nCommon-60、重新设置卖出 开始时间 %s " % ( time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time())) )
+                        if map_new_order:
 
-                        # 如果是卖出的话.降低 50%
-                        # if (SIDE_SELL == new_order['side']):
+                            # 如果是卖出的话.降低 50%
+                            if (SIDE_SELL == new_order['side']):
 
-                        #     oper_record_log += "\nCommon-60、重新设置卖出 开始时间 %s " % ( time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time())) )
+                                oper_record_log += "\nCommon-60、重新设置卖出 开始时间 %s " % ( time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time())) )
 
-                        #     oper_record_log += "\Reset-Sell-10、没有及时卖出的订单: %s 当前买卖状态: %s" % (str(json.dumps(new_order)), str(new_order['side']))
-                        #     orderId = new_order['orderId']
-                        #     sell_price = new_order['price']
-                        #     clientOrderId = new_order['clientOrderId']
-                        #     oper_record_log = reset_auto_sell(client, account, orderId, sell_price, symbol, qty, clientOrderId, oper_record_log)
-                        #     oper_record_log += "\nCommon-60、重新设置卖出 结束时间 %s " % ( time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time())) )
+                                oper_record_log += "\Reset-Sell-10、没有及时卖出的订单: %s 当前买卖状态: %s" % (str(json.dumps(new_order)), str(new_order['side']))
+                                orderId = new_order['orderId']
+                                sell_price = new_order['price']
+                                clientOrderId = new_order['clientOrderId']
+                                buy_price = map_new_order['price'] # 买入的价钱
+                                oper_record_log = reset_auto_sell(client, account, orderId, sell_price, symbol, qty, buy_price, clientOrderId, oper_record_log)
+                                oper_record_log += "\nCommon-60、重新设置卖出 结束时间 %s " % ( time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time())) )
 
-                        # # 如果是买入的话.增加 50%
-                        # if (SIDE_BUY == new_order['side']):
-                        #     oper_record_log += "\nCommon-70、重新设置买入 开始时间 %s " % ( time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time())) )
-                        #     oper_record_log += "\Reset-Buy-10、没有及时买入的订单: %s 当前买卖状态: %s" % (str(json.dumps(new_order)), str(new_order['side']))
-                        #     orderId = new_order['orderId']
-                        #     buy_price = new_order['price']
-                        #     reset_auto_buy(client, account, orderId, buy_price, symbol, qty, oper_record_log)
-                        #     oper_record_log += "\nCommon-70、重新设置买入 结束时间 %s " % ( time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time())) )
+                            # 如果是买入的话.增加 50%
+                            if (SIDE_BUY == new_order['side']):
+                                oper_record_log += "\nCommon-70、重新设置买入 开始时间 %s " % ( time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time())) )
+                                oper_record_log += "\Reset-Buy-10、没有及时买入的订单: %s 当前买卖状态: %s" % (str(json.dumps(new_order)), str(new_order['side']))
+                                orderId = new_order['orderId']
+                                buy_price = new_order['price']
+
+                                sell_price = map_new_order['price'] # 卖出的价钱
+                                oper_record_log = reset_auto_buy(client, account, orderId, buy_price, symbol, qty, sell_price, oper_record_log)
+                                oper_record_log += "\nCommon-70、重新设置买入 结束时间 %s " % ( time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time())) )
+                        else:
+                            oper_record_log += "\nCommon-80、进行中的订单没有对应的订单, 请注意: 订单: %s 对应订单: %s " % (str(json.dumps(new_order)), str(json.dumps(map_new_order)))
                         
                     else:
                         # 同时设定买入和卖出
@@ -91,13 +96,17 @@ def start_same_auto_buy_sell():
         send_exception(traceback.format_exc())
 
 # 重新设置卖出
-def reset_auto_sell(client, account, orderId, sell_price, symbol, qty, clientOrderId, oper_record_log):
+def reset_auto_sell(client, account, orderId, sell_price, symbol, qty, buy_price, clientOrderId,  oper_record_log):
     
     new_sell_price = round( Decimal(sell_price)  * (Decimal(1) - Decimal(0.002) * Decimal(0.5)), 8)
+    if (buy_price > new_sell_price):
+        oper_record_log += "\Reset-Sell-10、新的卖出价格 低于 对应的买入价格 不操作: 新的卖出价格: %s 买入价格: %s 新的币种: %s 新的数量: %s 新的客户端ID %s" % (str(new_sell_price), str(buy_price), str(symbol), str(qty), str(sellClientOrderId))
+        return oper_record_log
+
     buyClientOrderId = clientOrderId.split('666')[0]
 
     sellClientOrderId = '%s%s%s' % (buyClientOrderId,'666',str(int(time.time())))
-    oper_record_log += "\Reset-Sell-20、重新设置卖出订单信息: 新的价格: %s 新的币种: %s 新的数量: %s 新的客户端ID %s" % (str(new_sell_price), str(symbol), str(qty), str(sellClientOrderId))
+    oper_record_log += "\Reset-Sell-20、重新设置卖出订单信息: 新的卖出价格: %s 买入价格: %s 新的币种: %s 新的数量: %s 新的客户端ID %s" % (str(new_sell_price), str(buy_price), str(symbol), str(qty), str(sellClientOrderId))
 
     is_sell_cancel = cancel_order(client, symbol, orderId)
     if is_sell_cancel:
@@ -111,11 +120,16 @@ def reset_auto_sell(client, account, orderId, sell_price, symbol, qty, clientOrd
     return oper_record_log
 
 # 重新设置买入
-def reset_auto_buy(client, account, orderId, buy_price, symbol, qty, oper_record_log):
+def reset_auto_buy(client, account, orderId, buy_price, symbol, qty, sell_price, oper_record_log):
     
     new_buy_price = round( Decimal(buy_price)  * (Decimal(1) + Decimal(0.002) * Decimal(0.5)), 8)
+
+    if (sell_price < new_buy_price):
+        oper_record_log += "\Reset-Buy-10、新的买入价格 高于 对应的卖出价格, 不操作: 新的买入价格: %s 卖出价格: %s 新的币种: %s 新的数量: %s 新的客户端ID %s" % (str(new_buy_price), str(sell_price), str(symbol), str(qty), str(buyClientOrderId))
+        return oper_record_log
+
     buyClientOrderId = id_generator()
-    oper_record_log += "\Reset-Buy-20、重新设置 买入订单信息: 新的价格: %s 新的币种: %s 新的数量: %s 新的客户端ID %s" % (str(new_buy_price), str(symbol), str(qty), str(buyClientOrderId))
+    oper_record_log += "\Reset-Buy-20、重新设置 买入订单信息: 新的买入价格: %s 卖出价格: %s 新的币种: %s 新的数量: %s 新的客户端ID %s" % (str(new_buy_price), str(sell_price), str(symbol), str(qty), str(buyClientOrderId))
 
     is_buy_cancel = cancel_order(client, symbol, orderId)
     if is_buy_cancel:
