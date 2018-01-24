@@ -204,13 +204,13 @@ def oper_same_buy_sell_price(min_price, max_price):
     sell_price_offset = 0.5
 
     # 固定利润比
-    profit_rate = 0.003
+    profit_rate = 0.0025
 
     # 最高价格 和 最低价格的偏差幅度
     rate = 0.0
 
     # 参考利润比
-    ref_rate = 0.0045
+    ref_rate = 0.0035
     try:
 
         rate = round((max_price - min_price)/min_price,4)
