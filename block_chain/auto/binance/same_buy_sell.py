@@ -310,7 +310,7 @@ def get_newest_valid_order(client, account, symbol, oper_record_log):
                 new_order_item = buy_new_order[0]
                 oper_record_log += "\nFilled-50、正在进行的买入订单: %s 当前状态: %s" % (str(json.dumps(new_order_item)), str(new_order_item['side']))
                 
-                map_new_order_item = get_map_order_item(all_orders, new_order_item, SIDE_SELL)
+                map_new_order_item = get_map_sell_order_item(all_orders, new_order_item)
                 if map_new_order_item:
                     return True, new_order_item, map_new_order_item, oper_record_log
 
@@ -318,7 +318,7 @@ def get_newest_valid_order(client, account, symbol, oper_record_log):
                 new_order_item = sell_new_order[0]
                 oper_record_log += "\nFilled-60、正在进行的卖出订单: %s 当前状态: %s" % (str(json.dumps(new_order_item)), str(new_order_item['side']))
                 
-                map_new_order_item = get_map_order_item(all_orders, new_order_item, SIDE_BUY)
+                map_new_order_item = get_map_buy_order_item(all_orders, new_order_item)
                 if map_new_order_item:
                     return True, new_order_item, map_new_order_item, oper_record_log
             
@@ -331,14 +331,21 @@ def get_newest_valid_order(client, account, symbol, oper_record_log):
     return False, False, False, oper_record_log
 
 
-def get_map_order_item(all_orders, new_order_item, side):
+def get_map_sell_order_item(all_orders, new_order_item):
     for key,item in enumerate(all_orders):
-        if item['status'] == ORDER_STATUS_FILLED and item['type'] == 'LIMIT' and item['side'] == side:
+        if item['status'] == ORDER_STATUS_FILLED and item['type'] == 'LIMIT' and item['side'] == SIDE_SELL:
             if new_order_item['clientOrderId'] == item['clientOrderId'].split('666')[0]:
                 map_new_order_item = item
                 return map_new_order_item
     return False
 
+def get_map_buy_order_item(all_orders, new_order_item):
+    for key,item in enumerate(all_orders):
+        if item['status'] == ORDER_STATUS_FILLED and item['type'] == 'LIMIT' and item['side'] == SIDE_BUY:
+            if new_order_item['clientOrderId'].split('666')[0] == item['clientOrderId']:
+                map_new_order_item = item
+                return map_new_order_item
+    return False
 
 # 入口方法
 def main():
