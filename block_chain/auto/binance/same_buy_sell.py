@@ -141,10 +141,11 @@ def reset_auto_buy(client, account, orderId, buy_price, symbol, qty, sell_price,
     new_buy_price = round( Decimal(buy_price)  * (Decimal(1) + Decimal(0.002) * Decimal(0.5)), 8)
 
     if (sell_price < new_buy_price):
-        oper_record_log += "\nReset-Buy-10、新的买入价格 高于 对应的卖出价格, 不操作: 新的买入价格: %s 卖出价格: %s 新的币种: %s 新的数量: %s 新的客户端ID %s" % (str(new_buy_price), str(sell_price), str(symbol), str(qty), str(buyClientOrderId))
+        oper_record_log += "\nReset-Buy-10、新的买入价格 高于 对应的卖出价格, 不操作: 新的买入价格: %s 卖出价格: %s 新的币种: %s 新的数量: %s " % (str(new_buy_price), str(sell_price), str(symbol), str(qty))
         return oper_record_log
-
+    
     buyClientOrderId = id_generator()
+    
     oper_record_log += "\nReset-Buy-20、重新设置 买入订单信息: 新的买入价格: %s 卖出价格: %s 新的币种: %s 新的数量: %s 新的客户端ID %s" % (str(new_buy_price), str(sell_price), str(symbol), str(qty), str(buyClientOrderId))
 
     is_buy_cancel = cancel_order(client, symbol, orderId)
