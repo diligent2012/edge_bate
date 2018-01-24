@@ -108,7 +108,7 @@ def reset_auto_sell(client, account, orderId, sell_price, symbol, qty, buy_price
     buy_price = reset_buy_rate_price(buy_price)
     oper_record_log += "\nReset-Sell-01-B、手续费验证: 买入价格: %s " % (str(buy_price))
 
-    new_sell_price = round( Decimal(sell_price)  * (Decimal(1) - Decimal(0.001) * Decimal(0.5)), 8)
+    new_sell_price = round( Decimal(sell_price)  * (Decimal(1) - Decimal(0.001) * Decimal(0.8)), 8)
 
     if (buy_price > new_sell_price):
         oper_record_log += "\nReset-Sell-10、新的卖出价格 低于 对应的买入价格 不操作: 新的卖出价格: %s 买入价格: %s 新的币种: %s 新的数量: %s 客户端ID %s" % (str(new_sell_price), str(buy_price), str(symbol), str(qty), str(clientOrderId))
@@ -138,7 +138,7 @@ def reset_auto_buy(client, account, orderId, buy_price, symbol, qty, sell_price,
     sell_price = reset_sell_rate_price(sell_price)
     oper_record_log += "\nReset-Buy-01-B、手续费验证: 卖出价格: %s" % (str(sell_price))
 
-    new_buy_price = round( Decimal(buy_price)  * (Decimal(1) + Decimal(0.001) * Decimal(0.5)), 8)
+    new_buy_price = round( Decimal(buy_price)  * (Decimal(1) + Decimal(0.001) * Decimal(0.8)), 8)
 
     if (sell_price < new_buy_price):
         oper_record_log += "\nReset-Buy-10、新的买入价格 高于 对应的卖出价格, 不操作: 新的买入价格: %s 卖出价格: %s 新的币种: %s 新的数量: %s " % (str(new_buy_price), str(sell_price), str(symbol), str(qty))
@@ -204,13 +204,13 @@ def oper_same_buy_sell_price(min_price, max_price):
     sell_price_offset = 0.5
 
     # 固定利润比
-    profit_rate = 0.0025
+    profit_rate = 0.002
 
     # 最高价格 和 最低价格的偏差幅度
     rate = 0.0
 
     # 参考利润比
-    ref_rate = 0.0035
+    ref_rate = 0.0032
     try:
 
         rate = round((max_price - min_price)/min_price,4)
@@ -218,7 +218,7 @@ def oper_same_buy_sell_price(min_price, max_price):
         if(rate >= ref_rate):
             free_rate = rate - profit_rate
 
-            buy_price = free_rate * buy_price_offset * min_price + min_price
+            buy_price = (1 + free_rate * buy_price_offset) * min_price
 
             sell_price = max_price / ((free_rate * sell_price_offset) + 1 ) 
             
