@@ -21,7 +21,7 @@ from helper import *
 def start_sync():
     try:
         join_stat = ['EOS','BTC','ETH']
-        account_list = get_account_list()
+        account_list = get_same_account_list()
         account_item = account_list[0]
         client = Client(account_item['api_key'], account_item['api_secret'])
         account = account_item['account']
