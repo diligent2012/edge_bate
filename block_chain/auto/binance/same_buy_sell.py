@@ -227,7 +227,7 @@ def oper_same_buy_sell_price(min_price, max_price):
     rate = 0.0
 
     # 参考利润比
-    ref_rate = 0.0045
+    ref_rate = 0.004
     try:
 
         rate = round((max_price - min_price)/min_price,4)
