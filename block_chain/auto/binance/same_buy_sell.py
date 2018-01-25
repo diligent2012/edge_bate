@@ -58,15 +58,14 @@ def start_same_auto_buy_sell():
 
                             # 如果是卖出的话.降低 50%
                             if (SIDE_SELL == new_order['side']):
-
                                 oper_record_log += "\nCommon-60、重新设置卖出 开始时间 %s " % ( time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time())) )
-
                                 oper_record_log += "\nCommon-60-A、没有及时卖出的订单: %s 当前买卖状态: %s" % (str(json.dumps(new_order)), str(new_order['side']))
                                 orderId = new_order['orderId']
-                                sell_price = round(float(new_order['price']),8)
-                                clientOrderId = new_order['clientOrderId']
-                                buy_price = round(float(map_new_order['price']),8) # 买入的价钱
-                                oper_record_log = reset_auto_sell(client, account, orderId, sell_price, symbol, qty, buy_price, clientOrderId, oper_record_log)
+                                sell_price = round(float(new_order['price']),8) # 上一次卖出的价格
+                                sell_time = new_order['time'] # 上一次卖出的时间
+                                clientOrderId = new_order['clientOrderId'] 
+                                buy_price = round(float(map_new_order['price']),8) # 买入的价格
+                                oper_record_log = reset_auto_sell(client, account, orderId, sell_price, sell_time, symbol, qty, buy_price, clientOrderId, oper_record_log)
                                 oper_record_log += "\nCommon-60、重新设置卖出 结束时间 %s " % ( time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time())) )
 
                             # 如果是买入的话.增加 50%
@@ -74,9 +73,8 @@ def start_same_auto_buy_sell():
                                 oper_record_log += "\nCommon-70、重新设置买入 开始时间 %s " % ( time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time())) )
                                 oper_record_log += "\nCommon-7o-A、没有及时买入的订单: %s 当前买卖状态: %s" % (str(json.dumps(new_order)), str(new_order['side']))
                                 orderId = new_order['orderId']
-                                buy_price = round(float(new_order['price']),8)
-
-                                sell_price = round(float(map_new_order['price']),8) # 卖出的价钱
+                                buy_price = round(float(new_order['price']),8) #上一次买入的价格
+                                sell_price = round(float(map_new_order['price']),8) # 卖出的价格
                                 oper_record_log = reset_auto_buy(client, account, orderId, buy_price, symbol, qty, sell_price, oper_record_log)
                                 oper_record_log += "\nCommon-70、重新设置买入 结束时间 %s " % ( time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time())) )
                         else:
@@ -94,15 +92,15 @@ def start_same_auto_buy_sell():
         send_exception(traceback.format_exc())
 
 def reset_buy_rate_price(buy_price):
-    buy_price = round( Decimal(buy_price) * (Decimal(1) + Decimal(0.0005)), 8)
+    buy_price = round( Decimal(buy_price) * (Decimal(1) + Decimal(0.00051)), 8)
     return buy_price
 
 def reset_sell_rate_price(sell_price):
-    sell_price = round( Decimal(sell_price) * (Decimal(1) - Decimal(0.0005)), 8)
+    sell_price = round( Decimal(sell_price) * (Decimal(1) - Decimal(0.00051)), 8)
     return sell_price
 
 # 重新设置卖出
-def reset_auto_sell(client, account, orderId, sell_price, symbol, qty, buy_price, clientOrderId,  oper_record_log):
+def reset_auto_sell(client, account, orderId, sell_price, sell_time, symbol, qty, buy_price, clientOrderId,  oper_record_log):
 
     oper_record_log += "\nReset-Sell-01-A、手续费验证: 买入价格: %s " % (str(buy_price))
     buy_price = reset_buy_rate_price(buy_price)
@@ -114,6 +112,12 @@ def reset_auto_sell(client, account, orderId, sell_price, symbol, qty, buy_price
         oper_record_log += "\nReset-Sell-10、新的卖出价格 低于 对应的买入价格 不操作: 新的卖出价格: %s 买入价格: %s 新的币种: %s 新的数量: %s 客户端ID %s" % (str(new_sell_price), str(buy_price), str(symbol), str(qty), str(clientOrderId))
         return oper_record_log
 
+    # 如果时间超过一分钟,就用当初买入价格加上手续费卖出
+    curr_time = int(round(time.time() * 1000))
+    diff_time = sell_time - curr_time
+    if diff_time > 1000 * 60:
+        new_sell_price = buy_price
+        oper_record_log += "\nReset-Sell-10-B、卖出的时间较长, 用买入价格加上手续费快速卖出: 相差时间: %s 上次卖出时间: %s 当前时间: %s 新的卖出价格: %s 买入价格: %s 新的币种: %s 新的数量: %s 客户端ID %s" % (str(diff_time), str(sell_time), str(curr_time), str(new_sell_price), str(buy_price), str(symbol), str(qty), str(clientOrderId))
 
     buyClientOrderId = clientOrderId.split('666')[0]
 
@@ -132,7 +136,7 @@ def reset_auto_sell(client, account, orderId, sell_price, symbol, qty, buy_price
     return oper_record_log
 
 # 重新设置买入
-def reset_auto_buy(client, account, orderId, buy_price, symbol, qty, sell_price, oper_record_log):
+def reset_auto_buy(client, account, orderId, buy_price, buy_time, symbol, qty, sell_price, oper_record_log):
     
     oper_record_log += "\nReset-Buy-01-A、手续费验证: 卖出价格: %s" % (str(sell_price))
     sell_price = reset_sell_rate_price(sell_price)
@@ -144,6 +148,13 @@ def reset_auto_buy(client, account, orderId, buy_price, symbol, qty, sell_price,
         oper_record_log += "\nReset-Buy-10、新的买入价格 高于 对应的卖出价格, 不操作: 新的买入价格: %s 卖出价格: %s 新的币种: %s 新的数量: %s " % (str(new_buy_price), str(sell_price), str(symbol), str(qty))
         return oper_record_log
     
+    # 如果时间超过一分钟,就用当初买入价格加上手续费卖出
+    curr_time = int(round(time.time() * 1000))
+    diff_time = buy_time - curr_time
+    if diff_time > 1000 * 60:
+        new_buy_price = sell_price
+        oper_record_log += "\nReset-Buy-10、买入的时间较长, 用卖出价格减去手续费快速买入: 相差时间: %s 上次买入时间: %s 当前时间: %s 新的买入价格: %s 卖出价格: %s 新的币种: %s 新的数量: %s " % (str(diff_time), str(buy_time), str(curr_time), str(new_buy_price), str(sell_price), str(symbol), str(qty))
+
     buyClientOrderId = id_generator()
 
     oper_record_log += "\nReset-Buy-20、重新设置 买入订单信息: 新的买入价格: %s 卖出价格: %s 新的币种: %s 新的数量: %s 新的客户端ID %s" % (str(new_buy_price), str(sell_price), str(symbol), str(qty), str(buyClientOrderId))
