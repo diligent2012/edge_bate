@@ -260,7 +260,7 @@ def set_same_limit_buy_sell_price(client, account, buy_price,  sell_price, qty, 
                 insert_btc_binance_order_limit_buy_sell_record(buy_order_result, 0, account)
                 insert_btc_binance_order_limit_buy_sell_record(sell_order_result, buyClientOrderId, account)
             else:
-                oper_record_log += "\nSell-Set-90、买入成功,但是卖出失败: %s " % (str(json.dumps(buy_order_result)), str(sell_order_result))
+                oper_record_log += "\nSell-Set-90、买入成功: %s ,但是卖出失败: %s " % (str(json.dumps(buy_order_result)), str(sell_order_result))
         else:
             oper_record_log += "\nSell-Set-91、买入失败,也就没有进行卖出: %s " % (str(buy_order_result))
     except Exception as e:
