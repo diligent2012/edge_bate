@@ -39,13 +39,16 @@ class BinanceClient(object):
 def start_same_auto_buy_sell():
     
     try:
+        oper_record_log = "\nCommon-10、执行同时买卖开始" + time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time()))
+
         account_list = get_same_account_list()
         # 循环不同的账户
         for key,a_item in enumerate(account_list):
-            #client = Client(a_item['api_key'], a_item['api_secret'])
-            client = BinanceClient(a_item['api_key'], a_item['api_secret']).get_conn()
 
-            oper_record_log = "\nClient-10、重要实例化信息 : %s" % (str(client))
+            
+            client = BinanceClient(a_item['api_key'], a_item['api_secret']).get_conn()
+            oper_record_log += "\nClient-10、重要实例化信息 : %s " % (str(client))
+            oper_record_log += "\nClient-11、重要实例化信息 结束时间" + time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time()))
 
             account = a_item['account']
             qty = a_item['qty']
@@ -55,8 +58,7 @@ def start_same_auto_buy_sell():
             # 循环不同的币种
             for key,s_item in enumerate(binance_symbols): 
                 symbol = s_item['symbol']
-
-                oper_record_log += "\nCommon-10、执行同时买卖开始" + time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time()))
+                
                 oper_record_log += "\nCommon-20、账户: %s" % (account)
                 oper_record_log += "\nCommon-30、币种: %s" % (symbol)
                                 
