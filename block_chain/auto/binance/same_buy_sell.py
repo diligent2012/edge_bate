@@ -82,11 +82,11 @@ def start_same_auto_buy_sell():
                         
                     else:
                         # 同时设定买入和卖出
-                        oper_record_log += "\nCommon-90 同时设定买入和卖出订单 开始: %s " % ( time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time())) )
+                        oper_record_log += "\n\nCommon-90 同时设定买入和卖出订单 开始: %s " % ( time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time())) )
                         oper_record_log = same_auto_buy_sell(client, account, symbol, qty, oper_record_log)
-                        oper_record_log += "\nCommon-90 同时设定买入和卖出订单 结束: %s " % ( time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time())) )
+                        oper_record_log += "\n\nCommon-90 同时设定买入和卖出订单 结束: %s " % ( time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time())) )
 
-                oper_record_log += "\nCommon-99、执行同时买卖结束 %s " % ( time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time())) )
+                oper_record_log += "\n\nCommon-99、执行同时买卖结束 %s " % ( time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time())) )
                 insert_btc_binance_order_auto_log(account, side, symbol, oper_record_log)
     except Exception as e:
         send_exception(traceback.format_exc())
@@ -175,7 +175,7 @@ def reset_auto_buy(client, account, orderId, buy_price, buy_time, symbol, qty, s
 
 def same_auto_buy_sell(client, account, symbol, qty, oper_record_log):
     # 获取当前最近的的交易中最高和最低价格
-    oper_record_log += "\nBuySell-10、获取最高最低价格 开始时间 %s " % ( time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time())) )
+    oper_record_log += "\n\nBuySell-10、获取最高最低价格 开始时间 %s " % ( time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time())) )
     min_price, max_price = get_recent_trade_max_min_price_by_trade_time_limit(client, symbol, 100)
     oper_record_log += "\nBuySell-10-1、当前最高价格: %s 当前最低价格: %s " % (str(max_price), str(min_price))
     oper_record_log += "\nBuySell-20、获取最高最低价格  结束时间 %s " % ( time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time())) )
