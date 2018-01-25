@@ -44,7 +44,7 @@ def start_same_auto_buy_sell():
                 # 获取最新的订单
                 oper_record_log += "\nCommon-40、获取最新的订单 开始时间 %s " % ( time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time())) )
                 is_ok, new_order, map_new_order, oper_record_log = get_newest_valid_order(client, account, symbol, oper_record_log)
-                oper_record_log += "\nCommon-40-A、获取最新订单: 订单: %s 对应订单: %s " % (str(json.dumps(new_order)), str(json.dumps(map_new_order)))
+                oper_record_log += "\n\nCommon-40-A、获取最新订单: 订单: %s 对应订单: %s " % (str(json.dumps(new_order)), str(json.dumps(map_new_order)))
                 oper_record_log += "\nCommon-40、获取最新的订单 结束时间 %s " % ( time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time())) )
 
 
@@ -66,7 +66,7 @@ def start_same_auto_buy_sell():
                                 clientOrderId = new_order['clientOrderId'] 
                                 buy_price = round(float(map_new_order['price']),8) # 买入的价格
                                 oper_record_log = reset_auto_sell(client, account, orderId, sell_price, sell_time, symbol, qty, buy_price, clientOrderId, oper_record_log)
-                                oper_record_log += "\nCommon-60、重新设置卖出 结束时间 %s " % ( time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time())) )
+                                oper_record_log += "\n\nCommon-60、重新设置卖出 结束时间 %s " % ( time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time())) )
 
                             # 如果是买入的话.增加 50%
                             if (SIDE_BUY == new_order['side']):
@@ -76,7 +76,7 @@ def start_same_auto_buy_sell():
                                 buy_price = round(float(new_order['price']),8) #上一次买入的价格
                                 sell_price = round(float(map_new_order['price']),8) # 卖出的价格
                                 oper_record_log = reset_auto_buy(client, account, orderId, buy_price, symbol, qty, sell_price, oper_record_log)
-                                oper_record_log += "\nCommon-70、重新设置买入 结束时间 %s " % ( time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time())) )
+                                oper_record_log += "\n\nCommon-70、重新设置买入 结束时间 %s " % ( time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time())) )
                         else:
                             oper_record_log += "\nCommon-80、进行中的订单没有对应的订单, 请注意: 订单: %s 对应订单: %s " % (str(json.dumps(new_order)), str(json.dumps(map_new_order)))
                         
@@ -102,7 +102,7 @@ def reset_sell_rate_price(sell_price):
 # 重新设置卖出
 def reset_auto_sell(client, account, orderId, sell_price, sell_time, symbol, qty, buy_price, clientOrderId,  oper_record_log):
 
-    oper_record_log += "\nReset-Sell-01-A、手续费验证: 买入价格: %s " % (str(buy_price))
+    oper_record_log += "\n\nReset-Sell-01-A、手续费验证: 买入价格: %s " % (str(buy_price))
     buy_price = reset_buy_rate_price(buy_price)
     oper_record_log += "\nReset-Sell-01-B、手续费验证: 买入价格: %s " % (str(buy_price))
 
@@ -138,7 +138,7 @@ def reset_auto_sell(client, account, orderId, sell_price, sell_time, symbol, qty
 # 重新设置买入
 def reset_auto_buy(client, account, orderId, buy_price, buy_time, symbol, qty, sell_price, oper_record_log):
     
-    oper_record_log += "\nReset-Buy-01-A、手续费验证: 卖出价格: %s" % (str(sell_price))
+    oper_record_log += "\n\nReset-Buy-01-A、手续费验证: 卖出价格: %s" % (str(sell_price))
     sell_price = reset_sell_rate_price(sell_price)
     oper_record_log += "\nReset-Buy-01-B、手续费验证: 卖出价格: %s" % (str(sell_price))
 
@@ -215,13 +215,13 @@ def oper_same_buy_sell_price(min_price, max_price):
     sell_price_offset = 0.35
 
     # 固定利润比
-    profit_rate = 0.0025
+    profit_rate = 0.003
 
     # 最高价格 和 最低价格的偏差幅度
     rate = 0.0
 
     # 参考利润比
-    ref_rate = 0.004
+    ref_rate = 0.0045
     try:
 
         rate = round((max_price - min_price)/min_price,4)
@@ -341,24 +341,24 @@ def get_newest_valid_order(client, account, symbol, oper_record_log):
 
 
         if is_partially_filled:
-            oper_record_log += "\nFilled-10、有订单部分买入或卖出,不能重设 账户: %s 币种: %s" % (str(account), str(symbol))
+            oper_record_log += "\n\nFilled-10、有订单部分买入或卖出,不能重设 账户: %s 币种: %s" % (str(account), str(symbol))
             return False, False, False, oper_record_log
 
         if not buy_new_order and not sell_new_order:
-            oper_record_log += "\nFilled-20、没有订单进行中 账户: %s 币种: %s" % (str(account), str(symbol))
+            oper_record_log += "\n\nFilled-20、没有订单进行中 账户: %s 币种: %s" % (str(account), str(symbol))
             return True, False, False, oper_record_log
 
         elif len(buy_new_order) > 1 or len(sell_new_order) > 1:
-            oper_record_log += "\nFilled-30、有多个买入或者卖出的订单都在进行中: 买入订单: %s " % (str(json.dumps(buy_new_order)), str(json.dumps(sell_new_order)))
+            oper_record_log += "\n\nFilled-30、有多个买入或者卖出的订单都在进行中: 买入订单: %s " % (str(json.dumps(buy_new_order)), str(json.dumps(sell_new_order)))
             return False, False, False, oper_record_log
         else:
             if buy_new_order and sell_new_order:
-                oper_record_log += "\nFilled-40、非对应的买卖两单子都在进行中: 买入订单: %s 卖出订单: %s" % (str(json.dumps(buy_new_order)), str(json.dumps(sell_new_order)))
+                oper_record_log += "\n\nFilled-40、非对应的买卖两单子都在进行中: 买入订单: %s 卖出订单: %s" % (str(json.dumps(buy_new_order)), str(json.dumps(sell_new_order)))
                 return False, False, False, oper_record_log
 
             elif buy_new_order and not sell_new_order:
                 new_order_item = buy_new_order[0]
-                oper_record_log += "\nFilled-50、正在进行的买入订单: %s 当前状态: %s" % (str(json.dumps(new_order_item)), str(new_order_item['side']))
+                oper_record_log += "\n\nFilled-50、正在进行的买入订单: %s 当前状态: %s" % (str(json.dumps(new_order_item)), str(new_order_item['side']))
                 
                 map_new_order_item, oper_record_log = get_map_sell_order_item(all_orders, new_order_item, oper_record_log)
                 if map_new_order_item:
@@ -366,7 +366,7 @@ def get_newest_valid_order(client, account, symbol, oper_record_log):
 
             elif not buy_new_order and sell_new_order:
                 new_order_item = sell_new_order[0]
-                oper_record_log += "\nFilled-60、正在进行的卖出订单: %s 当前状态: %s" % (str(json.dumps(new_order_item)), str(new_order_item['side']))
+                oper_record_log += "\n\nFilled-60、正在进行的卖出订单: %s 当前状态: %s" % (str(json.dumps(new_order_item)), str(new_order_item['side']))
                 
                 map_new_order_item, oper_record_log = get_map_buy_order_item(all_orders, new_order_item, oper_record_log)
                 if map_new_order_item:
