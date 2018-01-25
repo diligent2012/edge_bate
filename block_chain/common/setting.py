@@ -67,7 +67,7 @@ def get_account_list():
             'qty': 200,
             "allow_symbol": [
                 {
-                    "symbol":"EOSETH" # 以太坊
+                    "symbol":"EOSBTC" # 以太坊
                 }
                
             ]
