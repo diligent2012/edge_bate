@@ -20,6 +20,21 @@ from db import *
 from util import *
 from helper import *
 
+class BinanceClient(object):
+
+    def __init__(self, api_key, api_secret):
+        if not hasattr(BinanceClient, 'conn'):  
+            BinanceClient.create_conn(api_key, api_secret)  
+        self._connection = BinanceClient.conn
+    
+    @staticmethod  
+    def create_conn(api_key, api_secret):  
+        BinanceClient.conn = Client(api_key, api_secret)
+
+    def get_conn(self):  
+        return self._connection
+
+
 # 开始同时买入和卖出
 def start_same_auto_buy_sell():
     
@@ -27,7 +42,11 @@ def start_same_auto_buy_sell():
         account_list = get_same_account_list()
         # 循环不同的账户
         for key,a_item in enumerate(account_list):
-            client = Client(a_item['api_key'], a_item['api_secret'])
+            #client = Client(a_item['api_key'], a_item['api_secret'])
+            client = BinanceClient(a_item['api_key'], a_item['api_secret']).get_conn()
+
+            oper_record_log += "\nClient-10、重要实例化信息 : %s" % (str(client))
+
             account = a_item['account']
             qty = a_item['qty']
             start_auto_date = format_time_for_date(a_item['start_auto_date'])
@@ -37,7 +56,7 @@ def start_same_auto_buy_sell():
             for key,s_item in enumerate(binance_symbols): 
                 symbol = s_item['symbol']
 
-                oper_record_log = "Common-10、执行同时买卖开始" + time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time()))
+                oper_record_log = "\nCommon-10、执行同时买卖开始" + time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time()))
                 oper_record_log += "\nCommon-20、账户: %s" % (account)
                 oper_record_log += "\nCommon-30、币种: %s" % (symbol)
                                 
