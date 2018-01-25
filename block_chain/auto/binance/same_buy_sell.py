@@ -202,6 +202,7 @@ def same_auto_buy_sell(client, account, symbol, qty, oper_record_log):
             oper_record_log = set_same_limit_buy_sell_price(client, account, buy_price, sell_price, qty, symbol, oper_record_log)
             sync_time = time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time()))
             insert_binance_recent_trades_data_rate_test(account, buy_price, min_price, sell_price, max_price, qty, symbol, rate, confirm_rate, sync_time)
+            send_wechat("开始同时买入和卖出了")
 
     return oper_record_log
 
