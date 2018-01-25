@@ -94,11 +94,11 @@ def start_same_auto_buy_sell():
         send_exception(traceback.format_exc())
 
 def reset_buy_rate_price(buy_price):
-    buy_price = round( Decimal(buy_price) * (Decimal(1) + Decimal(0.00051)), 8)
+    buy_price = round( Decimal(buy_price) * (Decimal(1) + Decimal(0.0011)), 8)
     return buy_price
 
 def reset_sell_rate_price(sell_price):
-    sell_price = round( Decimal(sell_price) * (Decimal(1) - Decimal(0.00051)), 8)
+    sell_price = round( Decimal(sell_price) * (Decimal(1) - Decimal(0.0011)), 8)
     return sell_price
 
 # 重新设置卖出
@@ -215,9 +215,9 @@ def same_buy_sell_secure_check(buy_price, sell_price):
 def oper_same_buy_sell_price(min_price, max_price):
         
     # 买入价格偏移幅度(上调)
-    buy_price_offset = 0.65
+    buy_price_offset = 0.55
     # 卖出价格偏移幅度(下调)
-    sell_price_offset = 0.35
+    sell_price_offset = 0.45
 
     # 固定利润比
     profit_rate = 0.003
