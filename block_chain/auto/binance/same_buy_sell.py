@@ -138,11 +138,11 @@ def reset_auto_sell(client, account, orderId, sell_price, sell_time, symbol, qty
         return oper_record_log
 
     # 如果时间超过一分钟,就用当初买入价格加上手续费卖出
-    curr_time = int(round(time.time() * 1000))
-    diff_time = sell_time - curr_time
-    if diff_time > 1000 * 60:
-        new_sell_price = buy_price
-        oper_record_log += "\nReset-Sell-10-B、卖出的时间较长, 用买入价格加上手续费快速卖出: 相差时间: %s 上次卖出时间: %s 当前时间: %s 新的卖出价格: %s 买入价格: %s 新的币种: %s 新的数量: %s 客户端ID %s" % (str(diff_time), str(sell_time), str(curr_time), str(new_sell_price), str(buy_price), str(symbol), str(qty), str(clientOrderId))
+    # curr_time = int(round(time.time() * 1000))
+    # diff_time = sell_time - curr_time
+    # if diff_time > 1000 * 60:
+    #     new_sell_price = buy_price
+    #     oper_record_log += "\nReset-Sell-10-B、卖出的时间较长, 用买入价格加上手续费快速卖出: 相差时间: %s 上次卖出时间: %s 当前时间: %s 新的卖出价格: %s 买入价格: %s 新的币种: %s 新的数量: %s 客户端ID %s" % (str(diff_time), str(sell_time), str(curr_time), str(new_sell_price), str(buy_price), str(symbol), str(qty), str(clientOrderId))
 
     sellClientOrderId = clientOrderId.split('777')[0]
     sellClientOrderId = '%s%s%s' % (sellClientOrderId,'777',str(int(time.time())))
@@ -176,11 +176,11 @@ def reset_auto_buy(client, account, orderId, buy_price, buy_time, symbol, qty, s
         return oper_record_log
     
     # 如果时间超过一分钟,就用当初买入价格加上手续费卖出
-    curr_time = int(round(time.time() * 1000))
-    diff_time = buy_time - curr_time
-    if diff_time > 1000 * 60:
-        new_buy_price = sell_price
-        oper_record_log += "\nReset-Buy-10、买入的时间较长, 用卖出价格减去手续费快速买入: 相差时间: %s 上次买入时间: %s 当前时间: %s 新的买入价格: %s 卖出价格: %s 新的币种: %s 新的数量: %s " % (str(diff_time), str(buy_time), str(curr_time), str(new_buy_price), str(sell_price), str(symbol), str(qty))
+    # curr_time = int(round(time.time() * 1000))
+    # diff_time = buy_time - curr_time
+    # if diff_time > 1000 * 60:
+    #     new_buy_price = sell_price
+    #     oper_record_log += "\nReset-Buy-10、买入的时间较长, 用卖出价格减去手续费快速买入: 相差时间: %s 上次买入时间: %s 当前时间: %s 新的买入价格: %s 卖出价格: %s 新的币种: %s 新的数量: %s " % (str(diff_time), str(buy_time), str(curr_time), str(new_buy_price), str(sell_price), str(symbol), str(qty))
 
     #buyClientOrderId = id_generator()
 
