@@ -249,7 +249,7 @@ def set_same_limit_buy_sell_price(client, account, buy_price,  sell_price, qty, 
             order_type = ORDER_TYPE_LIMIT
             order_price = sell_price  # 卖出价格
             order_quantity = qty
-            sellClientOrderId = '%s%s%s' % (buyClientOrderId,'666',str(int(time.time())))
+            sellClientOrderId = '%s%s' % (buyClientOrderId,'666')
             # 设置限价单
             oper_record_log += "\nSell-Set-50、设置卖出限价单 设置币种: %s 设置交易数量: %s 设置交易价格: %s 客户端ID: %s" % (order_symbol, order_quantity, order_price, sellClientOrderId)
             sell_order_result = create_limit_sell_order(client, order_symbol, order_quantity, order_price, sellClientOrderId)
@@ -370,24 +370,26 @@ def get_newest_valid_order(client, account, symbol, oper_record_log):
     return False, False, False, oper_record_log
 
 
-def get_map_sell_order_item(all_orders, new_order_item, oper_record_log):
+def get_map_sell_order_item(all_orders, new_buy_order_item, oper_record_log):
     for key,item in enumerate(all_orders):
         if item['status'] == ORDER_STATUS_FILLED and item['type'] == 'LIMIT' and item['side'] == SIDE_SELL:
-            if new_order_item['clientOrderId'] == item['clientOrderId'].split('666')[0]:
-                map_new_order_item = item
-                oper_record_log += "\nFilled-54、正在买入订单: %s 对应的卖出订单: %s " % (str(json.dumps(new_order_item)), str(json.dumps(map_new_order_item)))
-                return map_new_order_item, oper_record_log
-    oper_record_log += "\nFilled-56、正在买入订单: %s 没有对应的卖出订单" % (str(json.dumps(new_order_item)))
+            buyClientOrderId = '%s%s' % (new_buy_order_item['clientOrderId'], '666')
+            if item['clientOrderId'] == buyClientOrderId:
+                map_sell_filled_order_item = item
+                oper_record_log += "\nFilled-54、正在买入订单: %s 对应的卖出订单: %s " % (str(json.dumps(new_buy_order_item)), str(json.dumps(map_sell_filled_order_item)))
+                return map_sell_filled_order_item, oper_record_log
+    oper_record_log += "\nFilled-56、正在买入订单: %s 没有对应的卖出订单" % (str(json.dumps(new_buy_order_item)))
     return False, oper_record_log
 
-def get_map_buy_order_item(all_orders, new_order_item, oper_record_log):
+def get_map_buy_order_item(all_orders, new_sell_order_item, oper_record_log):
     for key,item in enumerate(all_orders):
         if item['status'] == ORDER_STATUS_FILLED and item['type'] == 'LIMIT' and item['side'] == SIDE_BUY:
-            if new_order_item['clientOrderId'].split('666')[0] == item['clientOrderId']:
-                map_new_order_item = item
-                oper_record_log += "\nFilled-64、正在卖出订单: %s 对应的买入订单: %s " % (str(json.dumps(new_order_item)), str(json.dumps(map_new_order_item)))
-                return map_new_order_item, oper_record_log
-    oper_record_log += "\nFilled-56、正在卖出订单: %s 没有对应的买入订单" % (str(json.dumps(new_order_item)))
+            buyClientOrderId = '%s%s' % (item['clientOrderId'], '666')
+            if buyClientOrderId == new_sell_order_item['clientOrderId']:
+                map_buy_filled_order_item = item
+                oper_record_log += "\nFilled-64、正在卖出订单: %s 对应的买入订单: %s " % (str(json.dumps(new_sell_order_item)), str(json.dumps(map_buy_filled_order_item)))
+                return map_buy_filled_order_item, oper_record_log
+    oper_record_log += "\nFilled-56、正在卖出订单: %s 没有对应的买入订单" % (str(json.dumps(new_sell_order_item)))
     return False, oper_record_log
 
 # 入口方法
