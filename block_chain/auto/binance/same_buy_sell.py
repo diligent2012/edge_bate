@@ -121,8 +121,8 @@ def reset_auto_sell(client, account, orderId, sell_price, sell_time, symbol, qty
         new_sell_price = buy_price
         oper_record_log += "\nReset-Sell-10-B、卖出的时间较长, 用买入价格加上手续费快速卖出: 相差时间: %s 上次卖出时间: %s 当前时间: %s 新的卖出价格: %s 买入价格: %s 新的币种: %s 新的数量: %s 客户端ID %s" % (str(diff_time), str(sell_time), str(curr_time), str(new_sell_price), str(buy_price), str(symbol), str(qty), str(clientOrderId))
 
-    buyClientOrderId = clientOrderId.split('666')[0]
-    sellClientOrderId = '%s%s%s' % (buyClientOrderId,'666',str(int(time.time())))
+    sellClientOrderId = clientOrderId.split('777')[0]
+    sellClientOrderId = '%s%s%s' % (sellClientOrderId,'777',str(int(time.time())))
 
     oper_record_log += "\nReset-Sell-20、重新设置卖出订单信息: 新的卖出价格: %s 买入价格: %s 新的币种: %s 新的数量: %s 新的客户端ID %s" % (str(new_sell_price), str(buy_price), str(symbol), str(qty), str(sellClientOrderId))
 
@@ -159,8 +159,8 @@ def reset_auto_buy(client, account, orderId, buy_price, buy_time, symbol, qty, s
 
     #buyClientOrderId = id_generator()
 
-    sellClientOrderId = clientOrderId.split('666')[0]
-    buyClientOrderId = '%s%s%s' % (sellClientOrderId,'666',str(int(time.time())))
+    buyClientOrderId = clientOrderId.split('666')[0]
+    buyClientOrderId = '%s%s%s' % (buyClientOrderId,'666',str(int(time.time())))
 
     oper_record_log += "\nReset-Buy-20、重新设置 买入订单信息: 新的买入价格: %s 卖出价格: %s 新的币种: %s 新的数量: %s 新的客户端ID %s" % (str(new_buy_price), str(sell_price), str(symbol), str(qty), str(buyClientOrderId))
 
@@ -269,7 +269,7 @@ def set_same_limit_buy_sell_price(client, account, buy_price,  sell_price, qty, 
             order_type = ORDER_TYPE_LIMIT
             order_price = sell_price  # 卖出价格
             order_quantity = qty
-            sellClientOrderId = '%s%s%s' % (buyClientOrderIdOri, '666', str(int(time.time())))
+            sellClientOrderId = '%s%s%s' % (buyClientOrderIdOri, '777', str(int(time.time())))
            
             # 设置限价单
             oper_record_log += "\nSell-Set-50、设置卖出限价单 设置币种: %s 设置交易数量: %s 设置交易价格: %s 客户端ID: %s" % (order_symbol, order_quantity, order_price, sellClientOrderId)
@@ -395,7 +395,7 @@ def get_map_sell_order_item(all_orders, new_buy_order_item, oper_record_log):
     for key,item in enumerate(all_orders):
         if item['status'] == ORDER_STATUS_FILLED and item['type'] == 'LIMIT' and item['side'] == SIDE_SELL:
             buyClientOrderId = new_buy_order_item['clientOrderId'].split('666')[0]
-            sellClientOrderId = item['clientOrderId'].split('666')[0]
+            sellClientOrderId = item['clientOrderId'].split('777')[0]
 
             if sellClientOrderId == buyClientOrderId:
                 map_sell_filled_order_item = item
@@ -408,7 +408,7 @@ def get_map_buy_order_item(all_orders, new_sell_order_item, oper_record_log):
     for key,item in enumerate(all_orders):
         if item['status'] == ORDER_STATUS_FILLED and item['type'] == 'LIMIT' and item['side'] == SIDE_BUY:
             buyClientOrderId = item['clientOrderId'].split('666')[0]
-            sellClientOrderId = new_sell_order_item['clientOrderId'].split('666')[0]
+            sellClientOrderId = new_sell_order_item['clientOrderId'].split('777')[0]
             if buyClientOrderId == sellClientOrderId:
                 map_buy_filled_order_item = item
                 oper_record_log += "\nFilled-64、正在卖出订单: %s 对应的买入订单: %s " % (str(json.dumps(new_sell_order_item)), str(json.dumps(map_buy_filled_order_item)))
