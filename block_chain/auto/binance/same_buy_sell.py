@@ -49,7 +49,7 @@ def start_same_auto_buy_sell():
             client = BinanceClient(a_item['api_key'], a_item['api_secret']).get_conn()
             oper_record_log += "\nClient-10、重要实例化信息 : %s " % (str(client))
             oper_record_log += "\nClient-11、重要实例化信息 结束时间" + time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time()))
-
+            time.sleep(1)
             account = a_item['account']
             qty = a_item['qty']
             start_auto_date = format_time_for_date(a_item['start_auto_date'])
@@ -118,11 +118,11 @@ def start_same_auto_buy_sell():
         send_exception(traceback.format_exc())
 
 def reset_buy_rate_price(buy_price):
-    buy_price = round( Decimal(buy_price) * (Decimal(1) + Decimal(0.0011)), 8)
+    buy_price = round( Decimal(buy_price) * (Decimal(1) + Decimal(0.0021)), 8)
     return buy_price
 
 def reset_sell_rate_price(sell_price):
-    sell_price = round( Decimal(sell_price) * (Decimal(1) - Decimal(0.0011)), 8)
+    sell_price = round( Decimal(sell_price) * (Decimal(1) - Decimal(0.0021)), 8)
     return sell_price
 
 # 重新设置卖出
