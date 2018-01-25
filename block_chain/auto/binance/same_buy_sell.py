@@ -253,8 +253,9 @@ def set_same_limit_buy_sell_price(client, account, buy_price,  sell_price, qty, 
         order_price = buy_price  # 买入价格
         order_quantity = qty
 
-        buyClientOrderId = id_generator()
-        buyClientOrderId = '%s%s%s' % (buyClientOrderId, '666', str(int(time.time())))
+        buyClientOrderIdOri = id_generator()
+
+        buyClientOrderId = '%s%s%s' % (buyClientOrderIdOri, '666', str(int(time.time())))
         # 设置限价单 限价价格、数量、币种
         oper_record_log += "\nBuy-Set-40、设置买入限价单 设置币种: %s 设置交易数量: %s 设置交易价格: %s  客户端ID: %s" % (order_symbol, order_quantity, order_price, buyClientOrderId)
         buy_order_result = create_limit_buy_order(client, order_symbol, order_quantity, order_price, buyClientOrderId)
@@ -267,7 +268,7 @@ def set_same_limit_buy_sell_price(client, account, buy_price,  sell_price, qty, 
             order_type = ORDER_TYPE_LIMIT
             order_price = sell_price  # 卖出价格
             order_quantity = qty
-            sellClientOrderId = '%s%s%s' % (buyClientOrderId, '666', str(int(time.time())))
+            sellClientOrderId = '%s%s%s' % (buyClientOrderIdOri, '666', str(int(time.time())))
            
             # 设置限价单
             oper_record_log += "\nSell-Set-50、设置卖出限价单 设置币种: %s 设置交易数量: %s 设置交易价格: %s 客户端ID: %s" % (order_symbol, order_quantity, order_price, sellClientOrderId)
