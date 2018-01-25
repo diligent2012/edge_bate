@@ -152,7 +152,7 @@ def reset_auto_sell(client, account, orderId, sell_price, sell_time, symbol, qty
         sell_order_result = create_limit_sell_order(client, symbol, qty, new_sell_price, sellClientOrderId)
         oper_record_log += "\nReset-Sell-30、重新设置卖出 限价单返回: %s " % (str(json.dumps(sell_order_result)))
         if sell_order_result:
-            insert_btc_binance_order_limit_buy_sell_record(sell_order_result, buyClientOrderId, account)
+            insert_btc_binance_order_limit_buy_sell_record(sell_order_result, sellClientOrderId, account)
     else:
         oper_record_log += "\nReset-Sell-40、重新设置卖出前 取消订单失败: %s " % (str(json.dumps(is_sell_cancel)))
 
