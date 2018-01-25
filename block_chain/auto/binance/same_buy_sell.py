@@ -168,7 +168,7 @@ def reset_auto_buy(client, account, orderId, buy_price, buy_time, symbol, qty, s
     oper_record_log += "\nReset-Buy-01-B、手续费验证: 卖出价格: %s" % (str(sell_price))
 
     # 提升买入价格 = 买入价格 + (加利润卖出价格 - 买入价格)/2
-    new_sell_price = round( Decimal(buy_price) + ((Decimal(sell_price) - Decimal(buy_price)) / Decimal(2)), 8)
+    new_buy_price = round( Decimal(buy_price) + ((Decimal(sell_price) - Decimal(buy_price)) / Decimal(2)), 8)
     #new_buy_price = round( Decimal(buy_price)  * (Decimal(1) + Decimal(0.001) * Decimal(0.8)), 8)
 
     if (sell_price < new_buy_price):
