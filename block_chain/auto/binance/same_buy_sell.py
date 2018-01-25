@@ -86,6 +86,8 @@ def start_same_auto_buy_sell():
                                 sell_time = new_order['time'] # 上一次卖出的时间
                                 clientOrderId = new_order['clientOrderId'] 
                                 buy_price = round(float(map_new_order['price']),8) # 买入的价格
+
+                                oper_record_log += "\nCommon-60-B、重新设置卖出 的参数 订单ID: %s 卖出价格: %s 卖出时间: %s 客户端ID: %s 对应的买入价格: %s " % ( orderId, sell_price, sell_time, clientOrderId, buy_price)
                                 oper_record_log = reset_auto_sell(client, account, orderId, sell_price, sell_time, symbol, qty, buy_price, clientOrderId, oper_record_log)
                                 oper_record_log += "\n\nCommon-60、重新设置卖出 结束时间 %s " % ( time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time())) )
 
@@ -98,6 +100,7 @@ def start_same_auto_buy_sell():
                                 buy_time = new_order['time'] # 上一次卖出的时间
                                 clientOrderId = new_order['clientOrderId'] 
                                 sell_price = round(float(map_new_order['price']),8) # 卖出的价格
+                                oper_record_log += "\nCommon-70-B、重新设置买入 的参数 订单ID: %s 买入价格: %s 买入时间: %s 客户端ID: %s 对应的卖出价格: %s" % ( orderId, buy_price, buy_time, clientOrderId, sell_price)
                                 oper_record_log = reset_auto_buy(client, account, orderId, buy_price, buy_time, symbol, qty, sell_price, clientOrderId, oper_record_log)
                                 oper_record_log += "\n\nCommon-70、重新设置买入 结束时间 %s " % ( time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time())) )
                         else:
