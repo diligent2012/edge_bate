@@ -129,7 +129,9 @@ def reset_auto_sell(client, account, orderId, sell_price, sell_time, symbol, qty
     buy_price = reset_buy_rate_price(buy_price)
     oper_record_log += "\nReset-Sell-01-B、手续费验证: 买入价格: %s " % (str(buy_price))
 
-    new_sell_price = round( Decimal(sell_price)  * (Decimal(1) - Decimal(0.001) * Decimal(0.8)), 8)
+    # 降低卖出价格 = 卖出价格 -（卖出价格 - 加利润买入价格)/2
+    new_sell_price = round( Decimal(sell_price) - ((Decimal(sell_price) - Decimal(buy_price)) / Decimal(2)), 8)
+    #new_sell_price = round( Decimal(sell_price)  * (Decimal(1) - Decimal(0.001) * Decimal(0.8)), 8)
 
     if (buy_price > new_sell_price):
         oper_record_log += "\nReset-Sell-10、新的卖出价格 低于 对应的买入价格 不操作: 新的卖出价格: %s 买入价格: %s 新的币种: %s 新的数量: %s 客户端ID %s" % (str(new_sell_price), str(buy_price), str(symbol), str(qty), str(clientOrderId))
@@ -165,7 +167,9 @@ def reset_auto_buy(client, account, orderId, buy_price, buy_time, symbol, qty, s
     sell_price = reset_sell_rate_price(sell_price)
     oper_record_log += "\nReset-Buy-01-B、手续费验证: 卖出价格: %s" % (str(sell_price))
 
-    new_buy_price = round( Decimal(buy_price)  * (Decimal(1) + Decimal(0.001) * Decimal(0.8)), 8)
+    # 提升买入价格 = 买入价格 + (加利润卖出价格 - 买入价格)/2
+    new_sell_price = round( Decimal(buy_price) + ((Decimal(sell_price) - Decimal(buy_price)) / Decimal(2)), 8)
+    #new_buy_price = round( Decimal(buy_price)  * (Decimal(1) + Decimal(0.001) * Decimal(0.8)), 8)
 
     if (sell_price < new_buy_price):
         oper_record_log += "\nReset-Buy-10、新的买入价格 高于 对应的卖出价格, 不操作: 新的买入价格: %s 卖出价格: %s 新的币种: %s 新的数量: %s " % (str(new_buy_price), str(sell_price), str(symbol), str(qty))
